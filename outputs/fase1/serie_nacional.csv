@@ -1,0 +1,7 @@
+anio,tipo_eleccion,secciones_totales_anio,secciones_panel,ln_total_anio,ns_total_anio,pct_ns_anio,oficial_o_referencia_pct,fuente_referencia,total_ponderada_sv_svnv_pct,total_simple_sv_svnv_pct,panel_ponderada_sv_svnv_pct,panel_simple_sv_svnv_pct,total_ponderada_erronea_sv_ln_pct,total_simple_erronea_sv_ln_pct,panel_ponderada_erronea_sv_ln_pct,panel_simple_erronea_sv_ln_pct,dif_panel_ponderada_vs_oficial_pts,dif_reportada_doc_erronea_vs_oficial_pts
+2009,Intermedia,64934,62048,77481831,1865894,2.41,44.06,Total secciones CCPC (referencia intermedias),44.06,44.97,44.39,45.05,43.0,43.81,43.34,43.92,0.33,-0.25
+2012,Presidencial,65599,62048,76490962,168649,0.22,62.1,Dato oficial estudio censal INE CCPC,62.08,62.67,62.5,62.95,61.95,62.51,62.37,62.81,0.4,0.41
+2015,Intermedia,68362,62048,83563462,5118976,6.13,47.07,Total secciones CCPC (referencia intermedias),47.07,48.58,47.76,49.23,44.19,45.58,44.9,46.29,0.69,-1.49
+2018,Presidencial,68408,62048,89123997,6089742,6.83,62.4,Dato oficial estudio censal INE CCPC,62.37,63.12,63.1,63.75,58.1,58.57,58.83,59.26,0.7,-3.83
+2021,Intermedia,68812,62048,93532133,4043320,4.32,51.84,Total secciones CCPC (referencia intermedias),51.84,54.04,52.81,54.83,49.6,51.44,50.59,52.29,0.97,-0.4
+2024,Presidencial,70751,62048,98330348,6325654,6.43,59.7,Dato oficial estudio censal INE CCPC,59.67,60.53,60.4,61.21,55.83,56.61,56.59,57.31,0.7,-3.09
