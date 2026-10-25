@@ -1,0 +1,74 @@
+metrica,valor_reportado,valor_reproducido,diferencia,observacion
+Secciones del panel,62048.0,62048.0,0.0,Exacto
+Porcentaje del total censado (%),85.37,85.37,0.0,"Exacto (62,048 / 72,681)"
+Municipios en el panel 2024 (real vs intersección de claves),2455.0,2473.0,18.0,"01_ingest calculó intersección de claves municipales (2,455); el panel 2024 cubre 2,473 municipios porque secciones existentes pasaron a municipios nuevos"
+Porcentaje de municipios del panel (%),99.11,99.84,0.73,"2,455/2,477 = 99.11% (intersección de claves); en el panel 2024 son 2,473/2,477 = 99.84%"
+Lista nominal 2024 del panel,85936860.0,85936860.0,0.0,Exacto
+Tamaño cluster C2 (secciones),22274.0,22274.0,0.0,Exacto
+LN 2024 cluster C2 (millones),32.93,32.93,-0.0,Exacto
+Tamaño cluster C0 (secciones),14863.0,14863.0,0.0,Exacto
+LN 2024 cluster C0 (millones),22.59,22.59,-0.0,Exacto
+Tamaño cluster C1 (secciones),12610.0,12610.0,0.0,Exacto
+LN 2024 cluster C1 (millones),14.67,14.67,-0.0,Exacto
+Tamaño cluster C4 (secciones),8421.0,8421.0,0.0,Exacto
+LN 2024 cluster C4 (millones),11.1,11.1,0.0,Exacto
+Tamaño cluster C3 (secciones),3880.0,3880.0,0.0,Exacto
+LN 2024 cluster C3 (millones),4.65,4.65,0.0,Exacto
+K-Means k=5 Silhouette (tabla doc),0.1788,0.1788,-0.0,Exacto contra tabla; infografía reporta 0.1805 (corrida 1)
+K-Means k=5 Davies-Bouldin (tabla doc),1.4245,1.4245,-0.0,Exacto contra tabla; prosa e infografía dicen 1.4233 (corrida 1)
+K-Means k=5 Calinski-Harabasz (tabla doc),14062.0,14062.0,-0.0,"Exacto contra tabla (14,062.0); infografía inventa 18,742.6"
+K-Means k=5 ARI Bootstrap (prosa/infografía),0.8411,0.897,0.0559,NO REPRODUCE prosa (0.8411 de corrida 1); tabla Parquet tiene 0.8970
+Random Forest exactitud (%),94.08,94.06,-0.02,Leve diferencia: 94.08% en corrida 1 vs 94.06% en corrida 2 por orden de filas DuckDB
+Importancia Gini: 1/CV (estabilidad),0.254,0.254,0.0,Exacto a 3 decimales (0.2541)
+Importancia Gini: brecha presidencial,0.214,0.215,0.001,Ligera diferencia en 3er decimal: 0.2150 reproducido vs 0.214 reportado
+Importancia Gini: ratio juvenil,0.156,0.156,0.0,Exacto a 3 decimales (0.1563)
+Importancia Gini: tendencia beta,0.134,0.134,-0.0,Exacto a 3 decimales (0.1336)
+Importancia Gini: brecha generacional,0.118,0.118,0.0,Exacto a 3 decimales (0.1182)
+Importancia Gini: brecha de genero,0.07,0.071,0.001,Ligera diferencia en 3er decimal: 0.0709 reproducido vs ~0.070
+Importancia Gini: participacion historica,0.053,0.052,-0.001,Ligera diferencia en 3er decimal: 0.0519 en corrida 2 vs ~0.053
+PCA 2 componentes varianza explicada (%),60.12,60.12,0.0,Exacto
+Media nacional: Participacion media (%),53.64,53.64,0.0,Exacto (con formula erronea SV/LN)
+DE nacional: Participacion media (%),9.94,9.94,0.0,Exacto
+Media nacional: Brecha presidencial (pts),12.29,12.29,0.0,Exacto
+DE nacional: Brecha presidencial (pts),10.42,10.42,-0.0,Exacto
+Media nacional: Tendencia beta,0.0046,0.0046,0.0,Exacto
+Media nacional: Estabilidad 1/CV,5.71,5.71,-0.0,Exacto (5.7052)
+DE nacional: Estabilidad 1/CV,4.35,4.35,-0.0,Exacto (4.3484)
+Media nacional: Brecha generacional (pts),15.62,15.62,-0.0,Exacto
+Media nacional: Brecha de genero (pts),7.36,7.36,-0.0,Exacto
+Media nacional: Ratio juvenil,0.8379,0.8379,-0.0,Exacto
+Cluster C2: Participacion media (%),50.4,50.4,0.0,Exacto
+Cluster C2: Brecha presidencial (pts),20.5,20.5,0.0,Exacto
+Cluster C2: Brecha de genero (pts),6.2,6.2,0.0,Exacto
+Cluster C2: Tasa 18-29 (%),41.5,41.5,-0.0,Exacto
+Cluster C2: Tasa 60+ (%),58.9,58.9,0.0,Exacto
+Cluster C2: Urbano (%),79.0,79.0,0.0,Redondeo a entero en infografía (ej. 79.1% -> 79%)
+Cluster C2: Rural (%),14.0,13.5,-0.5,Redondeo a entero en infografía (ej. 13.5% -> 14%)
+Cluster C0: Participacion media (%),54.7,54.7,0.0,Exacto
+Cluster C0: Brecha presidencial (pts),9.8,9.8,-0.0,Exacto
+Cluster C0: Brecha de genero (pts),10.6,10.6,0.0,Exacto
+Cluster C0: Tasa 18-29 (%),43.7,43.7,0.0,Exacto
+Cluster C0: Tasa 60+ (%),65.0,65.0,-0.0,Exacto
+Cluster C0: Urbano (%),53.0,53.1,0.1,Redondeo a entero en infografía (ej. 79.1% -> 79%)
+Cluster C0: Rural (%),37.0,36.9,-0.1,Redondeo a entero en infografía (ej. 13.5% -> 14%)
+Cluster C1: Participacion media (%),60.1,60.1,-0.0,Exacto
+Cluster C1: Brecha presidencial (pts),12.1,12.1,-0.0,Exacto
+Cluster C1: Brecha de genero (pts),5.9,5.9,0.0,Exacto
+Cluster C1: Tasa 18-29 (%),54.6,54.6,0.0,Exacto
+Cluster C1: Tasa 60+ (%),62.8,62.8,0.0,Exacto
+Cluster C1: Urbano (%),55.0,55.2,0.2,Redondeo a entero en infografía (ej. 79.1% -> 79%)
+Cluster C1: Rural (%),34.0,34.4,0.4,Redondeo a entero en infografía (ej. 13.5% -> 14%)
+Cluster C4: Participacion media (%),44.8,44.8,-0.0,Exacto
+Cluster C4: Brecha presidencial (pts),-0.5,-0.5,-0.0,Exacto
+Cluster C4: Brecha de genero (pts),6.1,6.1,0.0,Exacto
+Cluster C4: Tasa 18-29 (%),37.2,37.2,0.0,Exacto
+Cluster C4: Tasa 60+ (%),50.9,50.9,0.0,Exacto
+Cluster C4: Urbano (%),55.0,54.6,-0.4,Redondeo a entero en infografía (ej. 79.1% -> 79%)
+Cluster C4: Rural (%),35.0,35.3,0.3,Redondeo a entero en infografía (ej. 13.5% -> 14%)
+Cluster C3: Participacion media (%),66.4,66.4,0.0,Exacto
+Cluster C3: Brecha presidencial (pts),3.2,3.2,0.0,Exacto
+Cluster C3: Brecha de genero (pts),8.7,8.7,-0.0,Exacto
+Cluster C3: Tasa 18-29 (%),58.9,58.9,-0.0,Exacto
+Cluster C3: Tasa 60+ (%),70.5,70.5,-0.0,Exacto
+Cluster C3: Urbano (%),42.0,42.1,0.1,Redondeo a entero en infografía (ej. 79.1% -> 79%)
+Cluster C3: Rural (%),45.0,45.0,0.0,Redondeo a entero en infografía (ej. 13.5% -> 14%)
