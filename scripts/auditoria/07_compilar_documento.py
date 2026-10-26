@@ -253,8 +253,8 @@ def build_pdf(data: dict) -> Path:
         f"Durante la validación de los datos se identificó un hallazgo metodológico central: en los archivos abiertos del CCPC, la Lista Nominal "
         f"cumple la identidad exacta <b>LN = SV + NV + NS</b>, donde <b>SV</b> corresponde a las personas que sí votaron, <b>NV</b> a quienes no votaron "
         f"y <b>NS</b> a los registros no especificados (cuadernillos sin marcas de votación, no disponibles para captura o con páginas faltantes, según el catálogo de campos del INE) "
-        f"({serie[3]['ns_total_anio']:,} electores = {serie[3]['pct_ns_anio']:.2f}% de la LN en {serie[3]['anio']}, y "
-        f"{serie[5]['ns_total_anio']:,} electores = {serie[5]['pct_ns_anio']:.2f}% en {serie[5]['anio']}). "
+        f"({serie[3]['ns_total_anio']:,} electores = {serie[3]['pct_ns_anio']:.1f}% de la LN en {serie[3]['anio']}, y "
+        f"{serie[5]['ns_total_anio']:,} electores = {serie[5]['pct_ns_anio']:.1f}% en {serie[5]['anio']}). "
         f"Calcular <b>SV / LN</b> en lugar de la fórmula <b>SV / (SV + NV)</b> asigna 0.0% de participación a las secciones sin captura "
         f"(<b>SV + NV = 0</b>), subestima la participación nacional en {diff_2018:.2f} puntos en {serie[3]['anio']} y en {diff_2024:.2f} en {serie[-1]['anio']}, "
         f"y genera grupos artificiales de baja participación en cualquier análisis de conglomerados.",
@@ -263,18 +263,15 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         f"Al aplicar la fórmula <b>SV / (SV + NV)</b> en todas las tasas y depurar el universo bajo el <b>Panel Principal (Opción B, cero imputación)</b> "
         f"con las <b>{u['panel_principal_secciones']:,} secciones</b> que cuentan con captura válida (<b>SV + NV ≥ 50</b> en las seis elecciones) y sin saltos "
-        f"abruptos de Lista Nominal por reseccionamiento —cubriendo el <b>{u['panel_principal_pct_secciones_2024']:.2f}% de las secciones</b> y el "
-        f"<b>{u['panel_principal_pct_ln_2024']:.2f}% de la Lista Nominal de {serie[-1]['anio']}</b> ({u['panel_principal_ln_2024']:,} electores en "
+        f"abruptos de Lista Nominal por reseccionamiento —cubriendo el <b>{u['panel_principal_pct_secciones_2024']:.1f}% de las secciones</b> y el "
+        f"<b>{u['panel_principal_pct_ln_2024']:.1f}% de la Lista Nominal de {serie[-1]['anio']}</b> ({u['panel_principal_ln_2024']:,} electores en "
         f"<b>{u['panel_principal_municipios']:,} municipios</b>)—, el modelo <b>K-Means++ con k = {k_sel}</b> domina empíricamente dentro del rango "
-        f"de 4 a 6 perfiles de la convocatoria (Silhouette = {bench_km_k4['silhouette']:.4f}, Davies-Bouldin = {bench_km_k4['davies_bouldin']:.4f}, "
-        f"Calinski-Harabasz = {bench_km_k4['calinski_harabasz']:,.2f} y estabilidad bootstrap ARI = {bench_km_k4['bootstrap_ari_media']:.4f} "
-        f"[{bench_km_k4['bootstrap_ari_ic95_inf']:.4f}, {bench_km_k4['bootstrap_ari_ic95_sup']:.4f}]). "
+        f"de 4 a 6 perfiles de la convocatoria (Silhouette = {bench_km_k4['silhouette']:.3f}, Davies-Bouldin = {bench_km_k4['davies_bouldin']:.2f}, "
+        f"Calinski-Harabasz = {bench_km_k4['calinski_harabasz']:,.0f} y estabilidad bootstrap ARI = {bench_km_k4['bootstrap_ari_media']:.3f} "
+        f"[{bench_km_k4['bootstrap_ari_ic95_inf']:.3f}, {bench_km_k4['bootstrap_ari_ic95_sup']:.3f}]). "
         f"Los cuatro perfiles identificados son: "
-        + "; ".join(
-            f"<b>{p['codigo_cluster']}: {p['nombre_propuesto']}</b> ({p['n_secciones']:,} secc., {p['pct_secciones_panel']:.2f}% del panel; "
-            f"participación media {p['participacion_media_historica_original']*100:.2f}%)"
-            for p in perfiles
-        ) + ".",
+        + ", ".join(f"<b>{p['codigo_cluster']}: {p['nombre_propuesto']}</b>" for p in perfiles[:3])
+        + f" y <b>{perfiles[3]['codigo_cluster']}: {perfiles[3]['nombre_propuesto']}</b>.",
         body_st
     ))
 
@@ -302,14 +299,14 @@ def build_pdf(data: dict) -> Path:
     # C16
     story.append(Paragraph(
         f"La Tabla 1 valida la serie nacional calculada con SV / (SV + NV) contra las publicaciones censales del INE: el estudio comparativo de la "
-        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 7, Figura 3.1) reporta <b>{serie[0]['oficial_o_referencia_pct']:.2f}%</b> en {serie[0]['anio']}, "
-        f"<b>{serie[1]['oficial_o_referencia_pct']:.2f}%</b> en {serie[1]['anio']} y <b>{serie[2]['oficial_o_referencia_pct']:.2f}%</b> en {serie[2]['anio']}; "
+        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 7, Figura 3.1) reporta <b>{serie[0]['oficial_o_referencia_pct']:.1f}%</b> en {serie[0]['anio']}, "
+        f"<b>{serie[1]['oficial_o_referencia_pct']:.1f}%</b> en {serie[1]['anio']} y <b>{serie[2]['oficial_o_referencia_pct']:.1f}%</b> en {serie[2]['anio']}; "
         f"los estudios censales de {serie[3]['anio']} y {serie[5]['anio']} reportan <b>{serie[3]['oficial_o_referencia_pct']:.1f}%</b> "
-        f"(dato exacto CCPC: {serie[3]['total_ponderada_sv_svnv_pct']:.2f}%) y <b>{serie[5]['oficial_o_referencia_pct']:.1f}%</b> "
-        f"(dato exacto CCPC: {serie[5]['total_ponderada_sv_svnv_pct']:.2f}%). Para {serie[4]['anio']}, el dato censal oficial de "
+        f"(dato CCPC: {serie[3]['total_ponderada_sv_svnv_pct']:.1f}%) y <b>{serie[5]['oficial_o_referencia_pct']:.1f}%</b> "
+        f"(dato CCPC: {serie[5]['total_ponderada_sv_svnv_pct']:.1f}%). Para {serie[4]['anio']}, el dato censal oficial de "
         f"<b>{serie[4]['oficial_o_referencia_pct']:.1f}%</b> proviene de la imagen del tablero interactivo en la página 21 de "
         f"<i>Manual-Conteos-Censales-2009-2024.pdf</i> (figura en sección <i>\"Participación por año\"</i>; el cálculo seccional ponderado es "
-        f"<b>{serie[4]['total_ponderada_sv_svnv_pct']:.2f}%</b>; como referencia no censal, el PREP reportó 52.67%).",
+        f"<b>{serie[4]['total_ponderada_sv_svnv_pct']:.1f}%</b>; como referencia no censal, el PREP cerró en 52.7%).",
         body_st
     ))
 
@@ -340,21 +337,11 @@ def build_pdf(data: dict) -> Path:
     story.append(KeepTogether([t1_cap, t1_table]))
     story.append(Spacer(1, 4))
 
+    # A2: Reducido a 2 renglones
     story.append(Paragraph(
-        f"<b>Reconciliación del universo seccional (Tabla 2):</b> La unión histórica {serie[0]['anio']}–{serie[-1]['anio']} comprende "
-        f"<b>{u['secciones_union_historica_2009_2024']:,} secciones</b> distintas. Al descontar <b>{u['secciones_2009_2021_baja_antes_2024']:,}</b> secciones "
-        f"dadas de baja antes de {serie[-1]['anio']}, se obtienen las <b>{u['secciones_2024_total']:,} secciones activas en {serie[-1]['anio']}</b> "
-        f"({u['ln_2024_total_csv']:,} electores en el CSV abierto vs {u['ln_2024_oficial_ine']:,} en el informe INE). Estas se componen de "
-        f"<b>{u['secciones_continuas_2009_2024']:,} secciones continuas</b> ({serie[0]['anio']}–{serie[-1]['anio']}, con LN {serie[-1]['anio']} de "
-        f"{u['ln_2024_panel_continuo_62048']:,}) más <b>{u['secciones_2024_creadas_post2009']:,} secciones creadas post-{serie[0]['anio']}</b> "
-        f"({u['secciones_continuas_2009_2024']:,} + {u['secciones_2024_creadas_post2009']:,} = {u['secciones_2024_total']:,}). "
-        f"Sobre las {u['secciones_continuas_2009_2024']:,} continuas se exige captura válida <b>SV + NV ≥ 50</b> en las seis elecciones "
-        f"(quedan <b>{u['secciones_captura_valida_sv_nv_ge_50']:,}</b> tras excluir {u['secciones_excluidas_sv_nv_lt_50']:,}: "
-        f"{u['secciones_excluidas_sv_nv_eq_0']:,} con SV+NV=0 y {u['secciones_excluidas_sv_nv_1_a_49']:,} con 1 ≤ SV+NV &lt; 50), ausencia de saltos "
-        f"consecutivos de LN &lt;0.5x o &gt;2.5x por reseccionamiento (quedan <b>{u['secciones_sin_saltos_ln']:,}</b> tras excluir "
-        f"{u['secciones_salto_abrupto_ln_en_54804']:,} de las {u['secciones_salto_abrupto_ln_en_62048']:,} del panel continuo) y presencia de todos los "
-        f"grupos etarios ({u['secciones_excluidas_sin_grupo_etario_60mas']} sección excluida), conformando el <b>Panel Principal (Opción B) de "
-        f"{u['panel_principal_secciones']:,} secciones</b> sin ninguna imputación.",
+        f"La Tabla 2 resume la depuración: de {u['secciones_2024_total']:,} secciones activas en {serie[-1]['anio']} se conservan "
+        f"{u['panel_principal_secciones']:,} con serie completa y captura válida ({u['panel_principal_pct_secciones_2024']:.1f}% de las secciones, "
+        f"{u['panel_principal_pct_ln_2024']:.1f}% de la lista nominal).",
         body_st
     ))
 
@@ -413,13 +400,13 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         f"Cada sección del Panel Principal ({u['panel_principal_secciones']:,}) se representa mediante siete indicadores hexanuales winsorizados en "
         f"los percentiles {u['winsor_p_min']} y {u['winsor_p_max']} "
-        f"y escalados con <i>RobustScaler</i>: (1) <b>participación media</b> (media = {pan_b['participacion_media_historica_media']*100:.2f}%, "
-        f"DE = {pan_b['participacion_media_historica_std']*100:.2f}%); (2) <b>brecha presidencial–intermedia</b> "
+        f"y escalados con <i>RobustScaler</i>: (1) <b>participación media</b> (media = {pan_b['participacion_media_historica_media']*100:.1f}%, "
+        f"DE = {pan_b['participacion_media_historica_std']*100:.1f}%); (2) <b>brecha presidencial–intermedia</b> "
         f"(media = {pan_b['brecha_presidencial_intermedia_media']*100:+.2f} pts, DE = {pan_b['brecha_presidencial_intermedia_std']*100:.2f} pts); "
         f"(3) <b>tendencia anual</b> (pendiente OLS: media = {pan_b['tendencia_participacion_beta_media']*100:+.2f} pts/año, "
         f"DE = {pan_b['tendencia_participacion_beta_std']*100:.2f} pts/año); (4) <b>estabilidad (log(1 + 1/CV))</b> "
         f"(media = {pan_b['estabilidad_participacion_media']:.4f}, DE = {pan_b['estabilidad_participacion_std']:.4f}, reduciendo la asimetría de "
-        f"{est[0]['asimetria_skew']:.2f} en 1/CV a {est[2]['asimetria_skew']:.2f} y manteniendo ARI = {est[2]['ari_vs_b']:.4f} frente a CV directo); "
+        f"{est[0]['asimetria_skew']:.2f} en 1/CV a {est[2]['asimetria_skew']:.2f} y manteniendo ARI = {est[2]['ari_vs_b']:.3f} frente a CV directo); "
         f"(5) <b>brecha generacional (60+ menos 18–29)</b> (media = {pan_b['brecha_generacional_media']*100:+.2f} pts); "
         f"(6) <b>brecha de género (mujeres menos hombres)</b> (media = {pan_b['brecha_genero_media']*100:+.2f} pts); y "
         f"(7) <b>razón de participación juvenil</b>, calculada como el cociente de medias hexanuales "
@@ -465,38 +452,38 @@ def build_pdf(data: dict) -> Path:
     story.append(KeepTogether([t3_cap, t3_table]))
     story.append(Spacer(1, 4))
 
-    # C7: Oración sobre GMM y HDBSCAN
+    # C7: Oración sobre GMM y HDBSCAN (con redondeo A4: silhouette 3 dec, porcentajes 1 dec)
     story.append(Paragraph(
-        "Los modelos de mezclas gaussianas obtuvieron silhouette de 0.0191 a 0.1054 (k=3–7) y su BIC sigue bajando hasta k=7, "
+        "Los modelos de mezclas gaussianas obtuvieron silhouette de 0.019 a 0.105 (k=3–7) y su BIC sigue bajando hasta k=7, "
         "sin un óptimo claro. HDBSCAN, en tres configuraciones, encontró como máximo 2 grupos con 50.7% de secciones sin asignar, "
         "o ninguno. Esto indica que las secciones forman un continuo sin grupos densos naturales: los cuatro perfiles son una "
         "segmentación operativa de ese continuo, no grupos naturales.",
         body_st
     ))
 
-    # C4: k casteado a int, justificación k=4 (referencia a Figura 2)
+    # C4: k casteado a int, justificación k=4 (referencia a Figura 2; redondeo A4)
     story.append(Paragraph(
         f"<b>Justificación de la elección de k = {k_sel} (Figura 2):</b> (1) Dentro del rango de 4 a 6 perfiles establecido por la "
-        f"convocatoria, <b>k = {k_sel} obtiene el mejor Silhouette ({bench_km_k4['silhouette']:.4f}), el mejor Davies-Bouldin ({bench_km_k4['davies_bouldin']:.4f}) "
-        f"y el mejor Calinski-Harabasz ({bench_km_k4['calinski_harabasz']:,.2f})</b>, superando a k = {int(bench_km[2]['k'])} en las cuatro métricas "
-        f"({bench_km[2]['silhouette']:.4f}, {bench_km[2]['davies_bouldin']:.4f}, {bench_km[2]['calinski_harabasz']:,.2f} y ARI {bench_km[2]['bootstrap_ari_media']:.4f}) "
+        f"convocatoria, <b>k = {k_sel} obtiene el mejor Silhouette ({bench_km_k4['silhouette']:.3f}), el mejor Davies-Bouldin ({bench_km_k4['davies_bouldin']:.2f}) "
+        f"y el mejor Calinski-Harabasz ({bench_km_k4['calinski_harabasz']:,.0f})</b>, superando a k = {int(bench_km[2]['k'])} en las cuatro métricas "
+        f"({bench_km[2]['silhouette']:.3f}, {bench_km[2]['davies_bouldin']:.2f}, {bench_km[2]['calinski_harabasz']:,.0f} y ARI {bench_km[2]['bootstrap_ari_media']:.3f}) "
         f"y a k = {int(bench_km[3]['k'])} en las tres métricas de separación interna. "
-        f"(2) Su estabilidad bootstrap (<b>ARI = {bench_km_k4['bootstrap_ari_media']:.4f}</b>, IC 95% [{bench_km_k4['bootstrap_ari_ic95_inf']:.4f}, "
-        f"{bench_km_k4['bootstrap_ari_ic95_sup']:.4f}]) es comparable a la de k = {int(bench_km[3]['k'])} ({bench_km[3]['bootstrap_ari_media']:.4f}, IC 95% "
-        f"[{bench_km[3]['bootstrap_ari_ic95_inf']:.4f}, {bench_km[3]['bootstrap_ari_ic95_sup']:.4f}]; los intervalos se traslapan). "
-        f"(3) En k = {int(bench_km[3]['k'])} aparece un grupo sin diferenciación sustantiva ({comp_k6_c1['pct_secciones']:.2f}% del panel con una sola variable con "
+        f"(2) Su estabilidad bootstrap (<b>ARI = {bench_km_k4['bootstrap_ari_media']:.3f}</b>, IC 95% [{bench_km_k4['bootstrap_ari_ic95_inf']:.3f}, "
+        f"{bench_km_k4['bootstrap_ari_ic95_sup']:.3f}]) es comparable a la de k = {int(bench_km[3]['k'])} ({bench_km[3]['bootstrap_ari_media']:.3f}, IC 95% "
+        f"[{bench_km[3]['bootstrap_ari_ic95_inf']:.3f}, {bench_km[3]['bootstrap_ari_ic95_sup']:.3f}]; los intervalos se traslapan). "
+        f"(3) En k = {int(bench_km[3]['k'])} aparece un grupo sin diferenciación sustantiva ({comp_k6_c1['pct_secciones']:.1f}% del panel con una sola variable con "
         f"|z| ≥ 0.50: tendencia anual con z = {comp_k6_c1['tendencia_participacion_beta_z']:+.2f}), mientras que en k = {k_sel} los cuatro "
         f"perfiles tienen al menos cinco variables con |z| ≥ 0.50. Se declara explícitamente que k = {int(bench_km[0]['k'])} tiene mejores métricas globales "
-        f"(Silhouette {bench_km[0]['silhouette']:.4f}, DB {bench_km[0]['davies_bouldin']:.4f}, CH {bench_km[0]['calinski_harabasz']:,.2f}), pero queda fuera "
+        f"(Silhouette {bench_km[0]['silhouette']:.3f}, DB {bench_km[0]['davies_bouldin']:.2f}, CH {bench_km[0]['calinski_harabasz']:,.0f}), pero queda fuera "
         f"del rango 4 a 6 de la convocatoria. Como nota de focalización, con k = {int(bench_km[3]['k'])} el perfil de baja participación se divide en un subgrupo "
         f"de rezago juvenil y otro de ciclo presidencial urbano, distinción útil cuando se requiere intervención subdistrital fina.",
         body_st
     ))
 
-    # C6: Oración única de Random Forest
+    # C6: Oración única de Random Forest (A4: porcentaje a 1 decimal)
     story.append(Paragraph(
         "Como medida de interpretabilidad (no de validación, porque el clasificador usa las mismas variables que definieron los grupos), "
-        "un Random Forest con validación cruzada de 5 pliegues reproduce las etiquetas con 96.29% de exactitud; "
+        "un Random Forest con validación cruzada de 5 pliegues reproduce las etiquetas con 96.3% de exactitud; "
         "las variables más discriminantes son la razón de participación juvenil, la estabilidad y la brecha generacional.",
         body_st
     ))
@@ -616,14 +603,35 @@ def build_pdf(data: dict) -> Path:
     story.append(KeepTogether([t5_cap, t5_table]))
     story.append(Spacer(1, 4))
 
-    # Diagnósticos por perfil (C8: la más baja/alta de los cuatro perfiles, C12: glifos ≥ y ≤)
-    for p in perfiles:
-        just_clean = p['justificacion_regla_3_2'].replace(" (log(1 + 1/CV))", "").replace("(log(1 + 1/CV))", "")
-        story.append(Paragraph(
-            f"• <b>{p['codigo_cluster']} — {p['nombre_propuesto']} ({p['n_secciones']:,} secciones, {p['pct_secciones_panel']:.2f}% del panel; "
-            f"{p['ln_2024']:,} electores, {p['pct_ln_panel']:.2f}% LN):</b> {just_clean}",
-            bullet_st
-        ))
+    # A1: Diagnósticos por perfil en <= 60 palabras de narrativa y máximo 2 cifras por perfil
+    narrativas_a1 = [
+        (
+            f"• <b>{perfiles[0]['codigo_cluster']} — {perfiles[0]['nombre_propuesto']}:</b> "
+            f"Agrupa zonas metropolitanas con fuerte caída en comicios intermedios ({perfiles[0]['brecha_presidencial_intermedia_original']*100:+.1f} pts frente a presidenciales) "
+            f"y la menor participación media del país ({perfiles[0]['participacion_media_historica_original']*100:.1f}%). "
+            f"Importa porque concentra la mayor bolsa de abstencionismo urbano y de juventud desconectada del voto legislativo, representando el principal margen de recuperación."
+        ),
+        (
+            f"• <b>{perfiles[1]['codigo_cluster']} — {perfiles[1]['nombre_propuesto']}:</b> "
+            f"Distingue a comunidades urbanas y rurales con arraigo vecinal que sostienen la mayor participación media ({perfiles[1]['participacion_media_historica_original']*100:.1f}%) "
+            f"y la menor brecha entre tipos de elección ({perfiles[1]['brecha_presidencial_intermedia_original']*100:+.1f} pts). "
+            f"Constituye el referente nacional de constancia cívica e integración intergeneracional, donde la prioridad operativa es asegurar el funcionariado de casilla."
+        ),
+        (
+            f"• <b>{perfiles[2]['codigo_cluster']} — {perfiles[2]['nombre_propuesto']}:</b> "
+            f"Caracteriza a secciones en crecimiento sostenido ({perfiles[2]['tendencia_participacion_beta_original']*100:+.2f} pts/año) donde la juventud alcanza su mayor "
+            f"incorporación relativa frente al promedio seccional (razón de {perfiles[2]['ratio_participacion_joven_original']:.2f}). "
+            f"Demuestra que la movilización juvenil es viable cuando existe dinamismo cívico local y requiere consolidación para evitar retrocesos en elecciones intermedias."
+        ),
+        (
+            f"• <b>{perfiles[3]['codigo_cluster']} — {perfiles[3]['nombre_propuesto']}:</b> "
+            f"Identifica territorios con sobrerrepresentación rural ({perfiles[3]['pct_secciones_rurales']:.1f}%) donde las mujeres superan ampliamente el voto masculino "
+            f"({perfiles[3]['brecha_genero_original']*100:+.1f} pts), pero la asistencia presidencial retrocede desde su máximo histórico. "
+            f"Importa porque exige focalizar la promoción cívica en los hombres en edad laboral y facilitar el acceso en localidades dispersas."
+        ),
+    ]
+    for narr in narrativas_a1:
+        story.append(Paragraph(narr, bullet_st))
 
     # =========================================================================
     # SECCIÓN 5: ESTRATEGIAS FOCALIZADAS
@@ -632,11 +640,11 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         f"Las estrategias para los cuatro perfiles (Tabla 6) se fundamentan en las facultades operativas del INE en el marco de la ENCÍVICA. "
         f"Cada meta cuantitativa para la elección intermedia de 2027 adopta como referencia la <b>línea base real de la intermedia de 2021 (serie ponderada)</b> "
-        f"de cada perfil: <b>C0 = {estrategias[0]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[0]['p_2021_ponderada']*100:.2f}%), "
-        f"<b>C1 = {estrategias[1]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[1]['p_2021_ponderada']*100:.2f}%), "
-        f"<b>C2 = {estrategias[2]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[2]['p_2021_ponderada']*100:.2f}%) y "
-        f"<b>C3 = {estrategias[3]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[3]['p_2021_ponderada']*100:.2f}%). "
-        f"En <b>C0</b> ({perfiles[0]['pct_secciones_panel']:.2f}% del panel, {perfiles[0]['pct_secciones_urbanas']:.1f}% urbano) se despliegan dos líneas: "
+        f"de cada perfil: <b>C0 = {estrategias[0]['linea_base_intermedia_2021_pond_pct']:.1f}%</b>, "
+        f"<b>C1 = {estrategias[1]['linea_base_intermedia_2021_pond_pct']:.1f}%</b>, "
+        f"<b>C2 = {estrategias[2]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> y "
+        f"<b>C3 = {estrategias[3]['linea_base_intermedia_2021_pond_pct']:.1f}%</b>. "
+        f"En <b>C0</b> ({perfiles[0]['pct_secciones_panel']:.1f}% del panel, {perfiles[0]['pct_secciones_urbanas']:.1f}% urbano) se despliegan dos líneas: "
         f"pedagogía legislativa intermedia en transporte masivo y atención a jóvenes que no estudian en centros laborales, parques industriales y tianguis. "
         f"En <b>C3</b> ({perfiles[3]['pct_secciones_urbanas']:.1f}% urbano, con sobrerrepresentación rural de {perfiles[3]['pct_secciones_rurales']:.1f}%), "
         f"la acción principal busca elevar la participación masculina (43.9% en 2021 vs 48.7% del Panel B) y revertir la caída presidencial "
@@ -644,7 +652,7 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # C11: Tabla 7 de estrategias compacta (<= 110 palabras por perfil)
+    # C11: Tabla 7 de estrategias compacta (<= 110 palabras por perfil); A5: (vocalías distritales)
     t7_compact_data = [
         {
             "perfil": "<b>C0: Baja Participación Intermitente con Rezago Juvenil</b><br/><br/>Secc: 17,622 (32.85%)<br/>Base Inter. 2021: <b>46.1%</b><br/>Base Pres. 2024: <b>56.9%</b><br/>Base Joven 2021: <b>35.2%</b>",
@@ -659,7 +667,7 @@ def build_pdf(data: dict) -> Path:
             "diag_obj": "Sostener la constancia cívica comunitaria y asegurar el relevo generacional en la integración de mesas directivas de casilla en 8,824 secciones.",
             "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada.",
             "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; aumentar la proporción de casillas instaladas con funcionariado propietario.<br/><br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
-            "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (Vocalías de Capacitación y Organización).<br/><br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
+            "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (vocalías distritales).<br/><br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
             "lema": "<i>\"Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo\"</i>",
         },
         {
@@ -713,9 +721,9 @@ def build_pdf(data: dict) -> Path:
     # Sesgo del panel B: +0.44 a +0.97 pts ponderado
     story.append(Paragraph(
         f"<b>1. Sesgo del Panel Principal y secciones excluidas (Tabla 7):</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
-        f"excluidas del Panel Principal ({inc_exc[1]['pct_secciones_2024']:.2f}% del total y {inc_exc[1]['pct_ln_2024']:.2f}% de la Lista Nominal) "
+        f"excluidas del Panel Principal ({inc_exc[1]['pct_secciones_2024']:.1f}% del total y {inc_exc[1]['pct_ln_2024']:.1f}% de la Lista Nominal) "
         f"se dividen en: (a) {inc_exc[2]['n_secciones']:,} secciones creadas o modificadas post-{serie[0]['anio']}, con participación de "
-        f"<b>{inc_exc[2]['participacion_2024_ponderada_sv_svnv_pct']:.2f}%</b> ({inc_exc[2]['pct_urbana']:.1f}% urbanas); y (b) {inc_exc[3]['n_secciones']:,} "
+        f"<b>{inc_exc[2]['participacion_2024_ponderada_sv_svnv_pct']:.1f}%</b> ({inc_exc[2]['pct_urbana']:.1f}% urbanas); y (b) {inc_exc[3]['n_secciones']:,} "
         f"secciones continuas excluidas por calidad ({inc_exc[3]['secciones_svnv_0_en_2024']:,} sin captura en {serie[-1]['anio']}). En consecuencia, "
         f"el Panel Principal (Opción B) sobreestima la participación nacional ponderada del CCPC entre "
         f"<b>{serie[0]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} y {serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} puntos porcentuales</b> "
@@ -763,15 +771,15 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         f"<b>2. Análisis de sensibilidad (Opción A):</b> Al evaluar la Opción A sobre las 62,048 secciones continuas tratando años con SV+NV &lt; 50 "
         f"como valores perdidos (sin imputar) y exigiendo al menos 2 comicios presidenciales y 2 intermedios válidos, K-Means++ (k={k_sel}) "
-        f"alcanza una concordancia casi perfecta con el Panel Principal B: <b>ARI = {sens[1]['ari_vs_panel_principal_B']:.4f}</b> "
-        f"({sens[1]['coincidencia_exacta_alineada_pct']:.2f}% de coincidencia exacta) en las {u['panel_principal_secciones']:,} secciones comunes. "
+        f"alcanza una concordancia casi perfecta con el Panel Principal B: <b>ARI = {sens[1]['ari_vs_panel_principal_B']:.3f}</b> "
+        f"({sens[1]['coincidencia_exacta_alineada_pct']:.1f}% de coincidencia exacta) en las {u['panel_principal_secciones']:,} secciones comunes. "
         f"Esto indica que la segmentación es robusta a la depuración del panel.",
         body_st
     ))
     # C13: Frase exacta sobre variable indígena y C14: cero PENDIENTES
     story.append(Paragraph(
         f"<b>3. Limitación por variables demográficas y ventana temporal:</b> Sustituir los promedios hexanuales por un único corte anual hace que la "
-        f"concordancia con la tipología base baje a <b>ARI = {win[0]['ari_clustering_6y_vs_2024']:.4f}</b>, lo que exige actualizar la tipología tras cada proceso federal. "
+        f"concordancia con la tipología base baje a <b>ARI = {win[0]['ari_clustering_6y_vs_2024']:.3f}</b>, lo que exige actualizar la tipología tras cada proceso federal. "
         f"Asimismo, los CSV abiertos del CCPC no incluyen el indicador de población indígena o afromexicana que sí muestra el tablero del INE; "
         f"por ello no se incorporó al modelo. Finalmente, se recomienda a la DECEyEC publicar ese indicador en los CSV abiertos, incluir una bandera "
         f"explícita de captura en las bases públicas y reforzar la captura de cuadernillos para abatir los registros NS.",
@@ -786,7 +794,7 @@ def build_pdf(data: dict) -> Path:
         f"La corrección de la fórmula de participación —SV/(SV+NV) en lugar de SV/LN— es condición necesaria para usar los datos abiertos del CCPC: "
         f"sin ella, la participación de {serie[3]['anio']} y {serie[-1]['anio']} se subestima en {diff_2018:.2f} y {diff_2024:.2f} puntos y aparecen "
         f"grupos artificiales de baja participación. Con datos corregidos, las {u['panel_principal_secciones']:,} secciones del panel se organizan en cuatro "
-        f"perfiles operativos. El mayor (C0, {perfiles[0]['pct_secciones_panel']:.2f}% del panel) combina caída en elecciones intermedias y rezago juvenil, "
+        f"perfiles operativos. El mayor (C0, {perfiles[0]['pct_secciones_panel']:.1f}% del panel) combina caída en elecciones intermedias y rezago juvenil, "
         f"y concentra el mayor margen de mejora. C2 muestra que la participación puede crecer de forma sostenida, en especial con juventud activa. "
         f"C3 revela una brecha de género de {perfiles[3]['brecha_genero_original']*100:.2f} puntos a favor de las mujeres y una caída presidencial desde 2012. "
         f"C1 es el referente de participación estable. Las estrategias propuestas se miden con el propio CCPC en 2027 y 2030, lo que permite evaluarlas con la misma fuente.",

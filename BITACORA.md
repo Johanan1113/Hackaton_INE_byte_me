@@ -136,6 +136,15 @@ Formato reglamentario:
 
 - `2026-10-25 · Ronda Cosmética Final · scripts/auditoria/06_generar_figuras.py, scripts/auditoria/07_compilar_documento.py, scripts/auditoria/08_generar_fichas.py · Ajustes cosméticos menores en tablas 4 y 6, estabilidad, reproducibilidad, figuras 1 y 2, y textos de C0 → 1) Tabla 4: encabezado ajustado a 'Pres–Int.<br/>(z)', padding horizontal a 2.0 pt y anchos de columna a [90.27, 48.0, 56.0, 47.0, 44.0, 46.0, 55.0, 84.0] eliminando partición de 'Intergeneracional', '(100.00%)', '(z=+0.95)' y 'Pres–Int.'; Tabla 6: anchos de columna redistribuidos a [82.27, 92.0, 88.0, 78.0, 62.0, 68.0] eliminando partición de 'sobrerrepresentación', 'Intergeneracional' y 'consolidemos'; 2) Diagnósticos sección 4: removido '(log(1 + 1/CV))', manteniendo únicamente 'estabilidad'; 3) Sección 8 (Reproducibilidad): alineación del párrafo a la izquierda (TA_LEFT) y URL del repositorio en renglón exclusivo; 4) Figura 2, Panel A: eliminada serie GMM y rango de eje Y ajustado de 0.12 a 0.235; 5) Figura 1, Panel A: mapa de offsets específicos por año y cluster con etiquetas sobre fondo blanco redondeado separando 2012, 2015 y 2018; 6) Ficha C0, Hipótesis: 'jóvenes trabajadores o no escolarizados'; 7) Ficha C0, Qué proponemos: 'módulos itinerantes de credencialización en universidades'; 8) Regeneración completa de figuras, compilación de Documento Técnico (12 páginas) y Fichas (5 páginas), actualización de backups_entregables/, renderizado a PNG y validación de 18/18 pruebas en pytest · Calidad editorial cosmética impecable sin alterar datos ni presupuesto de 12 páginas · outputs/entregables/, backups_entregables/`
 
+---
+
+## 8. Ronda de Fortalecimiento Técnico (Bloques A a G)
+
+### 8.1 Registro cronológico de cambios
+
+- `2026-10-25 · Bloque A (Liberar espacio) · scripts/auditoria/07_compilar_documento.py · Exceso de texto repetitivo en diagnósticos de Sección 4, cascada de Sección 2 y Resumen Ejecutivo → A1: Viñetas de diagnósticos por perfil en Sección 4 reescritas en <= 60 palabras de narrativa con máximo 2 cifras por perfil; A2: Párrafo de reconciliación del universo seccional en Sección 2 reducido a 2 renglones; A3: Enumeración de perfiles en Resumen Ejecutivo sintetizada en una oración con los 4 nombres oficiales; A4: Redondeo uniforme en el texto (Silhouette y ARI a 3 decimales, Davies-Bouldin a 2 decimales, Calinski-Harabasz sin decimales y porcentajes a 1 decimal, conservando precisión completa en tablas); A5: En Tabla 6, perfil C1, sustituido '(Vocalías de Capacitación y Organización)' por '(vocalías distritales)' eliminando corte de palabra; documento liberado a 11 páginas · Liberar espacio editorial para incorporar validaciones técnicas nuevas manteniendo Arial 11 pt e interlineado 1.5 · outputs/entregables/Documento_Tecnico_ByteMe.pdf`
+
+
 
 
 
