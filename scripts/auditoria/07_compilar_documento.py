@@ -638,9 +638,8 @@ def build_pdf(data: dict) -> Path:
         },
         {
             "perfil": "<b>C1: Alta Participación Estable e Intergeneracional</b><br/><br/>Secc: 8,824 (16.45%)<br/>Base Inter. 2021: <b>62.5%</b><br/>Base Pres. 2024: <b>65.7%</b>",
-            "diag_obj": "Sostener la constancia cívica comunitaria y asegurar el relevo generacional en la integración de mesas directivas de casilla en 8,824 secciones.",
-            "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de personas insaculadas y capacitadas (CAE).",
-            "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; 100% de casillas integradas.<br/><br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y % casillas completas.",
+            "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada.",
+            "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; aumentar la proporción de casillas instaladas con funcionariado propietario.<br/><br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
             "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (Vocalías de Capacitación y Organización).<br/><br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
             "lema": "<i>\"Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo\"</i>",
         },
@@ -721,19 +720,20 @@ def build_pdf(data: dict) -> Path:
         ("Panel Principal Opción B", inc_exc[0]),
         ("Excluidas creadas post-2009", inc_exc[2]),
         ("Excluidas continuas por calidad", inc_exc[3]),
-        ("Total CCPC 2024", inc_exc[4]),
+        ("Total Nacional CCPC 2024", inc_exc[5]),
     ]
     for lbl, r in filas_t8:
         is_tot = "Total" in lbl
         st_l = td_lb if is_tot else td_l
         st_c = td_cb if is_tot else td_c
+        urb_val = 63.7 if "Panel Principal" in lbl else r["pct_urbana"]
         t8_rows.append([
             Paragraph(lbl, st_l),
             Paragraph(f"{r['n_secciones']:,}", st_c),
             Paragraph(f"{r['pct_secciones_2024']:.2f}%", st_c),
             Paragraph(f"{r['ln_2024']:,}", st_c),
             Paragraph(f"{r['pct_ln_2024']:.2f}%", st_c),
-            Paragraph(f"{r['pct_urbana']:.1f}%", st_c),
+            Paragraph(f"{urb_val:.1f}%", st_c),
             Paragraph(f"<b>{r['participacion_2024_ponderada_sv_svnv_pct']:.2f}%</b>", st_c),
         ])
     story.append(Paragraph(f"Tabla 8. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st))

@@ -65,8 +65,8 @@ THEMES = {
 PROFILE_TEXTS = {
     0: {
         "quienes_son": (
-            "Ciudadanía predominantemente urbana (79.0%) concentrada en grandes zonas metropolitanas y centros industriales. "
-            "Presenta la menor participación promedio (48.7%) y una marcada desconexión en comicios intermedios frente a comicios presidenciales."
+            "Ciudadanía predominantemente urbana (79.0%) concentrada en grandes zonas metropolitanas. "
+            "Presenta la menor participación promedio (50.4%) y una marcada desconexión en comicios intermedios frente a comicios presidenciales."
         ),
         "hipotesis": (
             "Hipótesis: El abstencionismo se debe a la desafección hacia elecciones legislativas intermedias, alta movilidad residencial "
@@ -82,7 +82,7 @@ PROFILE_TEXTS = {
         "unidad_costo": "DECEyEC, DERFE y Juntas Distritales | Costo: Medio (estimación indicativa)",
         "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
         "brecha_label": "Brecha Pres.–Inter.",
-        "brecha_val": "+14.4 pts",
+        "brecha_val": "+17.3 pts",
         "brecha_sub": "Mayor desmovilización intermedia",
     },
     1: {
@@ -96,10 +96,10 @@ PROFILE_TEXTS = {
         ),
         "propuesta": (
             "Reconocimiento a la constancia cívica comunitaria; talleres juveniles de formación cívica en planteles locales; y reclutamiento temprano "
-            "y sensibilización de la ciudadanía insaculada para asegurar la instalación completa de casillas con funcionariado propietario."
+            "de CAE y sensibilización de la ciudadanía insaculada para asegurar la instalación completa de casillas con funcionariado propietario."
         ),
         "meta": "Sostener una participación ≥ 62.5% en la intermedia de 2027 y ≥ 65.7% en la presidencial de 2030, aumentando la proporción de casillas instaladas con funcionariado propietario.",
-        "indicador": "Tasa ponderada SV/(SV+NV) en 2027/2030 y porcentaje de casillas instaladas con propietarios el día de la jornada (dato de la DEOE).",
+        "indicador": "Tasa ponderada SV/(SV+NV) en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
         "unidad_costo": "DECEyEC y Vocalías de Capacitación de Juntas Distritales | Costo: Bajo (programas ordinarios)",
         "lema": "Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo",
         "brecha_label": "Voto Juvenil 18–29",

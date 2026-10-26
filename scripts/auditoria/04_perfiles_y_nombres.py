@@ -139,9 +139,9 @@ CLUSTER_META = {
             "funcionariado de Mesa Directiva de Casilla, personas observadoras electorales y promotoras de educación cívica intergeneracional."
         ),
         "accion_operativa_ine": (
-            "Sistematización de buenas prácticas comunitarias por la DECEyEC en el marco de ENCÍVICA, talleres de "
-            "liderazgo cívico juvenil para el relevo generacional y reclutamiento temprano de Capacitadores-Asistentes "
-            "Electorales (CAE) y funcionariado de casilla por las Juntas Distritales Ejecutivas."
+            "Talleres distritales de educación cívica intercultural y relevo generacional (DECEyEC), programas de reconocimiento "
+            "a la participación comunitaria continua y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada "
+            "para asegurar la instalación completa de casillas con funcionariado propietario."
         ),
         "unidad_responsable": (
             "DECEyEC en coordinación con las Juntas Distritales Ejecutivas (Vocalías de Capacitación Electoral y Educación Cívica y Vocalías de Organización Electoral)"
@@ -153,11 +153,11 @@ CLUSTER_META = {
         "meta_cuantitativa": (
             "Sostener una participación ponderada ≥ 62.5% en la elección intermedia de 2027 (preservando el 62.5% "
             "observado en la intermedia de 2021) y sostener al menos el nivel de 2024 (65.7%) en la elección presidencial de 2030, "
-            "logrando el 100% de casillas integradas con personas insaculadas y capacitadas."
+            "aumentando la proporción de casillas instaladas con funcionariado propietario."
         ),
         "indicador_seguimiento": (
             "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs. 62.5% en 2021), en la "
-            "presidencial de 2030 (vs. 65.7% en 2024), y porcentaje de casillas integradas con personas insaculadas y capacitadas."
+            "presidencial de 2030 (vs. 65.7% en 2024), y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE)."
         ),
         "horizonte_temporal": "Continuo de mantenimiento y relevo generacional (2025–2030)",
     },
