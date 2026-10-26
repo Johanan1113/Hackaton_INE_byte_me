@@ -194,8 +194,27 @@ def main() -> None:
     if "lineas_base_metas" in data:
         pd.DataFrame(data["lineas_base_metas"]).to_csv(OUT_TABLAS / "tabla_12_lineas_base_metas.csv", index=False)
 
+    # 13. Validación fuera de tiempo (Bloque B)
+    if "validacion_fuera_de_tiempo" in data and "tabla_13" in data["validacion_fuera_de_tiempo"]:
+        pd.DataFrame(data["validacion_fuera_de_tiempo"]["tabla_13"]).to_csv(
+            OUT_TABLAS / "tabla_13_validacion_temporal.csv", index=False
+        )
+
+    # 14. Cobertura ampliada (Bloque C)
+    if "cobertura_ampliada_2024" in data and "tabla_14" in data["cobertura_ampliada_2024"]:
+        pd.DataFrame(data["cobertura_ampliada_2024"]["tabla_14"]).to_csv(
+            OUT_TABLAS / "tabla_14_cobertura_ampliada.csv", index=False
+        )
+
+    # 15. Potencia de piloto (Bloque E)
+    if "potencia_piloto_c0" in data and "tabla_15" in data["potencia_piloto_c0"]:
+        pd.DataFrame(data["potencia_piloto_c0"]["tabla_15"]).to_csv(
+            OUT_TABLAS / "tabla_15_potencia_piloto.csv", index=False
+        )
+
     sha_m = hashlib.sha256(METRICAS_PATH.read_bytes()).hexdigest()
-    print(f"[Fase 5] 12 tablas exportadas en {OUT_TABLAS} desde metricas_finales.json (SHA256={sha_m})")
+    n_tabs = len(list(OUT_TABLAS.glob("tabla_*.csv")))
+    print(f"[Fase 5] {n_tabs} tablas exportadas en {OUT_TABLAS} desde metricas_finales.json (SHA256={sha_m})")
 
 
 if __name__ == "__main__":

@@ -488,6 +488,17 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
+    # B3: Validación fuera de tiempo (<= 70 palabras)
+    val_temp = data.get("validacion_fuera_de_tiempo", {})
+    if val_temp:
+        story.append(Paragraph(
+            f"<b>Validación fuera de tiempo:</b> con perfiles construidos solo con 2009–2021, sin ver 2024, la pertenencia a un perfil explica "
+            f"η² = {val_temp['eta2_perfiles_3d']:.3f} de la variación de la participación seccional de 2024, frente a {val_temp['eta2_cuartiles_3d']:.3f} "
+            f"de una clasificación simple por cuartiles de participación histórica; la concordancia con la tipología final es ARI = {val_temp['ari_3d']:.3f}. "
+            f"El η² no supera a la línea base porque agrupa por brechas y ciclo, conservando el orden C3 &lt; C0 &lt; C1 &lt; C2.",
+            body_st
+        ))
+
     # Figura 2 (D1, D2): Benchmark
     fig2_flow = Image(str(FIGURAS_DIR / "fig6_benchmark_k.png"), width=6.5 * inch, height=2.15 * inch)
     fig2_flow.hAlign = "CENTER"

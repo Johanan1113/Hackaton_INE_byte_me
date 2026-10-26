@@ -21,6 +21,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.optimize import linear_sum_assignment
+from sklearn.cluster import KMeans
+from sklearn.metrics import adjusted_rand_score
+from sklearn.preprocessing import RobustScaler
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUT_FASE2 = PROJECT_ROOT / "outputs" / "fase2"
@@ -610,6 +614,145 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
     return rows
 
 
+def build_validacion_fuera_de_tiempo(df_b: pd.DataFrame) -> dict:
+    """
+    Bloque B: Validación fuera de tiempo (2009–2021 -> 2024) sobre las 53,644 secciones del Panel B.
+    Calcula las 7 variables usando solo 2009–2021 (presidenciales 2012 y 2018; intermedias 2009, 2015 y 2021),
+    con winsorización p1-p99 y RobustScaler, corre K-Means++ (k=4, random_state=42), empata por algoritmo
+    húngaro contra los perfiles finales y evalúa ARI, eta^2 de participación 2024 (ponderando por sección)
+    vs línea base por cuartiles de participación media 2009–2021, y orden de grupos en 2024.
+    """
+    years_21 = [2009, 2012, 2015, 2018, 2021]
+    pres_21 = [2012, 2018]
+    mid_21 = [2009, 2015, 2021]
+
+    p_mat = df_b[[f"p_{y}" for y in years_21]].to_numpy(dtype=float)
+    p_pres = df_b[[f"p_{y}" for y in pres_21]].to_numpy(dtype=float)
+    p_mid = df_b[[f"p_{y}" for y in mid_21]].to_numpy(dtype=float)
+
+    part_media_21 = np.nanmean(p_mat, axis=1)
+    brecha_pi_21 = np.nanmean(p_pres, axis=1) - np.nanmean(p_mid, axis=1)
+
+    x = np.array([0.0, 3.0, 6.0, 9.0, 12.0], dtype=float)
+    xc = x - x.mean()
+    denom_x = float(np.sum(xc ** 2))
+    pc = p_mat - part_media_21[:, None]
+    beta_21 = np.sum(pc * xc, axis=1) / denom_x
+
+    std_21 = np.nanstd(p_mat, axis=1, ddof=1)
+    est_21 = np.log1p(part_media_21 / (std_21 + 1e-4))
+
+    tasa_j_21 = np.nanmean(df_b[[f"p_joven_{y}" for y in years_21]].to_numpy(dtype=float), axis=1)
+    tasa_m_21 = np.nanmean(df_b[[f"p_mayor_{y}" for y in years_21]].to_numpy(dtype=float), axis=1)
+    tasa_f_21 = np.nanmean(df_b[[f"p_mujer_{y}" for y in years_21]].to_numpy(dtype=float), axis=1)
+    tasa_h_21 = np.nanmean(df_b[[f"p_hombre_{y}" for y in years_21]].to_numpy(dtype=float), axis=1)
+
+    b_gen_21 = tasa_m_21 - tasa_j_21
+    b_sex_21 = tasa_f_21 - tasa_h_21
+    ratio_j_21 = tasa_j_21 / part_media_21
+
+    X_raw = pd.DataFrame({
+        "participacion_media_historica": part_media_21,
+        "brecha_presidencial_intermedia": brecha_pi_21,
+        "tendencia_participacion_beta": beta_21,
+        "estabilidad_participacion": est_21,
+        "brecha_generacional": b_gen_21,
+        "brecha_genero": b_sex_21,
+        "ratio_participacion_joven": ratio_j_21,
+    })
+
+    X_win = pd.DataFrame(index=X_raw.index)
+    for col in FEATURE_COLS:
+        ql, qh = X_raw[col].quantile([0.01, 0.99])
+        X_win[col] = X_raw[col].clip(lower=ql, upper=qh)
+
+    X_sc = RobustScaler().fit_transform(X_win[FEATURE_COLS])
+    km = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42)
+    lbl_raw = km.fit_predict(X_sc)
+
+    final_lbl = df_b["cluster"].to_numpy(dtype=int)
+    cm = pd.crosstab(final_lbl, lbl_raw).values
+    row_ind, col_ind = linear_sum_assignment(-cm)
+    mapping = {int(col_ind[i]): int(row_ind[i]) for i in range(4)}
+    lbl_aligned = np.array([mapping[int(l)] for l in lbl_raw], dtype=int)
+
+    ari_val = float(adjusted_rand_score(final_lbl, lbl_aligned))
+    exact_match_pct = float((lbl_aligned == final_lbl).mean() * 100.0)
+
+    # eta^2 de p_2024 explicada por etiquetas 2009-2021 (ponderando por sección)
+    y24 = df_b["p_2024"].to_numpy(dtype=float)
+    y_mean = float(y24.mean())
+    ss_tot = float(np.sum((y24 - y_mean) ** 2))
+    ss_btw_clusters = float(
+        sum(np.sum(lbl_aligned == c) * ((float(y24[lbl_aligned == c].mean()) - y_mean) ** 2) for c in range(4))
+    )
+    eta2_clusters = ss_btw_clusters / ss_tot
+
+    # Línea base: cuartiles de participación media 2009-2021
+    q_labels = pd.qcut(part_media_21, q=4, labels=False)
+    ss_btw_quartiles = float(
+        sum(np.sum(q_labels == q) * ((float(y24[q_labels == q].mean()) - y_mean) ** 2) for q in range(4))
+    )
+    eta2_quartiles = ss_btw_quartiles / ss_tot
+
+    # Orden de los 4 grupos según su participación 2024
+    means_21 = {c: float(y24[lbl_aligned == c].mean() * 100.0) for c in range(4)}
+    means_fin = {c: float(y24[final_lbl == c].mean() * 100.0) for c in range(4)}
+    order_21 = [f"C{c}" for c, _ in sorted(means_21.items(), key=lambda x: x[1])]
+    order_fin = [f"C{c}" for c, _ in sorted(means_fin.items(), key=lambda x: x[1])]
+    rank_21 = {c: idx + 1 for idx, (c, _) in enumerate(sorted(means_21.items(), key=lambda x: x[1]))}
+    rank_fin = {c: idx + 1 for idx, (c, _) in enumerate(sorted(means_fin.items(), key=lambda x: x[1]))}
+
+    order_21_str = " < ".join(order_21)
+    order_fin_str = " < ".join(order_fin)
+
+    filas_tabla = []
+    for c in range(4):
+        s_21 = df_b[lbl_aligned == c]
+        s_fin = df_b[final_lbl == c]
+        coinc_n = int(np.sum((lbl_aligned == c) & (final_lbl == c)))
+        filas_tabla.append({
+            "codigo_cluster": f"C{c}",
+            "nombre_perfil": CLUSTER_META[c]["nombre"],
+            "n_secciones_2009_2021": int(len(s_21)),
+            "n_secciones_final_2009_2024": int(len(s_fin)),
+            "coincidencia_secciones_n": coinc_n,
+            "coincidencia_pct_del_perfil_final": round(coinc_n / len(s_fin) * 100.0, 2),
+            "p_2024_simple_grupo_2009_2021_pct": round(means_21[c], 2),
+            "p_2024_pond_grupo_2009_2021_pct": round(float(s_21["sv_2024"].sum() / s_21["sv_nv_2024"].sum() * 100.0), 2),
+            "p_2024_simple_perfil_final_pct": round(means_fin[c], 2),
+            "p_2024_pond_perfil_final_pct": round(float(s_fin["sv_2024"].sum() / s_fin["sv_nv_2024"].sum() * 100.0), 2),
+            "rango_p2024_grupo_2009_2021": rank_21[c],
+            "rango_p2024_perfil_final": rank_fin[c],
+            "orden_grupos_2009_2021_en_2024": order_21_str,
+            "orden_perfiles_finales_en_2024": order_fin_str,
+            "ari_2009_2021_vs_final": round(ari_val, 4),
+            "ari_3d": round(ari_val, 3),
+            "coincidencia_global_pct": round(exact_match_pct, 2),
+            "eta2_perfiles_2009_2021": round(eta2_clusters, 4),
+            "eta2_perfiles_3d": round(eta2_clusters, 3),
+            "eta2_cuartiles_linea_base": round(eta2_quartiles, 4),
+            "eta2_cuartiles_3d": round(eta2_quartiles, 3),
+            "supera_linea_base": bool(eta2_clusters > eta2_quartiles),
+        })
+
+    return {
+        "n_secciones": int(len(df_b)),
+        "ari_2009_2021_vs_final": round(ari_val, 4),
+        "ari_3d": round(ari_val, 3),
+        "coincidencia_exacta_pct": round(exact_match_pct, 2),
+        "eta2_perfiles_2009_2021": round(eta2_clusters, 4),
+        "eta2_perfiles_3d": round(eta2_clusters, 3),
+        "eta2_cuartiles_linea_base": round(eta2_quartiles, 4),
+        "eta2_cuartiles_3d": round(eta2_quartiles, 3),
+        "supera_linea_base": bool(eta2_clusters > eta2_quartiles),
+        "orden_grupos_2009_2021_en_2024": order_21_str,
+        "orden_perfiles_finales_en_2024": order_fin_str,
+        "orden_idéntico": bool(order_21 == order_fin),
+        "tabla_13": filas_tabla,
+    }
+
+
 def export_metricas_finales_json(
     df_b: pd.DataFrame,
     df_univ: pd.DataFrame,
@@ -695,6 +838,7 @@ def export_metricas_finales_json(
         "estrategias": df_estrategias.to_dict(orient="records"),
         "comparacion_k4_k5_k6": df_comp.to_dict(orient="records"),
         "lineas_base_metas": build_lineas_base_metas(df_b),
+        "validacion_fuera_de_tiempo": build_validacion_fuera_de_tiempo(df_b),
     }
 
     metricas_path.write_text(
