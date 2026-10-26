@@ -962,6 +962,105 @@
       "variables_rectoras_z": "tendencia anual (z=-0.83), brecha de género (mujeres menos hombres) (z=+0.78), brecha presidencial–intermedia (z=-0.69), brecha generacional (60+ menos 18–29) (z=+0.62), razón de participación juvenil (z=-0.56), estabilidad (log(1 + 1/CV)) (z=+0.52)"
     }
   ],
+  "impacto_y_prioridad_territorial": {
+    "electores_adicionales_c0": 954403,
+    "electores_adicionales_c3": 317463,
+    "electores_en_riesgo_c1": 57453,
+    "electores_en_riesgo_c2": 1879692,
+    "resumen_por_perfil": {
+      "C0": {
+        "top30_ln": 7764609,
+        "top30_pct": 23.7,
+        "top3_juntas": [
+          "Chihuahua – Distrito 03",
+          "Estado de México – Distrito 31",
+          "Puebla – Distrito 09"
+        ],
+        "top3_juntas_str": "Chihuahua – Distrito 03, Estado de México – Distrito 31, Puebla – Distrito 09",
+        "tot_ln_ampliada": 32788086
+      },
+      "C1": {
+        "top30_ln": 6434925,
+        "top30_pct": 49.2,
+        "top3_juntas": [
+          "Jalisco – Distrito 18",
+          "Campeche – Distrito 01",
+          "Nuevo León – Distrito 04"
+        ],
+        "top3_juntas_str": "Jalisco – Distrito 18, Campeche – Distrito 01, Nuevo León – Distrito 04",
+        "tot_ln_ampliada": 13081712
+      },
+      "C2": {
+        "top30_ln": 6643773,
+        "top30_pct": 31.2,
+        "top3_juntas": [
+          "Ciudad de México – Distrito 15",
+          "Tlaxcala – Distrito 03",
+          "Ciudad de México – Distrito 10"
+        ],
+        "top3_juntas_str": "Ciudad de México – Distrito 15, Tlaxcala – Distrito 03, Ciudad de México – Distrito 10",
+        "tot_ln_ampliada": 21275736
+      },
+      "C3": {
+        "top30_ln": 6502845,
+        "top30_pct": 28.5,
+        "top3_juntas": [
+          "Guanajuato – Distrito 02",
+          "Estado de México – Distrito 32",
+          "Sonora – Distrito 02"
+        ],
+        "top3_juntas_str": "Guanajuato – Distrito 02, Estado de México – Distrito 32, Sonora – Distrito 02",
+        "tot_ln_ampliada": 22826480
+      }
+    },
+    "tabla_impacto": [
+      {
+        "codigo_cluster": "C0",
+        "electores_impacto_n": 954403,
+        "electores_impacto_str": "+954,403 adicionales",
+        "ln_2024_panel_b": 28070662,
+        "meta_delta_pts": "+3.4 pts",
+        "pct_ln_en_top30_juntas": 23.7,
+        "perfil": "C0: Baja Participación Intermitente con Rezago Juvenil",
+        "tipo_meta": "Aumento",
+        "top3_juntas_distritales": "Chihuahua – Distrito 03, Estado de México – Distrito 31, Puebla – Distrito 09"
+      },
+      {
+        "codigo_cluster": "C1",
+        "electores_impacto_n": 57453,
+        "electores_impacto_str": "57,453 en riesgo",
+        "ln_2024_panel_b": 11490525,
+        "meta_delta_pts": "Sostener (0.0 pts)",
+        "pct_ln_en_top30_juntas": 49.2,
+        "perfil": "C1: Alta Participación Estable e Intergeneracional",
+        "tipo_meta": "Sostener",
+        "top3_juntas_distritales": "Jalisco – Distrito 18, Campeche – Distrito 01, Nuevo León – Distrito 04"
+      },
+      {
+        "codigo_cluster": "C2",
+        "electores_impacto_n": 1879692,
+        "electores_impacto_str": "1,879,692 en riesgo",
+        "ln_2024_panel_b": 18796916,
+        "meta_delta_pts": "Sostener (0.0 pts)",
+        "pct_ln_en_top30_juntas": 31.2,
+        "perfil": "C2: Participación en Ascenso con Juventud Activa",
+        "tipo_meta": "Sostener",
+        "top3_juntas_distritales": "Ciudad de México – Distrito 15, Tlaxcala – Distrito 03, Ciudad de México – Distrito 10"
+      },
+      {
+        "codigo_cluster": "C3",
+        "electores_impacto_n": 317463,
+        "electores_impacto_str": "+317,463 adicionales",
+        "ln_2024_panel_b": 19841415,
+        "meta_delta_pts": "+1.6 pts",
+        "pct_ln_en_top30_juntas": 28.5,
+        "perfil": "C3: Liderazgo Femenino con Participación Estancada",
+        "tipo_meta": "Aumento",
+        "top3_juntas_distritales": "Guanajuato – Distrito 02, Estado de México – Distrito 32, Sonora – Distrito 02"
+      }
+    ],
+    "total_electores_adicionales_c0_c3": 1271866
+  },
   "incluidas_vs_excluidas_2024": [
     {
       "grupo": "Incluidas en el Panel Principal Opción B (53,644)",

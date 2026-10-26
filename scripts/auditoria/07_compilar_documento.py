@@ -726,12 +726,42 @@ def build_pdf(data: dict) -> Path:
     story.append(Spacer(1, 4))
 
     # =========================================================================
+    # SUBSECCIÓN 5.1: IMPACTO ESTIMADO Y PRIORIDAD TERRITORIAL (Bloque D)
+    # =========================================================================
+    imp_data = data.get("impacto_y_prioridad_territorial", {})
+    if imp_data:
+        story.append(Paragraph("5.1 Impacto Estimado y Prioridad Territorial", h2_st))
+        t_imp_rows = [[
+            Paragraph("Perfil", th_c),
+            Paragraph("LN 2024", th_c),
+            Paragraph("Meta (Δ pts)", th_c),
+            Paragraph("Electores adicionales o en riesgo", th_c),
+            Paragraph("Top 3 juntas distritales", th_l),
+            Paragraph("% LN en 30 juntas", th_c),
+        ]]
+        for row in imp_data.get("tabla_impacto", []):
+            top3_fmt = row["top3_juntas_distritales"].replace(", ", "<br/>")
+            t_imp_rows.append([
+                Paragraph(f"<b>{row['codigo_cluster']}</b>", td_c),
+                Paragraph(f"{row['ln_2024_panel_b']:,}", td_c),
+                Paragraph(row["meta_delta_pts"], td_c),
+                Paragraph(row["electores_impacto_str"], td_c),
+                Paragraph(top3_fmt, td_l),
+                Paragraph(f"{row['pct_ln_en_top30_juntas']:.1f}%", td_c),
+            ])
+        t_imp_cap = Paragraph(f"Tabla 7. Impacto Estimado de Metas 2027 y Concentración Territorial por Perfil (k = {k_sel})", cap_st)
+        t_imp_table = styled_table(t_imp_rows, [45.0, 55.0, 55.0, 85.0, 170.27, 60.0])
+        story.append(KeepTogether([t_imp_cap, t_imp_table]))
+        story.append(Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil.</i>", note_st))
+        story.append(Spacer(1, 4))
+
+    # =========================================================================
     # SECCIÓN 6: LIMITACIONES Y RECOMENDACIONES AL INE
     # =========================================================================
     story.append(Paragraph("6. Limitaciones Metodológicas, Análisis de Sensibilidad y Recomendaciones al INE", h1_st))
     # Sesgo del panel B: +0.44 a +0.97 pts ponderado
     story.append(Paragraph(
-        f"<b>1. Sesgo del Panel Principal y secciones excluidas (Tabla 7):</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
+        f"<b>1. Sesgo del Panel Principal y secciones excluidas (Tabla 8):</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
         f"excluidas del Panel Principal ({inc_exc[1]['pct_secciones_2024']:.1f}% del total y {inc_exc[1]['pct_ln_2024']:.1f}% de la Lista Nominal) "
         f"se dividen en: (a) {inc_exc[2]['n_secciones']:,} secciones creadas o modificadas post-{serie[0]['anio']}, con participación de "
         f"<b>{inc_exc[2]['participacion_2024_ponderada_sv_svnv_pct']:.1f}%</b> ({inc_exc[2]['pct_urbana']:.1f}% urbanas); y (b) {inc_exc[3]['n_secciones']:,} "
@@ -747,7 +777,7 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # Tabla 7: Incluidas vs Excluidas (ancho = 470.27 pt)
+    # Tabla 8: Incluidas vs Excluidas (ancho = 470.27 pt)
     t8_rows = [[
         Paragraph(f"Subuniverso de Secciones en {serie[-1]['anio']}", th_l),
         Paragraph("Secc.", th_c),
@@ -777,9 +807,9 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"{urb_val:.1f}%", st_c),
             Paragraph(f"<b>{r['participacion_2024_ponderada_sv_svnv_pct']:.2f}%</b>", st_c),
         ])
-    t7_cap = Paragraph(f"Tabla 7. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st)
-    t7_table = styled_table(t8_rows, [134.27, 54.0, 50.0, 70.0, 54.0, 52.0, 56.0], highlight_last=True)
-    story.append(KeepTogether([t7_cap, t7_table]))
+    t8_cap = Paragraph(f"Tabla 8. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st)
+    t8_table = styled_table(t8_rows, [134.27, 54.0, 50.0, 70.0, 54.0, 52.0, 56.0], highlight_last=True)
+    story.append(KeepTogether([t8_cap, t8_table]))
     story.append(Spacer(1, 4))
 
     story.append(Paragraph(

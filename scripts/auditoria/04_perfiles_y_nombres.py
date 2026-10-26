@@ -42,6 +42,16 @@ FEATURE_COLS = [
     "ratio_participacion_joven",
 ]
 
+ENTIDADES = {
+    1: "Aguascalientes", 2: "Baja California", 3: "Baja California Sur", 4: "Campeche",
+    5: "Coahuila", 6: "Colima", 7: "Chiapas", 8: "Chihuahua", 9: "Ciudad de México",
+    10: "Durango", 11: "Guanajuato", 12: "Guerrero", 13: "Hidalgo", 14: "Jalisco",
+    15: "Estado de México", 16: "Michoacán", 17: "Morelos", 18: "Nayarit", 19: "Nuevo León",
+    20: "Oaxaca", 21: "Puebla", 22: "Querétaro", 23: "Quintana Roo", 24: "San Luis Potosí",
+    25: "Sinaloa", 26: "Sonora", 27: "Tabasco", 28: "Tamaulipas", 29: "Tlaxcala",
+    30: "Veracruz", 31: "Yucatán", 32: "Zacatecas",
+}
+
 # Nombres finales aprobados (idénticos en tablas, estrategias, documento e infografía)
 CLUSTER_META = {
     0: {
@@ -974,6 +984,139 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
     }
 
 
+def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
+    """
+    Bloque D: Impacto estimado y priorización territorial (Viabilidad y potencial).
+    Calcula con la Lista Nominal 2024 de Panel B:
+      - C0, C3: electores adicionales = LN_2024 * (meta_2027 - base_2021) / 100
+      - C1, C2: electores en riesgo = LN_2024 * max(0, base_2021 - promedio_inter_2009_2021) / 100
+      - Total electores adicionales C0 + C3
+    Con la columna DEF y perfil_por_seccion_2024.csv, calcula el ranking de los 300 distritos,
+    el top 3 de juntas distritales por perfil y el % de LN concentrado en las 30 juntas principales.
+    Guarda outputs/juntas_prioritarias_por_perfil.csv.
+    """
+    df_ps = pd.read_csv(PROJECT_ROOT / "outputs" / "perfil_por_seccion_2024.csv")
+
+    df_ps["entidad"] = df_ps["EDOCVE"].map(ENTIDADES)
+    df_ps["junta"] = df_ps["entidad"] + " – Distrito " + df_ps["DEF"].apply(lambda d: f"{d:02d}")
+
+    all_districts = df_ps[["EDOCVE", "DEF", "entidad", "junta"]].drop_duplicates().sort_values(["EDOCVE", "DEF"]).reset_index(drop=True)
+
+    ranking_rows = []
+    resumen_perfil = {}
+
+    for p_code in ["C0", "C1", "C2", "C3"]:
+        sub = df_ps[df_ps["perfil"] == p_code]
+        tot_ln = int(sub["LN_2024"].sum())
+        dist_ln = sub.groupby(["EDOCVE", "DEF"])["LN_2024"].sum().reset_index()
+
+        m = all_districts.merge(dist_ln, on=["EDOCVE", "DEF"], how="left")
+        m["LN_2024"] = m["LN_2024"].fillna(0).astype(int)
+        m = m.sort_values("LN_2024", ascending=False).reset_index(drop=True)
+        m["ranking"] = m.index + 1
+        m["perfil"] = p_code
+        m["pct_ln_perfil"] = round(m["LN_2024"] / tot_ln * 100.0, 3)
+        m["pct_acumulado_ln_perfil"] = round(m["LN_2024"].cumsum() / tot_ln * 100.0, 2)
+
+        top3 = list(m["junta"].iloc[:3])
+        top3_str = ", ".join(top3)
+        top30_pct = float(m["pct_acumulado_ln_perfil"].iloc[29])
+        top30_ln = int(m["LN_2024"].iloc[:30].sum())
+
+        resumen_perfil[p_code] = {
+            "top3_juntas": top3,
+            "top3_juntas_str": top3_str,
+            "top30_ln": top30_ln,
+            "top30_pct": round(top30_pct, 1),
+            "tot_ln_ampliada": tot_ln,
+        }
+        ranking_rows.extend(m.to_dict(orient="records"))
+
+    df_rank = pd.DataFrame(ranking_rows)
+    df_rank.to_csv(PROJECT_ROOT / "outputs" / "juntas_prioritarias_por_perfil.csv", index=False)
+
+    # D1: Cálculo sobre Panel B
+    ln_c0 = int(df_b[df_b["cluster"] == 0]["ln_2024"].sum())
+    ln_c1 = int(df_b[df_b["cluster"] == 1]["ln_2024"].sum())
+    ln_c2 = int(df_b[df_b["cluster"] == 2]["ln_2024"].sum())
+    ln_c3 = int(df_b[df_b["cluster"] == 3]["ln_2024"].sum())
+
+    # C0: base 2021 = 46.1%, meta = 49.5%, delta = +3.4 pts
+    delta_c0 = 3.4
+    adicionales_c0 = int(round(ln_c0 * delta_c0 / 100.0))
+
+    # C3: base 2021 = 49.5%, meta = 51.1%, delta = +1.6 pts
+    delta_c3 = 1.6
+    adicionales_c3 = int(round(ln_c3 * delta_c3 / 100.0))
+
+    total_adicionales_c0_c3 = adicionales_c0 + adicionales_c3
+
+    # C1: base 2021 = 62.5%, promedio intermedias 2009-2021 = 62.0% (delta = 0.5 pts)
+    delta_c1_riesgo = 0.5
+    riesgo_c1 = int(round(ln_c1 * delta_c1_riesgo / 100.0))
+
+    # C2: base 2021 = 60.4%, promedio intermedias 2009-2021 = 50.4% (delta = 10.0 pts)
+    delta_c2_riesgo = 10.0
+    riesgo_c2 = int(round(ln_c2 * delta_c2_riesgo / 100.0))
+
+    filas_tabla_impacto = [
+        {
+            "perfil": "C0: Baja Participación Intermitente con Rezago Juvenil",
+            "codigo_cluster": "C0",
+            "ln_2024_panel_b": ln_c0,
+            "tipo_meta": "Aumento",
+            "meta_delta_pts": f"+{delta_c0:.1f} pts",
+            "electores_impacto_n": adicionales_c0,
+            "electores_impacto_str": f"+{adicionales_c0:,} adicionales",
+            "top3_juntas_distritales": resumen_perfil["C0"]["top3_juntas_str"],
+            "pct_ln_en_top30_juntas": resumen_perfil["C0"]["top30_pct"],
+        },
+        {
+            "perfil": "C1: Alta Participación Estable e Intergeneracional",
+            "codigo_cluster": "C1",
+            "ln_2024_panel_b": ln_c1,
+            "tipo_meta": "Sostener",
+            "meta_delta_pts": "Sostener (0.0 pts)",
+            "electores_impacto_n": riesgo_c1,
+            "electores_impacto_str": f"{riesgo_c1:,} en riesgo",
+            "top3_juntas_distritales": resumen_perfil["C1"]["top3_juntas_str"],
+            "pct_ln_en_top30_juntas": resumen_perfil["C1"]["top30_pct"],
+        },
+        {
+            "perfil": "C2: Participación en Ascenso con Juventud Activa",
+            "codigo_cluster": "C2",
+            "ln_2024_panel_b": ln_c2,
+            "tipo_meta": "Sostener",
+            "meta_delta_pts": "Sostener (0.0 pts)",
+            "electores_impacto_n": riesgo_c2,
+            "electores_impacto_str": f"{riesgo_c2:,} en riesgo",
+            "top3_juntas_distritales": resumen_perfil["C2"]["top3_juntas_str"],
+            "pct_ln_en_top30_juntas": resumen_perfil["C2"]["top30_pct"],
+        },
+        {
+            "perfil": "C3: Liderazgo Femenino con Participación Estancada",
+            "codigo_cluster": "C3",
+            "ln_2024_panel_b": ln_c3,
+            "tipo_meta": "Aumento",
+            "meta_delta_pts": f"+{delta_c3:.1f} pts",
+            "electores_impacto_n": adicionales_c3,
+            "electores_impacto_str": f"+{adicionales_c3:,} adicionales",
+            "top3_juntas_distritales": resumen_perfil["C3"]["top3_juntas_str"],
+            "pct_ln_en_top30_juntas": resumen_perfil["C3"]["top30_pct"],
+        },
+    ]
+
+    return {
+        "electores_adicionales_c0": adicionales_c0,
+        "electores_en_riesgo_c1": riesgo_c1,
+        "electores_en_riesgo_c2": riesgo_c2,
+        "electores_adicionales_c3": adicionales_c3,
+        "total_electores_adicionales_c0_c3": total_adicionales_c0_c3,
+        "resumen_por_perfil": resumen_perfil,
+        "tabla_impacto": filas_tabla_impacto,
+    }
+
+
 def export_metricas_finales_json(
     df_b: pd.DataFrame,
     df_univ: pd.DataFrame,
@@ -1061,6 +1204,7 @@ def export_metricas_finales_json(
         "lineas_base_metas": build_lineas_base_metas(df_b),
         "validacion_fuera_de_tiempo": build_validacion_fuera_de_tiempo(df_b),
         "cobertura_ampliada_2024": build_cobertura_ampliada(df_b),
+        "impacto_y_prioridad_territorial": build_impacto_y_priorizacion_territorial(df_b),
     }
 
     metricas_path.write_text(
