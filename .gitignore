@@ -5,15 +5,17 @@ tests/__pycache__/
 .pytest_cache/
 
 # Datos crudos y binarios pesados
-data/raw_zips
-data/raw_zips/
-data/raw_csvs/
-data/externos/
+data/
 *.zip
 *.tar.gz
 *.parquet
 outputs/fase2/*.parquet
 output/datasets/*.parquet
+
+# Entregables administrativos sensibles
+entrega_ByteMe_Reto1/cartas/
+cartas/
+.env
 
 # Modelos binarios pesados (>50MB)
 *.joblib

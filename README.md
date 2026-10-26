@@ -56,9 +56,12 @@ reto1_perfiles_participacion/
 ├── entrega_ByteMe_Reto1/                            # Carpeta con el paquete de entrega formal del concurso
 │   ├── Documento_Tecnico_ByteMe.pdf                 # Documento Técnico (12 págs, Arial 11 pt / interlineado 1.5)
 │   ├── Fichas_Perfiles_ByteMe.pdf                   # Fichas de perfiles (5 págs horizontales, texto >= 10 pt)
+│   ├── Presentacion_Ejecutiva_ByteMe.pdf            # Presentación Ejecutiva (10 diapositivas 16:9, Arial)
+│   ├── Presentacion_Ejecutiva_ByteMe.pptx           # Presentación Ejecutiva PowerPoint nativa editable
 │   ├── Fichas_Portada.png                           # Portada ejecutiva (300 DPI)
 │   ├── Ficha_C0.png ... Ficha_C3.png                # Fichas individuales por perfil (300 DPI)
 │   ├── Fichas_Perfiles_ByteMe.png                   # Mosaico vertical de 5 páginas (300 DPI)
+│   ├── empaquetar.sh                                # Script automatizado de validación y empaquetado ZIP
 │   └── LEEME.txt                                    # Manifiesto formal de entrega y reserva de espacios
 ├── plantillas/
 │   └── documento_tecnico.md.j2                      # Plantilla Jinja2 del documento técnico
@@ -72,9 +75,11 @@ reto1_perfiles_participacion/
 │   ├── 06_generar_figuras.py                        # Fase 5: Generación de figuras analíticas a 300 DPI
 │   ├── 07_compilar_documento.py                     # Fase 6: Compilación del Documento Técnico PDF (Arial 11/19)
 │   ├── 08_generar_fichas.py                         # Fase 7: Generación de Fichas de Perfiles (PDF 5 págs y PNGs)
-│   └── 09_validacion_consistencia.py                # Fase 8: Validación automatizada de consistencia y cifras
+│   ├── 09_validacion_consistencia.py                # Fase 8: Validación automatizada de consistencia y cifras
+│   └── 10_generar_presentacion.py                   # Fase 9: Generación de Presentación Ejecutiva PPTX/PDF (10 slides)
 ├── tests/
-│   └── test_consistencia.py                         # Suite de 23 pruebas automatizadas con pytest
+│   ├── test_consistencia.py                         # Suite de 23 pruebas de consistencia técnica y cifras
+│   └── test_presentacion.py                         # Suite de 5 pruebas automatizadas de la presentación
 └── outputs/
     ├── metricas_finales.json                        # Fuente única de verdad (cero cifras escritas a mano)
     ├── reporte_validacion_consistencia.json         # Resultado de validación automatizada
@@ -85,6 +90,9 @@ reto1_perfiles_participacion/
     └── entregables/
         ├── Documento_Tecnico_ByteMe.pdf             # Documento Técnico Oficial (12 págs, Arial 11 pt / 19 pt leading)
         ├── Fichas_Perfiles_ByteMe.pdf               # Fichas de los 4 Perfiles (5 págs horizontales)
+        ├── Presentacion_Ejecutiva_ByteMe.pdf        # Presentación Ejecutiva PDF (10 diapositivas 16:9)
+        ├── Presentacion_Ejecutiva_ByteMe.pptx       # Presentación Ejecutiva PPTX (gráficas nativas editables)
+        ├── iconos/                                  # Íconos vectoriales oficiales en PNG 300 DPI
         ├── Fichas_Portada.png                       # Ficha Portada en PNG a 300 DPI
         ├── Ficha_C0.png ... Ficha_C3.png            # Fichas C0 a C3 en PNG a 300 DPI
         └── Fichas_Perfiles_ByteMe.png               # Vista combinada de Fichas a 300 DPI
@@ -116,7 +124,7 @@ mkdir -p data/raw_zips
 ## 5. Entorno de Software y Reproducción Completa
 
 ### Versiones Reales Verificadas
-- `Python 3.14.6`, `duckdb 2.0.0`, `scikit-learn 1.9.0`, `scipy 1.18.0`, `umap-learn 0.5.12`, `pandas 3.0.3`, `numpy 2.4.6`, `statsmodels 0.14.6`, `pyarrow 23.0.1`, `matplotlib 3.11.0`, `seaborn 0.13.2`, `reportlab 5.1.0`, `pypdf 6.21.2`, `Jinja2 3.1.6`, `pytest 9.0.3`, `pillow 12.3.0`, `pdfplumber 0.11.10`.
+- `Python 3.14.6`, `duckdb 2.0.0`, `scikit-learn 1.9.0`, `scipy 1.18.0`, `umap-learn 0.5.12`, `pandas 3.0.3`, `numpy 2.4.6`, `statsmodels 0.14.6`, `pyarrow 23.0.1`, `matplotlib 3.11.0`, `seaborn 0.13.2`, `reportlab 5.1.0`, `pypdf 6.21.2`, `Jinja2 3.1.6`, `pytest 9.0.3`, `pillow 12.3.0`, `pdfplumber 0.11.10`, `python-pptx 1.0.2`.
 
 ### Comandos de Ejecución y Verificación
 ```bash
@@ -126,8 +134,8 @@ pip install -r requirements.txt
 # 2. Ejecutar todo el pipeline desde cero (determinista, random_state=42)
 python run_all.py
 
-# 3. Ejecutar la suite completa de 23 pruebas de consistencia y control de cifras
-pytest tests/test_consistencia.py -v
+# 3. Ejecutar la suite completa de 28 pruebas automatizadas de consistencia y presentación
+pytest -v
 ```
 
 ---

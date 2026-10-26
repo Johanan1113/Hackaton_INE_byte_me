@@ -30,6 +30,7 @@ STEPS = [
     ("Fase 6: Compilación del Documento Técnico PDF", "scripts/auditoria/07_compilar_documento.py"),
     ("Fase 7: Generación de Fichas de Perfiles (PDF/PNG)", "scripts/auditoria/08_generar_fichas.py"),
     ("Fase 8: Validación automatizada de consistencia y cifras", "scripts/auditoria/09_validacion_consistencia.py"),
+    ("Fase 9: Generación de Presentación Ejecutiva (PPTX/PDF)", "scripts/auditoria/10_generar_presentacion.py"),
 ]
 
 

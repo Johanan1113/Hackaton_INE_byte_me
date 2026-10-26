@@ -35,7 +35,20 @@ Integrantes:
    - Página 4: Perfil C2 — Participación en Ascenso con Juventud Activa.
    - Página 5: Perfil C3 — Liderazgo Femenino con Participación Estancada.
 
-3. Fichas individuales en formato PNG (300 DPI):
+3. Presentacion_Ejecutiva_ByteMe.pdf
+   Presentación ejecutiva en formato PDF (10 diapositivas 16:9, tipografía
+   100% Arial embebida, márgenes de seguridad > 0.25 pulgadas). Contiene la
+   síntesis de alto nivel para tomadores de decisiones: hallazgo metodológico,
+   reproducibilidad, tipología seccional, metas 2027–2030, impacto de hasta
+   1.27 millones de votantes adicionales, diseño del piloto ANCOVA y tres
+   recomendaciones institucionales al INE.
+
+4. Presentacion_Ejecutiva_ByteMe.pptx
+   Presentación ejecutiva nativa en formato PowerPoint 16:9 con gráficas y
+   tablas editables, paleta oficial de colores institucionales y notas de
+   orador completas en primera persona del plural (60–90 palabras por lámina).
+
+5. Fichas individuales en formato PNG (300 DPI):
    - Fichas_Portada.png:        Portada ejecutiva y matriz nacional.
    - Ficha_C0.png:              Ficha infográfica C0.
    - Ficha_C1.png:              Ficha infográfica C1.
@@ -43,23 +56,22 @@ Integrantes:
    - Ficha_C3.png:              Ficha infográfica C3.
    - Fichas_Perfiles_ByteMe.png: Mosaico vertical completo de las 5 páginas.
 
-4. LEEME.txt
+6. empaquetar.sh
+   Script bash automatizado y ejecutable para validar la presencia de todos
+   los archivos obligatorios y generar el paquete comprimido final ZIP.
+
+7. LEEME.txt
    Este archivo descriptivo de la entrega.
 
 
-3. ESPACIOS RESERVADOS PARA DOCUMENTOS DEL EQUIPO
+3. DOCUMENTOS ADMINISTRATIVOS DEL EQUIPO (CARPETA cartas/)
 --------------------------------------------------------------------------------
-[ ] Presentación ejecutiva del proyecto (pitch / diapositivas, formato PDF)
-    -> Archivo a incorporar por el equipo: Presentacion_Ejecutiva_ByteMe.pdf
+Los documentos firmados de cesión y declaratoria deben ubicarse en:
+- cartas/Carta_Cesion_Derechos.pdf
+- cartas/Carta_Declaratoria.pdf
 
-[ ] Carta de postulación / aceptación institucional del integrante 1
-    -> Archivo a incorporar por el equipo: Carta_Postulacion_Johanan_Olivares.pdf
-
-[ ] Carta de postulación / aceptación institucional del integrante 2
-    -> Archivo a incorporar por el equipo: Carta_Postulacion_Oscar_Cuevas.pdf
-
-[ ] Carta de postulación / aceptación institucional del integrante 3
-    -> Archivo a incorporar por el equipo: Carta_Postulacion_Saul_Arias.pdf
+El script empaquetar.sh verifica automáticamente la existencia de estos dos
+archivos antes de generar el paquete ZIP final.
 
 
 4. REPRODUCIBILIDAD Y CÓDIGO FUENTE
