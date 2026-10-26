@@ -380,7 +380,7 @@ def generate_fig4_brechas_demograficas(data: dict) -> None:
 
     ax2.set_xticks(x)
     ax2.set_xticklabels(groups, fontsize=9, fontweight="bold")
-    ax2.set_title("B. Brecha de Género: Mujeres vs Hombres (Destaca C3: +11.15 pts)", fontsize=10.5, fontweight="bold")
+    ax2.set_title("B. Brecha de Género: Mujeres vs Hombres (Destaca C3: +11.2 pts)", fontsize=10.5, fontweight="bold")
     ax2.grid(axis="y", alpha=0.6)
     ax2.legend(loc="upper right", fontsize=8.5, frameon=True)
 

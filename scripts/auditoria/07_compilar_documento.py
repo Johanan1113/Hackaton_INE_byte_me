@@ -273,7 +273,10 @@ def build_pdf(data: dict) -> Path:
         f"[{bench_km_k4['bootstrap_ari_ic95_inf']:.3f}, {bench_km_k4['bootstrap_ari_ic95_sup']:.3f}]). "
         f"Los cuatro perfiles identificados son: "
         + ", ".join(f"<b>{p['codigo_cluster']}: {p['nombre_propuesto']}</b>" for p in perfiles[:3])
-        + f" y <b>{perfiles[3]['codigo_cluster']}: {perfiles[3]['nombre_propuesto']}</b>.",
+        + f" y <b>{perfiles[3]['codigo_cluster']}: {perfiles[3]['nombre_propuesto']}</b>. "
+        f"El impacto proyectado asciende a un rango de 607 mil a 1.27 millones de votantes adicionales en los perfiles de aumento (C0 y C3) "
+        f"y 1.97 millones en riesgo de abstención en los perfiles de sostenimiento (C1 y C2). "
+        f"La estrategia se evalúa mediante un piloto con 500 secciones por grupo y un efecto mínimo detectable de 1.57 puntos porcentuales.",
         body_st
     ))
 
@@ -602,7 +605,7 @@ def build_pdf(data: dict) -> Path:
         (
             f"• <b>{perfiles[0]['codigo_cluster']} — {perfiles[0]['nombre_propuesto']}:</b> "
             f"Agrupa zonas metropolitanas con fuerte caída en comicios intermedios ({perfiles[0]['brecha_presidencial_intermedia_original']*100:+.1f} pts frente a presidenciales) "
-            f"y la menor participación media del país ({perfiles[0]['participacion_media_historica_original']*100:.1f}%). "
+            f"y la menor participación media de los cuatro perfiles ({perfiles[0]['participacion_media_historica_original']*100:.1f}%). "
             f"Importa porque concentra la mayor bolsa de abstencionismo urbano y de juventud desconectada del voto legislativo, representando el principal margen de recuperación."
         ),
         (
@@ -774,7 +777,7 @@ def build_pdf(data: dict) -> Path:
         f"{serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[4]['anio']} y {serie[5]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[5]['anio']}). "
         f"Para uso operativo, se asignó perfil por cercanía al centroide a {data.get('cobertura_ampliada_2024', {}).get('secciones_asignadas', 12104):,} secciones excluidas con historia suficiente, "
         f"lo que eleva la cobertura a {data.get('cobertura_ampliada_2024', {}).get('pct_ln_panel_b_mas_asignadas', 91.5):.1f}% de la lista nominal 2024; "
-        f"las {data.get('cobertura_ampliada_2024', {}).get('secciones_sin_historia_suficiente', 5003):,} secciones sin historia suficiente (creadas después de 2015) requieren esperar a la elección de 2027.",
+        f"las {data.get('cobertura_ampliada_2024', {}).get('secciones_sin_historia_suficiente', 5003):,} secciones sin historia suficiente (creadas después de 2015 o con captura insuficiente) requieren esperar a la elección de 2027.",
         body_st
     ))
 
@@ -841,8 +844,8 @@ def build_pdf(data: dict) -> Path:
         f"grupos artificiales de baja participación. Con datos corregidos, las {u['panel_principal_secciones']:,} secciones del panel se organizan en cuatro "
         f"perfiles operativos. El mayor (C0, {perfiles[0]['pct_secciones_panel']:.1f}% del panel) combina caída en elecciones intermedias y rezago juvenil, "
         f"y concentra el mayor margen de mejora. C2 muestra que la participación puede crecer de forma sostenida, en especial con juventud activa. "
-        f"C3 revela una brecha de género de {perfiles[3]['brecha_genero_original']*100:.2f} puntos a favor de las mujeres y una caída presidencial desde 2012. "
-        f"C1 es el referente de participación estable. Las estrategias propuestas se miden con el propio CCPC en 2027 y 2030, lo que permite evaluarlas con la misma fuente.",
+        f"C3 revela una brecha de género de +11.2 pts a favor de las mujeres y una caída presidencial desde 2012. "
+        f"C1 es el referente de participación constante. El cumplimiento de las metas proyecta entre 607 mil y 1.27 millones de sufragios adicionales con un piloto evaluable de 500 secciones por grupo y MDE de 1.57 puntos porcentuales, medido con el propio CCPC en 2027.",
         body_st
     ))
 

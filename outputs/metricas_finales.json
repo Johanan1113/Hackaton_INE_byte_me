@@ -262,6 +262,11 @@
     }
   ],
   "cobertura_ampliada_2024": {
+    "desglose_sin_historia": {
+      "continuas_captura_insuficiente": 876,
+      "creadas_despues_de_2015": 4127,
+      "total": 5003
+    },
     "distribucion_asignadas_por_perfil": {
       "C0": {
         "ln_2024": 4717424,
@@ -307,6 +312,7 @@
     "pct_secciones_cobertura_ampliada": 92.93,
     "pct_secciones_sin_historia_suficiente": 7.07,
     "secciones_asignadas": 12104,
+    "secciones_asignadas_con_advertencia_reseccionamiento": 1306,
     "secciones_cobertura_ampliada": 65748,
     "secciones_sin_historia_suficiente": 5003,
     "tabla_14": [
@@ -371,7 +377,7 @@
         "ln_2024": 8358334,
         "pct_ln_2024": 8.5,
         "pct_secciones": 7.07,
-        "perfil": "Sin perfil asignado (creadas post-2015)",
+        "perfil": "Sin perfil asignado (creadas después de 2015 o con captura insuficiente)",
         "secciones": 5003
       },
       {

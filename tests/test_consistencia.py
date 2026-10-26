@@ -700,8 +700,10 @@ def test_cobertura_ampliada() -> None:
     assert perfil_csv.exists(), "outputs/perfil_por_seccion_2024.csv debe existir en outputs/"
     df_perfil = pd.read_csv(perfil_csv)
     assert len(df_perfil) == 65748, f"perfil_por_seccion_2024.csv debe tener 65,748 filas; tiene {len(df_perfil)}"
-    expected_cols = {"EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024"}
+    expected_cols = {"EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024", "advertencia"}
     assert expected_cols.issubset(set(df_perfil.columns)), f"Columnas faltantes en perfil_por_seccion_2024.csv: {set(df_perfil.columns)}"
+    assert (df_perfil["advertencia"] == "reseccionamiento").sum() == 1306, "Deben haber 1,306 secciones con advertencia='reseccionamiento'"
+    assert ((df_perfil["origen"] == "panel_B") & (df_perfil["advertencia"] == "reseccionamiento")).sum() == 0
 
     doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
     assert "12,104" in doc_full, "Cifra '12,104' no encontrada en el texto de Limitaciones del Documento"

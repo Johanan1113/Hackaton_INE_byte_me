@@ -1,8 +1,8 @@
 {
   "k_seleccionado": 4,
-  "sha256_perfiles_csv": "7133a028b376117028630a689760e30186eec8d3ea5298c295e9c280dac21532",
-  "sha256_estrategias_csv": "9a9c2637380e60aad3d45e6c584756d3fec98630c5e6322f26f28bce414841ee",
-  "sha256_metricas_finales_json": "155497783c77cb6ab6f802a7ba343a16135a61bbd2f52ca24ff8fe8335514a09",
+  "sha256_perfiles_csv": "5be252f5d845c1829acb90ea6e2a71a8d57563110eb10da6dc27b26421af3654",
+  "sha256_estrategias_csv": "08783eec3affbac4ff76da0f2245557f19b3d8eb943ae10ac8c2097c1f5143ba",
+  "sha256_metricas_finales_json": "ff33324f1651e38ef0d38abfabc11e43194a91a37df338de5156e2c013f63b92",
   "n_perfiles": 4,
   "n_secciones_panel": 53644
 }

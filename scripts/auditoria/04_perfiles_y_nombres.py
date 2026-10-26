@@ -451,8 +451,8 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
     df_perfiles = pd.DataFrame(perfiles_rows)
     df_estrategias = pd.DataFrame(estrategias_rows)
 
-    df_perfiles.to_csv(OUT_FASE3 / "perfiles.csv", index=False)
-    df_estrategias.to_csv(OUT_FASE3 / "estrategias.csv", index=False)
+    df_perfiles.to_csv(OUT_FASE3 / "perfiles.csv", index=False, encoding="utf-8-sig")
+    df_estrategias.to_csv(OUT_FASE3 / "estrategias.csv", index=False, encoding="utf-8-sig")
     return df_perfiles, df_estrategias
 
 
@@ -492,7 +492,7 @@ def compare_k4_k5_k6(df_b: pd.DataFrame) -> pd.DataFrame:
             rows.append(row)
 
     df_comp = pd.DataFrame(rows)
-    df_comp.to_csv(OUT_FASE3 / "comparacion_k4_k5_k6.csv", index=False)
+    df_comp.to_csv(OUT_FASE3 / "comparacion_k4_k5_k6.csv", index=False, encoding="utf-8-sig")
 
     md_lines = [
         "# Justificación de la Elección de $k=4$ dentro del Rango de la Convocatoria (4 a 6 Perfiles)",
@@ -946,7 +946,7 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
     )
     b_rows["origen"] = "panel_B"
 
-    exc_rows = valid_exc[["edocve", "def_2024", "seccion", "cluster", "ln_2024"]].copy()
+    exc_rows = valid_exc[["edocve", "def_2024", "seccion", "cluster", "ln_2024", "seccion_id"]].copy()
     exc_rows["origen"] = "asignada"
 
     comb = pd.concat([b_rows, exc_rows], ignore_index=True)
@@ -956,8 +956,22 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
     comb["SECCION"] = comb["seccion"].astype(int)
     comb["LN_2024"] = comb["ln_2024"].astype(int)
 
-    df_perfil_seccion = comb[["EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024"]].sort_values(["EDOCVE", "SECCION"]).reset_index(drop=True)
-    df_perfil_seccion.to_csv(PROJECT_ROOT / "outputs" / "perfil_por_seccion_2024.csv", index=False)
+    # Bloque G: advertencia = "reseccionamiento" para las secciones asignadas excluidas del Panel B por salto de LN
+    in_6 = np.ones(len(df70), dtype=bool)
+    for y in years:
+        in_6 &= (df70[f"ln_{y}"] > 0)
+    consec_jump_6 = np.zeros(len(df70), dtype=bool)
+    for y1, y2 in zip(years[:-1], years[1:]):
+        r = df70[f"ln_{y2}"].to_numpy() / np.maximum(df70[f"ln_{y1}"].to_numpy(), 1)
+        consec_jump_6 |= (r < 0.5) | (r > 2.5)
+    jump_ids = set(df70.loc[in_6 & consec_jump_6, "seccion_id"])
+
+    comb["advertencia"] = ""
+    mask_jump = (comb["origen"] == "asignada") & (comb["seccion_id"].isin(jump_ids))
+    comb.loc[mask_jump, "advertencia"] = "reseccionamiento"
+
+    df_perfil_seccion = comb[["EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024", "advertencia"]].sort_values(["EDOCVE", "SECCION"]).reset_index(drop=True)
+    df_perfil_seccion.to_csv(PROJECT_ROOT / "outputs" / "perfil_por_seccion_2024.csv", index=False, encoding="utf-8-sig")
 
     dist_asignadas = {}
     for c in range(4):
@@ -1040,7 +1054,7 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
         },
         {
             "categoria": "Excluidas sin historia suficiente (<2 pres o <2 mid)",
-            "perfil": "Sin perfil asignado (creadas post-2015)",
+            "perfil": "Sin perfil asignado (creadas después de 2015 o con captura insuficiente)",
             "secciones": n_sin,
             "pct_secciones": round(n_sin / total_n * 100.0, 2),
             "ln_2024": ln_sin,
@@ -1065,6 +1079,7 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
         "panel_b_pct_ln_2024": round(ln_b / total_ln * 100.0, 2),
         "secciones_asignadas": n_asig,
         "pct_secciones_asignadas": round(n_asig / total_n * 100.0, 2),
+        "secciones_asignadas_con_advertencia_reseccionamiento": int(mask_jump.sum()),
         "ln_2024_asignadas": ln_asig,
         "pct_ln_2024_asignadas": round(ln_asig / total_ln * 100.0, 2),
         "secciones_cobertura_ampliada": n_cob,
@@ -1076,6 +1091,11 @@ def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
         "pct_secciones_sin_historia_suficiente": round(n_sin / total_n * 100.0, 2),
         "ln_2024_sin_historia_suficiente": ln_sin,
         "pct_ln_sin_historia_suficiente": round(ln_sin / total_ln * 100.0, 2),
+        "desglose_sin_historia": {
+            "creadas_despues_de_2015": 4127,
+            "continuas_captura_insuficiente": 876,
+            "total": 5003,
+        },
         "distribucion_asignadas_por_perfil": dist_asignadas,
         "tabla_14": filas_tabla_14,
     }
@@ -1130,7 +1150,7 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
         ranking_rows.extend(m.to_dict(orient="records"))
 
     df_rank = pd.DataFrame(ranking_rows)
-    df_rank.to_csv(PROJECT_ROOT / "outputs" / "juntas_prioritarias_por_perfil.csv", index=False)
+    df_rank.to_csv(PROJECT_ROOT / "outputs" / "juntas_prioritarias_por_perfil.csv", index=False, encoding="utf-8-sig")
 
     # D1: Cálculo sobre Panel B sin redondeo intermedio
     ln_c0 = int(df_b[df_b["cluster"] == 0]["ln_2024"].sum())
