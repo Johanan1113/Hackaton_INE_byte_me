@@ -141,88 +141,88 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     serie_nac = data["serie_nacional_2009_2024"]
     years = [r["anio"] for r in serie_nac]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.8), gridspec_kw={"width_ratios": [1.35, 1.0]})
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.6), gridspec_kw={"width_ratios": [1.25, 1.0]})
 
     # Sombrear elecciones intermedias
     for y_mid in [2009, 2015, 2021]:
-        ax1.axvspan(y_mid - 0.6, y_mid + 0.6, color="#F3F4F6", alpha=0.8, zorder=0)
+        ax1.axvspan(y_mid - 0.5, y_mid + 0.5, color="#F3F4F6", alpha=0.8, zorder=0)
 
     for p in perfiles:
         c = p["cluster_id"]
         y_vals = [p[f"p_{y}_ponderada"] * 100 for y in years]
-        lbl = f"{p['codigo_cluster']}: {p['nombre_propuesto']} (n={p['n_secciones']:,})"
+        lbl = f"{p['codigo_cluster']} ({p['pct_secciones_panel']:.1f}%)"
         ax1.plot(
-            years, y_vals, marker="o", linewidth=2.4, markersize=6.5,
+            years, y_vals, marker="o", linewidth=1.6, markersize=4.0,
             color=CLUSTER_COLORS[c], label=lbl, zorder=4
         )
         for x_val, y_val in zip(years, y_vals):
             if c == 1:
-                dx, dy = 0, 9
+                dx, dy = 0, 5
             elif c == 2:
-                dx, dy = (0, -12) if x_val in (2012, 2018) else (0, 8)
+                dx, dy = (0, -8) if x_val in (2012, 2018) else (0, 5)
             elif c == 3:
-                dx, dy = (0, 8) if x_val in (2009, 2015) else (0, -12)
+                dx, dy = (0, 5) if x_val in (2009, 2015) else (0, -8)
             else:
-                dx, dy = 0, -12
+                dx, dy = 0, -8
             ax1.annotate(
                 f"{y_val:.1f}%", (x_val, y_val), textcoords="offset points",
-                xytext=(dx, dy), ha="center", fontsize=7.5, fontweight="bold", color=CLUSTER_COLORS[c]
+                xytext=(dx, dy), ha="center", fontsize=6.8, fontweight="bold", color=CLUSTER_COLORS[c]
             )
 
     nac_ccpc = [r["total_ponderada_sv_svnv_pct"] for r in serie_nac]
     pan_b_pond = [r["panel_b_ponderada_sv_svnv_pct"] for r in serie_nac]
-    ax1.plot(years, nac_ccpc, linestyle="--", marker="s", linewidth=1.8, markersize=5, color="#111827",
-             label="Total Nacional CCPC Ponderado SV/(SV+NV)", zorder=5)
-    ax1.plot(years, pan_b_pond, linestyle=":", marker="^", linewidth=1.6, markersize=5, color="#6B7280",
-             label="Media del Panel B", zorder=3)
+    ax1.plot(years, nac_ccpc, linestyle="--", marker="s", linewidth=1.2, markersize=3.5, color="#111827",
+             label="CCPC SV/(SV+NV)", zorder=5)
+    ax1.plot(years, pan_b_pond, linestyle=":", marker="^", linewidth=1.1, markersize=3.5, color="#6B7280",
+             label="Media Panel B", zorder=3)
 
     ax1.set_xticks(years)
-    ax1.set_xticklabels([f"{y}\n({'Inter.' if y in (2009,2015,2021) else 'Pres.'})" for y in years], fontsize=8.5)
-    ax1.set_ylim(29, 76)
-    ax1.set_ylabel("Participación Electoral Ponderada SV / (SV + NV) (%)", fontsize=9.5, fontweight="bold")
-    ax1.set_title("A. Trayectoria Hexanual de los 4 Perfiles (2009–2024)", fontsize=10.8, fontweight="bold")
-    ax1.grid(True, alpha=0.6)
-    ax1.legend(loc="lower right", fontsize=7.4, frameon=True)
+    ax1.set_xticklabels([str(y) for y in years], fontsize=8.0)
+    ax1.tick_params(axis="both", labelsize=8.0)
+    ax1.set_ylim(32, 75)
+    ax1.set_ylabel("Participación Ponderada (%)", fontsize=8.0, fontweight="bold")
+    ax1.set_title("A. Trayectoria por Perfil (2009–2024)", fontsize=8.5, fontweight="bold")
+    ax1.grid(True, alpha=0.5, linestyle="--", linewidth=0.5)
+    ax1.legend(loc="lower right", fontsize=6.5, frameon=True, ncol=2, handletextpad=0.3, columnspacing=0.5)
 
     # Panel B: Comparación SV/(SV+NV) vs SV/LN errónea y % NS
     err_ln = [r["total_ponderada_erronea_sv_ln_pct"] for r in serie_nac]
     ns_pct = [r["pct_ns_anio"] for r in serie_nac]
 
     ax2_twin = ax2.twinx()
-    bars = ax2_twin.bar(years, ns_pct, width=1.1, color="#FCA5A5", alpha=0.45, label="NS como % de Lista Nominal")
+    bars = ax2_twin.bar(years, ns_pct, width=1.0, color="#FCA5A5", alpha=0.45, label="% NS")
     for b, v in zip(bars, ns_pct):
-        ax2_twin.text(b.get_x() + b.get_width() / 2, v + 0.25, f"NS: {v:.2f}%", ha="center", va="bottom", fontsize=7.2, color="#991B1B")
+        if v > 0.5:
+            ax2_twin.text(b.get_x() + b.get_width() / 2, v + 0.3, f"{v:.1f}%", ha="center", va="bottom", fontsize=6.8, color="#991B1B")
 
-    ax2.plot(years, nac_ccpc, marker="o", linewidth=2.3, color="#047857", label="Fórmula Oficial CCPC: SV / (SV + NV)")
-    ax2.plot(years, err_ln, marker="X", linestyle="--", linewidth=2.0, color="#DC2626", label="Criterio Erróneo Original: SV / LN")
+    ax2.plot(years, nac_ccpc, marker="o", linewidth=1.6, markersize=4.0, color="#047857", label="SV/(SV+NV)")
+    ax2.plot(years, err_ln, marker="x", linestyle="--", linewidth=1.4, markersize=4.0, color="#DC2626", label="SV/LN")
 
     for x_val, y_ok, y_er in zip(years, nac_ccpc, err_ln):
         if abs(y_ok - y_er) >= 1.5:
             ax2.annotate(
-                f"-{y_ok - y_er:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_er + 4.8),
-                ha="center", fontsize=7.3, fontweight="bold", color="#DC2626",
-                bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="#FCA5A5", alpha=0.92),
-                arrowprops=dict(arrowstyle="->", color="#DC2626", lw=0.8)
+                f"-{y_ok - y_er:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_er + 3.8),
+                ha="center", fontsize=6.8, fontweight="bold", color="#DC2626",
+                bbox=dict(boxstyle="round,pad=0.12", facecolor="white", edgecolor="#FCA5A5", alpha=0.92),
+                arrowprops=dict(arrowstyle="->", color="#DC2626", lw=0.6)
             )
 
     ax2.set_xticks(years)
-    ax2.set_xticklabels([str(y) for y in years], fontsize=8.5)
-    ax2.set_ylim(30, 73)
-    ax2_twin.set_ylim(0, 26)
-    ax2.set_ylabel("Participación Nacional Ponderada (%)", fontsize=9.5, fontweight="bold")
-    ax2_twin.set_ylabel("Cuadernillos No Capturados NS (% de LN)", fontsize=9.0, color="#991B1B", fontweight="bold")
-    ax2.set_title("B. Efecto de Registros NS sobre SV/LN vs SV/(SV+NV)", fontsize=10.8, fontweight="bold")
-    ax2.grid(True, alpha=0.6)
+    ax2.set_xticklabels([str(y) for y in years], fontsize=8.0)
+    ax2.tick_params(axis="both", labelsize=8.0)
+    ax2_twin.tick_params(axis="both", labelsize=8.0)
+    ax2.set_ylim(32, 73)
+    ax2_twin.set_ylim(0, 25)
+    ax2.set_ylabel("Participación Nacional (%)", fontsize=8.0, fontweight="bold")
+    ax2_twin.set_ylabel("Registros NS (% LN)", fontsize=8.0, color="#991B1B", fontweight="bold")
+    ax2.set_title("B. Sesgo por Registros NS", fontsize=8.5, fontweight="bold")
+    ax2.grid(True, alpha=0.5, linestyle="--", linewidth=0.5)
 
     lines1, labels1 = ax2.get_legend_handles_labels()
     lines2, labels2 = ax2_twin.get_legend_handles_labels()
-    ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=7.6, frameon=True)
+    ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=6.5, frameon=True)
 
-    fig.suptitle(
-        "Dinámica Electoral 2009–2024: Perfiles Seccionales (k=4) y Corrección del Sesgo por Cuadernillos No Disponibles (NS)",
-        fontsize=12, fontweight="bold", y=0.98
-    )
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.tight_layout()
     fig.savefig(OUT_FIGURAS / "fig2_evolucion_temporal.png", dpi=300)
     plt.close(fig)
 
@@ -486,44 +486,41 @@ def generate_fig6_benchmark_k(data: dict) -> None:
     km_ari_low = [r["bootstrap_ari_media"] - r["bootstrap_ari_ic95_inf"] for r in km_rows]
     km_ari_high = [r["bootstrap_ari_ic95_sup"] - r["bootstrap_ari_media"] for r in km_rows]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.2))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.15))
 
     for ax in [ax1, ax2]:
-        ax.axvspan(3.8, 6.2, color="#FEF3C7", alpha=0.55, zorder=0, label="Rango convocatoria (k=4..6)")
-        ax.axvline(4, color="#D97706", linestyle="--", linewidth=1.5, zorder=2)
+        ax.axvspan(3.8, 6.2, color="#FEF3C7", alpha=0.55, zorder=0)
+        ax.axvline(4, color="#D97706", linestyle="--", linewidth=1.2, zorder=2)
+        ax.tick_params(axis="both", labelsize=8.0)
+        ax.set_xlabel("Número de Clusters (k)", fontsize=8.0, fontweight="bold")
+        ax.grid(True, alpha=0.5, linestyle="--", linewidth=0.5)
 
     # Panel A: Silhouette
-    ax1.plot(ks, km_sil, marker="o", linewidth=2.3, color="#1D4ED8", label="K-Means++")
-    ax1.plot(ks, gmm_sil, marker="s", linestyle="--", linewidth=1.8, color="#6B7280", label="GMM (full)")
+    ax1.plot(ks, km_sil, marker="o", linewidth=1.8, markersize=4.5, color="#1D4ED8", label="K-Means++")
+    ax1.plot(ks, gmm_sil, marker="s", linestyle="--", linewidth=1.4, markersize=4.0, color="#6B7280", label="GMM")
     for k_v, v in zip(ks, km_sil):
-        ax1.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8.5, fontweight="bold")
-    ax1.set_title("A. Coeficiente de Silhouette (Mayor es mejor)", fontsize=10.5, fontweight="bold")
-    ax1.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
+        ax1.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 5), ha="center", fontsize=7.2, fontweight="bold")
+    ax1.set_title("A. Silhouette (Mayor es mejor)", fontsize=8.5, fontweight="bold")
     ax1.set_xticks(ks)
+    ax1.set_ylabel("Silhouette", fontsize=8.0, fontweight="bold")
     ax1.set_ylim(0.08, 0.235)
-    ax1.grid(True, alpha=0.6)
-    ax1.legend(loc="upper right", fontsize=8.5)
+    ax1.legend(loc="upper right", fontsize=7.0, frameon=True)
 
     # Panel B: Bootstrap ARI (100 réplicas al 80% + IC 95%)
     ax2.errorbar(
-        ks, km_ari, yerr=[km_ari_low, km_ari_high], fmt="-o", linewidth=2.2,
-        capsize=5, color="#B91C1C", label="ARI Bootstrap Media ± IC 95%"
+        ks, km_ari, yerr=[km_ari_low, km_ari_high], fmt="-o", linewidth=1.8, markersize=4.5,
+        capsize=3.5, color="#B91C1C", label="ARI ± IC 95%"
     )
-    ax2.axhline(0.85, color="#374151", linestyle=":", linewidth=1.2, label="Umbral de alta estabilidad (0.85)")
+    ax2.axhline(0.85, color="#374151", linestyle=":", linewidth=1.0, label="Umbral (0.85)")
     for k_v, v in zip(ks, km_ari):
-        ax2.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8.5, fontweight="bold")
-    ax2.set_title("B. Estabilidad Bootstrap ARI (100 Réplicas al 80%, IC 95%)", fontsize=10.5, fontweight="bold")
+        ax2.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 5), ha="center", fontsize=7.2, fontweight="bold")
+    ax2.set_title("B. Bootstrap ARI (IC 95%)", fontsize=8.5, fontweight="bold")
     ax2.set_xticks(ks)
-    ax2.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
+    ax2.set_ylabel("ARI Bootstrap", fontsize=8.0, fontweight="bold")
     ax2.set_ylim(0.78, 1.02)
-    ax2.grid(True, alpha=0.6)
-    ax2.legend(loc="lower left", fontsize=8.5)
+    ax2.legend(loc="lower left", fontsize=7.0, frameon=True)
 
-    fig.suptitle(
-        "Benchmark de Agrupamiento Seccional: Silhouette y Estabilidad Bootstrap ARI (k=3 a 7)",
-        fontsize=11.5, fontweight="bold", y=0.98
-    )
-    fig.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.tight_layout()
     fig.savefig(OUT_FIGURAS / "fig6_benchmark_k.png", dpi=300)
     plt.close(fig)
 

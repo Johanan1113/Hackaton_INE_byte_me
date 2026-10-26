@@ -139,10 +139,10 @@ def styled_table(rows_data: list[list[Paragraph]], col_widths: list[float], high
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E3A8A")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 3.0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 3.0),
-        ("LEFTPADDING", (0, 0), (-1, -1), 3.5),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 3.5),
+        ("TOPPADDING", (0, 0), (-1, -1), 2.5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2.5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 2.5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 2.5),
         ("GRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#CBD5E1")),
         ("ROWBACKGROUNDS", (0, 1), (-1, -2 if highlight_last else -1), [colors.white, colors.HexColor("#F8FAFC")]),
     ]
@@ -335,8 +335,9 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"<b>{r['total_ponderada_sv_svnv_pct']:.2f}%</b>", td_cb),
             Paragraph(efecto_ns, td_c),
         ])
-    story.append(Paragraph(f"Tabla 1. Serie Nacional {serie[0]['anio']}–{serie[-1]['anio']}: Validación de Fórmula Oficial SV/(SV+NV) vs Publicaciones Oficiales y Efecto NS", cap_st))
-    story.append(styled_table(t1_rows, [45.27, 75.0, 75.0, 75.0, 65.0, 65.0, 70.0]))
+    t1_cap = Paragraph(f"Tabla 1. Serie Nacional {serie[0]['anio']}–{serie[-1]['anio']}: Validación Censal de Fórmula Oficial SV/(SV+NV) vs Publicaciones Oficiales y Subestimación con SV/LN (pts)", cap_st)
+    t1_table = styled_table(t1_rows, [32.27, 65.0, 68.0, 75.0, 75.0, 75.0, 80.0])
+    story.append(KeepTogether([t1_cap, t1_table]))
     story.append(Spacer(1, 4))
 
     story.append(Paragraph(
@@ -359,13 +360,13 @@ def build_pdf(data: dict) -> Path:
 
     # Tabla 2: Cascada de Filtrado (7 cols = 470.27 pt)
     t2_rows = [[
-        Paragraph("Etapa de Filtrado del Universo", th_l),
-        Paragraph("Secciones", th_c),
-        Paragraph("Excluidas", th_c),
+        Paragraph("Criterio / Etapa de Depuración", th_l),
+        Paragraph("Secc.", th_c),
+        Paragraph("Excl.", th_c),
         Paragraph(f"% Secc. {serie[-1]['anio']}", th_c),
         Paragraph(f"LN {serie[-1]['anio']}", th_c),
         Paragraph(f"% LN {serie[-1]['anio']}", th_c),
-        Paragraph("Municipios", th_c),
+        Paragraph("Mun.", th_c),
     ]]
     etapa_labels = [
         f"0. Unión histórica ({serie[0]['anio']}–{serie[-1]['anio']})",
@@ -388,12 +389,20 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"{c_row['pct_ln_2024']:.2f}%", st_c),
             Paragraph(f"{c_row['municipios']:,}", st_c),
         ])
-    story.append(Paragraph(f"Tabla 2. Cascada de Filtrado del Universo Seccional y Cobertura sobre {serie[-1]['anio']}", cap_st))
-    story.append(styled_table(t2_rows, [146.27, 50.0, 48.0, 56.0, 66.0, 54.0, 50.0], highlight_last=True))
+    t2_cap = Paragraph(f"Tabla 2. Cascada de Filtrado del Universo Seccional y Cobertura sobre {serie[-1]['anio']}", cap_st)
+    t2_table = styled_table(t2_rows, [146.27, 50.0, 48.0, 56.0, 66.0, 54.0, 50.0], highlight_last=True)
+    story.append(KeepTogether([t2_cap, t2_table]))
     story.append(Spacer(1, 4))
 
-    # Figura 2 (B7): Trayectorias y NS
-    story.append(make_figure_flowable(FIGURAS_DIR / "fig2_evolucion_temporal.png", max_width=PRINTABLE_W, max_height=2.00 * inch))
+    # Figura 1 (D1, D2): Trayectorias y NS
+    fig1_flow = Image(str(FIGURAS_DIR / "fig2_evolucion_temporal.png"), width=6.5 * inch, height=2.6 * inch)
+    fig1_flow.hAlign = "CENTER"
+    fig1_cap = Paragraph(
+        "<b>Figura 1.</b> Dinámica electoral 2009–2024: perfiles seccionales (k=4) y corrección del sesgo por registros sin captura (NS). "
+        "<i>Fuente: Conteos Censales de Participación Ciudadana (CCPC 2009–2024), elaboración propia.</i>",
+        cap_st
+    )
+    story.append(KeepTogether([fig1_flow, Spacer(1, 3), fig1_cap]))
     story.append(Spacer(1, 4))
 
     # =========================================================================
@@ -432,10 +441,9 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # B4: Tabla 3 compacta con las 5 filas de K-Means++ (k=3..7)
+    # Tabla 3: Benchmark K-Means++ (5 columnas: k, Silhouette, Davies-Bouldin, Calinski-Harabasz, ARI Bootstrap)
     t3_rows = [[
         Paragraph("k", th_c),
-        Paragraph("Configuración", th_c),
         Paragraph("Silhouette", th_c),
         Paragraph("Davies–Bouldin", th_c),
         Paragraph("Calinski–Harabasz", th_c),
@@ -447,14 +455,14 @@ def build_pdf(data: dict) -> Path:
         ari_str = f"{b['bootstrap_ari_media']:.4f} [{b['bootstrap_ari_ic95_inf']:.4f}, {b['bootstrap_ari_ic95_sup']:.4f}]"
         t3_rows.append([
             Paragraph(f"<b>k = {int(b['k'])}</b>", st_c),
-            Paragraph(b["configuracion"], st_c),
             Paragraph(f"{b['silhouette']:.4f}", st_c),
             Paragraph(f"{b['davies_bouldin']:.4f}", st_c),
             Paragraph(f"{b['calinski_harabasz']:,.2f}", st_c),
             Paragraph(ari_str, st_c),
         ])
-    story.append(Paragraph(f"Tabla 3. Benchmark de Agrupamiento K-Means++ (k = 3 a 7) sobre el Panel Principal (N = {u['panel_principal_secciones']:,})", cap_st))
-    story.append(styled_table(t3_rows, [32.27, 92.0, 76.0, 80.0, 84.0, 106.0], highlight_last=False))
+    t3_cap = Paragraph(f"Tabla 3. Benchmark de Agrupamiento K-Means++ (k = 3 a 7) sobre el Panel Principal (N = {u['panel_principal_secciones']:,})", cap_st)
+    t3_table = styled_table(t3_rows, [45.27, 85.0, 90.0, 105.0, 145.0], highlight_last=False)
+    story.append(KeepTogether([t3_cap, t3_table]))
     story.append(Spacer(1, 4))
 
     # C7: Oración sobre GMM y HDBSCAN
@@ -466,9 +474,9 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # C4: k casteado a int, justificación k=4
+    # C4: k casteado a int, justificación k=4 (referencia a Figura 2)
     story.append(Paragraph(
-        f"<b>Justificación de la elección de k = {k_sel} (Figura 6):</b> (1) Dentro del rango de 4 a 6 perfiles establecido por la "
+        f"<b>Justificación de la elección de k = {k_sel} (Figura 2):</b> (1) Dentro del rango de 4 a 6 perfiles establecido por la "
         f"convocatoria, <b>k = {k_sel} obtiene el mejor Silhouette ({bench_km_k4['silhouette']:.4f}), el mejor Davies-Bouldin ({bench_km_k4['davies_bouldin']:.4f}) "
         f"y el mejor Calinski-Harabasz ({bench_km_k4['calinski_harabasz']:,.2f})</b>, superando a k = {int(bench_km[2]['k'])} en las cuatro métricas "
         f"({bench_km[2]['silhouette']:.4f}, {bench_km[2]['davies_bouldin']:.4f}, {bench_km[2]['calinski_harabasz']:,.2f} y ARI {bench_km[2]['bootstrap_ari_media']:.4f}) "
@@ -493,8 +501,15 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # Figura 6 (B7): Benchmark
-    story.append(make_figure_flowable(FIGURAS_DIR / "fig6_benchmark_k.png", max_width=PRINTABLE_W, max_height=1.80 * inch))
+    # Figura 2 (D1, D2): Benchmark
+    fig2_flow = Image(str(FIGURAS_DIR / "fig6_benchmark_k.png"), width=6.5 * inch, height=2.15 * inch)
+    fig2_flow.hAlign = "CENTER"
+    fig2_cap = Paragraph(
+        "<b>Figura 2.</b> Benchmark de agrupamiento seccional (k=3 a 7): coeficiente de Silhouette y estabilidad bootstrap ARI (100 réplicas al 80%). "
+        "<i>Fuente: CCPC 2009–2024, elaboración propia.</i>",
+        cap_st
+    )
+    story.append(KeepTogether([fig2_flow, Spacer(1, 3), fig2_cap]))
     story.append(Spacer(1, 4))
 
     # =========================================================================
@@ -504,21 +519,21 @@ def build_pdf(data: dict) -> Path:
     # C9
     story.append(Paragraph(
         f"63.7% de las secciones del panel son urbanas, 26.9% rurales y 9.5% mixtas; por electores, 68.5%, 18.0% y 13.5%. "
-        f"Las Tablas 5 y 6 presentan los centroides en escala original y puntaje z estandarizado respecto a la media del Panel B, "
+        f"Las Tablas 4 y 5 presentan los centroides en escala original y puntaje z estandarizado respecto a la media del Panel B, "
         f"así como sus trayectorias históricas ponderadas y perfiles demográficos.",
         body_st
     ))
 
-    # Tabla 5: Centroides (8 cols = 470.27 pt)
+    # Tabla 4: Centroides (8 cols = 470.27 pt)
     t5_rows = [[
         Paragraph("Perfil y Nombre Oficial", th_l),
-        Paragraph(f"Secciones (% Panel)", th_c),
-        Paragraph(f"LN {serie[-1]['anio']} (% Panel)", th_c),
-        Paragraph("Part. Media (z)", th_c),
+        Paragraph("Secc.<br/>(% Panel)", th_c),
+        Paragraph(f"LN {serie[-1]['anio']}<br/>(% Panel)", th_c),
+        Paragraph("Part. Media<br/>(z)", th_c),
         Paragraph("Brecha Pres–Inter (z)", th_c),
-        Paragraph("Tendencia Anual (z)", th_c),
-        Paragraph("Estabilidad (z)", th_c),
-        Paragraph("Brecha Gen. / Género / Razón Joven (z)", th_c),
+        Paragraph("Tend. Anual<br/>(z)", th_c),
+        Paragraph("Estabilidad<br/>(z)", th_c),
+        Paragraph("Gen. / Género /<br/>Razón Joven (z)", th_c),
     ]]
     for p in perfiles:
         t5_rows.append([
@@ -551,19 +566,22 @@ def build_pdf(data: dict) -> Path:
             td_cb
         ),
     ])
-    story.append(Paragraph(f"Tabla 5. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st))
-    story.append(styled_table(t5_rows, [96.27, 56.0, 56.0, 50.0, 52.0, 52.0, 48.0, 60.0], highlight_last=True))
+    t4_cap = Paragraph(f"Tabla 4. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st)
+    t4_table = styled_table(t5_rows, [88.27, 44.0, 46.0, 44.0, 46.0, 50.0, 62.0, 90.0], highlight_last=True)
+    story.append(KeepTogether([t4_cap, t4_table]))
     story.append(Spacer(1, 4))
 
-    # B5: Tabla 6 compacta (solo serie ponderada, top 3 entidades sin conteos seccionales)
+    # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (9 columnas)
     t6_rows = [[
         Paragraph("Perfil", th_c),
         Paragraph("Serie Ponderada 2009–2024", th_c),
         Paragraph("Pres. / Inter.", th_c),
         Paragraph("18–29 / 60+ años", th_c),
         Paragraph("Mujeres / Hombres", th_c),
-        Paragraph("Tipo U/R/M", th_c),
-        Paragraph("Top 3 Entidades (% secc. cluster)", th_l),
+        Paragraph("% Urb.", th_c),
+        Paragraph("% Rur.", th_c),
+        Paragraph("% Mix.", th_c),
+        Paragraph("Top 3 Entidades (% secc.)", th_l),
     ]]
     for p in perfiles:
         s_pond = " / ".join(f"<b>{p[f'p_{y}_ponderada']*100:.1f}%</b>" if y == 2021 else f"{p[f'p_{y}_ponderada']*100:.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
@@ -576,7 +594,9 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"{p['media_presidencial_original']*100:.1f}% /<br/>{p['media_intermedia_original']*100:.1f}%", td_c),
             Paragraph(f"{p['tasa_joven_18_29_original']*100:.1f}% /<br/>{p['tasa_mayor_60_mas_original']*100:.1f}%", td_c),
             Paragraph(f"{p['tasa_mujeres_original']*100:.1f}% /<br/>{p['tasa_hombres_original']*100:.1f}%", td_c),
-            Paragraph(f"{p['pct_secciones_urbanas']:.1f}/{p['pct_secciones_rurales']:.1f}/{p['pct_secciones_mixtas']:.1f}%", td_c),
+            Paragraph(f"{p['pct_secciones_urbanas']:.1f}%", td_c),
+            Paragraph(f"{p['pct_secciones_rurales']:.1f}%", td_c),
+            Paragraph(f"{p['pct_secciones_mixtas']:.1f}%", td_c),
             Paragraph(clean_top, td_l),
         ])
     s_pond_b = " / ".join(f"<b>{pan_b[f'p_{y}_ponderada']*100:.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
@@ -586,15 +606,14 @@ def build_pdf(data: dict) -> Path:
         Paragraph(f"<b>{pan_b['media_presidencial_original']*100:.1f}% /<br/>{pan_b['media_intermedia_original']*100:.1f}%</b>", td_cb),
         Paragraph(f"<b>{pan_b['tasa_joven_18_29_original']*100:.1f}% /<br/>{pan_b['tasa_mayor_60_mas_original']*100:.1f}%</b>", td_cb),
         Paragraph(f"<b>{pan_b['tasa_mujeres_original']*100:.1f}% /<br/>{pan_b['tasa_hombres_original']*100:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['pct_secciones_urbanas_1d']:.1f}/{pan_b['pct_secciones_rurales_1d']:.1f}/{pan_b['pct_secciones_mixtas_1d']:.1f}%</b>", td_cb),
-        Paragraph(f"Total Nacional ({u['panel_principal_municipios']:,} municipios)", td_lb),
+        Paragraph(f"<b>{pan_b['pct_secciones_urbanas_1d']:.1f}%</b>", td_cb),
+        Paragraph(f"<b>{pan_b['pct_secciones_rurales_1d']:.1f}%</b>", td_cb),
+        Paragraph(f"<b>{pan_b['pct_secciones_mixtas_1d']:.1f}%</b>", td_cb),
+        Paragraph(f"Total Nacional ({u['panel_principal_municipios']:,} mun.)", td_lb),
     ])
-    story.append(Paragraph(f"Tabla 6. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st))
-    story.append(styled_table(t6_rows, [40.27, 114.0, 52.0, 54.0, 54.0, 62.0, 94.0], highlight_last=True))
-    story.append(Spacer(1, 4))
-
-    # Figura 3a (B7): Standalone Heatmap de Centroides
-    story.append(make_figure_flowable(FIGURAS_DIR / "fig3a_radar_centroides.png", max_width=PRINTABLE_W, max_height=1.35 * inch))
+    t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
+    t5_table = styled_table(t6_rows, [32.27, 100.0, 50.0, 46.0, 50.0, 34.0, 34.0, 34.0, 90.0], highlight_last=True)
+    story.append(KeepTogether([t5_cap, t5_table]))
     story.append(Spacer(1, 4))
 
     # Diagnósticos por perfil (C8: la más baja/alta de los cuatro perfiles, C12: glifos ≥ y ≤)
@@ -610,7 +629,7 @@ def build_pdf(data: dict) -> Path:
     # =========================================================================
     story.append(Paragraph("5. Estrategias Focalizadas de Promoción e Intervención Institucional (ENCÍVICA)", h1_st))
     story.append(Paragraph(
-        f"Las estrategias para los cuatro perfiles (Tabla 7) se fundamentan en las facultades operativas del INE en el marco de la ENCÍVICA. "
+        f"Las estrategias para los cuatro perfiles (Tabla 6) se fundamentan en las facultades operativas del INE en el marco de la ENCÍVICA. "
         f"Cada meta cuantitativa para la elección intermedia de 2027 adopta como referencia la <b>línea base real de la intermedia de 2021 (serie ponderada)</b> "
         f"de cada perfil: <b>C0 = {estrategias[0]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[0]['p_2021_ponderada']*100:.2f}%), "
         f"<b>C1 = {estrategias[1]['linea_base_intermedia_2021_pond_pct']:.1f}%</b> ({perfiles[1]['p_2021_ponderada']*100:.2f}%), "
@@ -666,7 +685,7 @@ def build_pdf(data: dict) -> Path:
         Paragraph("Canales y Acción Operativa INE", th_l),
         Paragraph("Meta Cuantitativa e Indicador", th_l),
         Paragraph("Unidad y Costo Indicativo", th_l),
-        Paragraph("Lema Neutral", th_l),
+        Paragraph("Lema propuesto", th_l),
     ]]
     for item in t7_compact_data:
         t7_rows.append([
@@ -677,8 +696,8 @@ def build_pdf(data: dict) -> Path:
             Paragraph(item["unidad_costo"], td_l),
             Paragraph(item["lema"], td_l),
         ])
-    story.append(Paragraph(f"Tabla 7. Estrategias Focalizadas por Perfil Ciudadano (k = {k_sel}), Líneas Base, Metas y Viabilidad Operativa", cap_st))
-    story.append(styled_table(t7_rows, [78.27, 86.0, 96.0, 85.0, 65.0, 60.0]))
+    story.append(Paragraph(f"Tabla 6. Estrategias Focalizadas por Perfil Ciudadano (k = {k_sel}), Líneas Base, Metas y Viabilidad Operativa", cap_st))
+    story.append(styled_table(t7_rows, [75.27, 85.0, 95.0, 80.0, 65.0, 70.0]))
     # D4: Regla de metas
     story.append(Paragraph(
         "<i>Regla de metas: los perfiles por debajo del promedio del panel buscan cerrar la mitad de su diferencia con él en la siguiente elección del mismo tipo; los perfiles por encima buscan sostener su nivel.</i>",
@@ -692,7 +711,7 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph("6. Limitaciones Metodológicas, Análisis de Sensibilidad y Recomendaciones al INE", h1_st))
     # Sesgo del panel B: +0.44 a +0.97 pts ponderado
     story.append(Paragraph(
-        f"<b>1. Sesgo del Panel Principal y secciones excluidas:</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
+        f"<b>1. Sesgo del Panel Principal y secciones excluidas (Tabla 7):</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
         f"excluidas del Panel Principal ({inc_exc[1]['pct_secciones_2024']:.2f}% del total y {inc_exc[1]['pct_ln_2024']:.2f}% de la Lista Nominal) "
         f"se dividen en: (a) {inc_exc[2]['n_secciones']:,} secciones creadas o modificadas post-{serie[0]['anio']}, con participación de "
         f"<b>{inc_exc[2]['participacion_2024_ponderada_sv_svnv_pct']:.2f}%</b> ({inc_exc[2]['pct_urbana']:.1f}% urbanas); y (b) {inc_exc[3]['n_secciones']:,} "
@@ -705,12 +724,12 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # B6: Tabla 8 compacta con 4 filas y sin entidades (ancho = 470.27 pt)
+    # Tabla 7: Incluidas vs Excluidas (ancho = 470.27 pt)
     t8_rows = [[
         Paragraph(f"Subuniverso de Secciones en {serie[-1]['anio']}", th_l),
-        Paragraph("Secciones", th_c),
+        Paragraph("Secc.", th_c),
         Paragraph(f"% Secc. {serie[-1]['anio']}", th_c),
-        Paragraph(f"LN {serie[-1]['anio']}", th_c),
+        Paragraph(f"Lista Nominal {serie[-1]['anio']}", th_c),
         Paragraph(f"% LN {serie[-1]['anio']}", th_c),
         Paragraph("% Urbano", th_c),
         Paragraph(f"Part. {serie[-1]['anio']} Pond.", th_c),
@@ -735,8 +754,9 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"{urb_val:.1f}%", st_c),
             Paragraph(f"<b>{r['participacion_2024_ponderada_sv_svnv_pct']:.2f}%</b>", st_c),
         ])
-    story.append(Paragraph(f"Tabla 8. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st))
-    story.append(styled_table(t8_rows, [134.27, 54.0, 50.0, 70.0, 54.0, 52.0, 56.0], highlight_last=True))
+    t7_cap = Paragraph(f"Tabla 7. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st)
+    t7_table = styled_table(t8_rows, [134.27, 54.0, 50.0, 70.0, 54.0, 52.0, 56.0], highlight_last=True)
+    story.append(KeepTogether([t7_cap, t7_table]))
     story.append(Spacer(1, 4))
 
     story.append(Paragraph(
