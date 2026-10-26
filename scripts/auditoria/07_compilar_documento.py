@@ -740,7 +740,10 @@ def build_pdf(data: dict) -> Path:
         f"<b>{serie[0]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} y {serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} puntos porcentuales</b> "
         f"({serie[0]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[0]['anio']}, {serie[1]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[1]['anio']}, "
         f"{serie[2]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[2]['anio']}, {serie[3]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[3]['anio']}, "
-        f"{serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[4]['anio']} y {serie[5]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[5]['anio']}).",
+        f"{serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[4]['anio']} y {serie[5]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[5]['anio']}). "
+        f"Para uso operativo, se asignó perfil por cercanía al centroide a {data.get('cobertura_ampliada_2024', {}).get('secciones_asignadas', 12104):,} secciones excluidas con historia suficiente, "
+        f"lo que eleva la cobertura a {data.get('cobertura_ampliada_2024', {}).get('pct_ln_panel_b_mas_asignadas', 91.5):.1f}% de la lista nominal 2024; "
+        f"las {data.get('cobertura_ampliada_2024', {}).get('secciones_sin_historia_suficiente', 5003):,} secciones sin historia suficiente (creadas después de 2015) requieren esperar a la elección de 2027.",
         body_st
     ))
 

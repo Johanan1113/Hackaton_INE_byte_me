@@ -753,6 +753,227 @@ def build_validacion_fuera_de_tiempo(df_b: pd.DataFrame) -> dict:
     }
 
 
+def build_cobertura_ampliada(df_b: pd.DataFrame) -> dict:
+    """
+    Bloque C: Cobertura ampliada (Limitaciones).
+    Asigna un perfil por cercanía al centroide (sin reentrenar) a las secciones excluidas
+    del Panel B que tengan al menos 2 elecciones presidenciales y 2 intermedias válidas (SV+NV >= 50).
+    Calcula sus 7 variables con el método de la Opción A, aplicando los mismos parámetros de
+    winsorización y escalado del Panel B.
+    Guarda outputs/perfil_por_seccion_2024.csv con columnas EDOCVE, DEF, SECCION, perfil, origen, LN_2024.
+    """
+    df70 = pd.read_parquet(OUT_FASE2 / "panel_70751_2024_completo.parquet")
+    b_ids = set(df_b["seccion_id"])
+    excluded = df70[~df70["seccion_id"].isin(b_ids)].copy().reset_index(drop=True)
+
+    ql_qh = {col: df_b[col].quantile([0.01, 0.99]).to_dict() for col in FEATURE_COLS}
+    X_win_b = pd.DataFrame({col: df_b[col].clip(lower=ql_qh[col][0.01], upper=ql_qh[col][0.99]) for col in FEATURE_COLS})
+    scaler = RobustScaler().fit(X_win_b[FEATURE_COLS])
+    X_sc_b = scaler.transform(X_win_b[FEATURE_COLS])
+    km = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42).fit(X_sc_b)
+
+    years = [2009, 2012, 2015, 2018, 2021, 2024]
+    pres_years = [2012, 2018, 2024]
+    mid_years = [2009, 2015, 2021]
+
+    for y in years:
+        inv = excluded[f"sv_nv_{y}"] < 50
+        for pfx in ["p", "p_joven", "p_mayor", "p_mujer", "p_hombre"]:
+            excluded.loc[inv, f"{pfx}_{y}"] = np.nan
+
+    pres_mat = excluded[[f"p_{y}" for y in pres_years]].to_numpy(dtype=float)
+    mid_mat = excluded[[f"p_{y}" for y in mid_years]].to_numpy(dtype=float)
+    all_mat = excluded[[f"p_{y}" for y in years]].to_numpy(dtype=float)
+
+    n_pres_valid = np.sum(~np.isnan(pres_mat), axis=1)
+    n_mid_valid = np.sum(~np.isnan(mid_mat), axis=1)
+
+    mask_valid = (n_pres_valid >= 2) & (n_mid_valid >= 2)
+    valid_exc = excluded[mask_valid].copy().reset_index(drop=True)
+    sin_historia = excluded[~mask_valid].copy().reset_index(drop=True)
+
+    all_mat_v = all_mat[mask_valid]
+    pres_mat_v = pres_mat[mask_valid]
+    mid_mat_v = mid_mat[mask_valid]
+
+    valid_exc["participacion_media_historica"] = np.nanmean(all_mat_v, axis=1)
+    valid_exc["brecha_presidencial_intermedia"] = np.nanmean(pres_mat_v, axis=1) - np.nanmean(mid_mat_v, axis=1)
+
+    x = np.array([0.0, 3.0, 6.0, 9.0, 12.0, 15.0], dtype=float)
+    v_mask = ~np.isnan(all_mat_v)
+    n_val = v_mask.sum(axis=1)
+    x_bar = (v_mask * x).sum(axis=1) / n_val
+    y_bar = valid_exc["participacion_media_historica"].to_numpy()
+    x_diff = np.where(v_mask, x - x_bar[:, None], 0.0)
+    y_diff = np.where(v_mask, all_mat_v - y_bar[:, None], 0.0)
+    denom = (x_diff ** 2).sum(axis=1)
+    valid_exc["tendencia_participacion_beta"] = (x_diff * y_diff).sum(axis=1) / denom
+
+    std_v = np.nanstd(all_mat_v, axis=1, ddof=1)
+    inv_cv_v = valid_exc["participacion_media_historica"].to_numpy() / (std_v + 1e-4)
+    valid_exc["estabilidad_participacion"] = np.log1p(inv_cv_v)
+
+    pj_mat_v = valid_exc[[f"p_joven_{y}" for y in years]].to_numpy(dtype=float)
+    pm_mat_v = valid_exc[[f"p_mayor_{y}" for y in years]].to_numpy(dtype=float)
+    pf_mat_v = valid_exc[[f"p_mujer_{y}" for y in years]].to_numpy(dtype=float)
+    ph_mat_v = valid_exc[[f"p_hombre_{y}" for y in years]].to_numpy(dtype=float)
+
+    tasa_j = np.nanmean(pj_mat_v, axis=1)
+    tasa_m = np.nanmean(pm_mat_v, axis=1)
+    tasa_f = np.nanmean(pf_mat_v, axis=1)
+    tasa_h = np.nanmean(ph_mat_v, axis=1)
+    tasa_m_filled = np.where(np.isnan(tasa_m), valid_exc["participacion_media_historica"], tasa_m)
+
+    valid_exc["brecha_generacional"] = tasa_m_filled - tasa_j
+    valid_exc["brecha_genero"] = tasa_f - tasa_h
+    valid_exc["ratio_participacion_joven"] = tasa_j / valid_exc["participacion_media_historica"].to_numpy()
+
+    X_win_exc = pd.DataFrame({col: valid_exc[col].clip(lower=ql_qh[col][0.01], upper=ql_qh[col][0.99]) for col in FEATURE_COLS})
+    X_sc_exc = scaler.transform(X_win_exc[FEATURE_COLS])
+    pred_clusters = km.predict(X_sc_exc)
+    valid_exc["cluster"] = pred_clusters
+
+    # Combine panel_B + asignada
+    b_rows = df_b[["edocve", "seccion", "cluster", "ln_2024", "seccion_id"]].merge(
+        df70[["seccion_id", "def_2024"]], on="seccion_id", how="left"
+    )
+    b_rows["origen"] = "panel_B"
+
+    exc_rows = valid_exc[["edocve", "def_2024", "seccion", "cluster", "ln_2024"]].copy()
+    exc_rows["origen"] = "asignada"
+
+    comb = pd.concat([b_rows, exc_rows], ignore_index=True)
+    comb["perfil"] = comb["cluster"].apply(lambda c: f"C{c}")
+    comb["EDOCVE"] = comb["edocve"].astype(int)
+    comb["DEF"] = comb["def_2024"].astype(int)
+    comb["SECCION"] = comb["seccion"].astype(int)
+    comb["LN_2024"] = comb["ln_2024"].astype(int)
+
+    df_perfil_seccion = comb[["EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024"]].sort_values(["EDOCVE", "SECCION"]).reset_index(drop=True)
+    df_perfil_seccion.to_csv(PROJECT_ROOT / "outputs" / "perfil_por_seccion_2024.csv", index=False)
+
+    dist_asignadas = {}
+    for c in range(4):
+        s_c = valid_exc[valid_exc["cluster"] == c]
+        dist_asignadas[f"C{c}"] = {
+            "nombre": CLUSTER_META[c]["nombre"],
+            "n_secciones": int(len(s_c)),
+            "pct_de_asignadas": round(len(s_c) / len(valid_exc) * 100.0, 2),
+            "ln_2024": int(s_c["ln_2024"].sum()),
+            "pct_ln_de_asignadas": round(float(s_c["ln_2024"].sum() / valid_exc["ln_2024"].sum() * 100.0), 2),
+        }
+
+    total_n = len(df70)
+    total_ln = int(df70["ln_2024"].sum())
+    n_b = len(df_b)
+    ln_b = int(df_b["ln_2024"].sum())
+    n_asig = len(valid_exc)
+    ln_asig = int(valid_exc["ln_2024"].sum())
+    n_cob = n_b + n_asig
+    ln_cob = ln_b + ln_asig
+    n_sin = len(sin_historia)
+    ln_sin = int(sin_historia["ln_2024"].sum())
+
+    filas_tabla_14 = [
+        {
+            "categoria": "Panel B (Principal, 2009–2024 continuo)",
+            "perfil": "Todos (C0–C3)",
+            "secciones": n_b,
+            "pct_secciones": round(n_b / total_n * 100.0, 2),
+            "ln_2024": ln_b,
+            "pct_ln_2024": round(ln_b / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Asignadas por centroide (historia suficiente)",
+            "perfil": f"C0: {CLUSTER_META[0]['nombre']}",
+            "secciones": dist_asignadas["C0"]["n_secciones"],
+            "pct_secciones": round(dist_asignadas["C0"]["n_secciones"] / total_n * 100.0, 2),
+            "ln_2024": dist_asignadas["C0"]["ln_2024"],
+            "pct_ln_2024": round(dist_asignadas["C0"]["ln_2024"] / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Asignadas por centroide (historia suficiente)",
+            "perfil": f"C1: {CLUSTER_META[1]['nombre']}",
+            "secciones": dist_asignadas["C1"]["n_secciones"],
+            "pct_secciones": round(dist_asignadas["C1"]["n_secciones"] / total_n * 100.0, 2),
+            "ln_2024": dist_asignadas["C1"]["ln_2024"],
+            "pct_ln_2024": round(dist_asignadas["C1"]["ln_2024"] / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Asignadas por centroide (historia suficiente)",
+            "perfil": f"C2: {CLUSTER_META[2]['nombre']}",
+            "secciones": dist_asignadas["C2"]["n_secciones"],
+            "pct_secciones": round(dist_asignadas["C2"]["n_secciones"] / total_n * 100.0, 2),
+            "ln_2024": dist_asignadas["C2"]["ln_2024"],
+            "pct_ln_2024": round(dist_asignadas["C2"]["ln_2024"] / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Asignadas por centroide (historia suficiente)",
+            "perfil": f"C3: {CLUSTER_META[3]['nombre']}",
+            "secciones": dist_asignadas["C3"]["n_secciones"],
+            "pct_secciones": round(dist_asignadas["C3"]["n_secciones"] / total_n * 100.0, 2),
+            "ln_2024": dist_asignadas["C3"]["ln_2024"],
+            "pct_ln_2024": round(dist_asignadas["C3"]["ln_2024"] / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Subtotal asignadas excluidas",
+            "perfil": "Todas asignadas",
+            "secciones": n_asig,
+            "pct_secciones": round(n_asig / total_n * 100.0, 2),
+            "ln_2024": ln_asig,
+            "pct_ln_2024": round(ln_asig / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Total con perfil asignado (Panel B + Asignadas)",
+            "perfil": "Cobertura ampliada",
+            "secciones": n_cob,
+            "pct_secciones": round(n_cob / total_n * 100.0, 2),
+            "ln_2024": ln_cob,
+            "pct_ln_2024": round(ln_cob / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Excluidas sin historia suficiente (<2 pres o <2 mid)",
+            "perfil": "Sin perfil asignado (creadas post-2015)",
+            "secciones": n_sin,
+            "pct_secciones": round(n_sin / total_n * 100.0, 2),
+            "ln_2024": ln_sin,
+            "pct_ln_2024": round(ln_sin / total_ln * 100.0, 2),
+        },
+        {
+            "categoria": "Total Nacional CCPC 2024",
+            "perfil": "Universo total",
+            "secciones": total_n,
+            "pct_secciones": 100.0,
+            "ln_2024": total_ln,
+            "pct_ln_2024": 100.0,
+        },
+    ]
+
+    return {
+        "universo_total_secciones": total_n,
+        "universo_total_ln_2024": total_ln,
+        "panel_b_secciones": n_b,
+        "panel_b_pct_secciones": round(n_b / total_n * 100.0, 2),
+        "panel_b_ln_2024": ln_b,
+        "panel_b_pct_ln_2024": round(ln_b / total_ln * 100.0, 2),
+        "secciones_asignadas": n_asig,
+        "pct_secciones_asignadas": round(n_asig / total_n * 100.0, 2),
+        "ln_2024_asignadas": ln_asig,
+        "pct_ln_2024_asignadas": round(ln_asig / total_ln * 100.0, 2),
+        "secciones_cobertura_ampliada": n_cob,
+        "pct_secciones_cobertura_ampliada": round(n_cob / total_n * 100.0, 2),
+        "ln_2024_cobertura_ampliada": ln_cob,
+        "pct_ln_cobertura_ampliada": round(ln_cob / total_ln * 100.0, 2),
+        "pct_ln_panel_b_mas_asignadas": round(ln_cob / total_ln * 100.0, 1),
+        "secciones_sin_historia_suficiente": n_sin,
+        "pct_secciones_sin_historia_suficiente": round(n_sin / total_n * 100.0, 2),
+        "ln_2024_sin_historia_suficiente": ln_sin,
+        "pct_ln_sin_historia_suficiente": round(ln_sin / total_ln * 100.0, 2),
+        "distribucion_asignadas_por_perfil": dist_asignadas,
+        "tabla_14": filas_tabla_14,
+    }
+
+
 def export_metricas_finales_json(
     df_b: pd.DataFrame,
     df_univ: pd.DataFrame,
@@ -839,6 +1060,7 @@ def export_metricas_finales_json(
         "comparacion_k4_k5_k6": df_comp.to_dict(orient="records"),
         "lineas_base_metas": build_lineas_base_metas(df_b),
         "validacion_fuera_de_tiempo": build_validacion_fuera_de_tiempo(df_b),
+        "cobertura_ampliada_2024": build_cobertura_ampliada(df_b),
     }
 
     metricas_path.write_text(

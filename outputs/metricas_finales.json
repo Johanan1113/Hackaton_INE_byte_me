@@ -261,6 +261,131 @@
       "silhouette": NaN
     }
   ],
+  "cobertura_ampliada_2024": {
+    "distribucion_asignadas_por_perfil": {
+      "C0": {
+        "ln_2024": 4717424,
+        "n_secciones": 4490,
+        "nombre": "Baja Participación Intermitente con Rezago Juvenil",
+        "pct_de_asignadas": 37.1,
+        "pct_ln_de_asignadas": 40.07
+      },
+      "C1": {
+        "ln_2024": 1591187,
+        "n_secciones": 1933,
+        "nombre": "Alta Participación Estable e Intergeneracional",
+        "pct_de_asignadas": 15.97,
+        "pct_ln_de_asignadas": 13.52
+      },
+      "C2": {
+        "ln_2024": 2478820,
+        "n_secciones": 2879,
+        "nombre": "Participación en Ascenso con Juventud Activa",
+        "pct_de_asignadas": 23.79,
+        "pct_ln_de_asignadas": 21.06
+      },
+      "C3": {
+        "ln_2024": 2985065,
+        "n_secciones": 2802,
+        "nombre": "Liderazgo Femenino con Participación Estancada",
+        "pct_de_asignadas": 23.15,
+        "pct_ln_de_asignadas": 25.36
+      }
+    },
+    "ln_2024_asignadas": 11772496,
+    "ln_2024_cobertura_ampliada": 89972014,
+    "ln_2024_sin_historia_suficiente": 8358334,
+    "panel_b_ln_2024": 78199518,
+    "panel_b_pct_ln_2024": 79.53,
+    "panel_b_pct_secciones": 75.82,
+    "panel_b_secciones": 53644,
+    "pct_ln_2024_asignadas": 11.97,
+    "pct_ln_cobertura_ampliada": 91.5,
+    "pct_ln_panel_b_mas_asignadas": 91.5,
+    "pct_ln_sin_historia_suficiente": 8.5,
+    "pct_secciones_asignadas": 17.11,
+    "pct_secciones_cobertura_ampliada": 92.93,
+    "pct_secciones_sin_historia_suficiente": 7.07,
+    "secciones_asignadas": 12104,
+    "secciones_cobertura_ampliada": 65748,
+    "secciones_sin_historia_suficiente": 5003,
+    "tabla_14": [
+      {
+        "categoria": "Panel B (Principal, 2009–2024 continuo)",
+        "ln_2024": 78199518,
+        "pct_ln_2024": 79.53,
+        "pct_secciones": 75.82,
+        "perfil": "Todos (C0–C3)",
+        "secciones": 53644
+      },
+      {
+        "categoria": "Asignadas por centroide (historia suficiente)",
+        "ln_2024": 4717424,
+        "pct_ln_2024": 4.8,
+        "pct_secciones": 6.35,
+        "perfil": "C0: Baja Participación Intermitente con Rezago Juvenil",
+        "secciones": 4490
+      },
+      {
+        "categoria": "Asignadas por centroide (historia suficiente)",
+        "ln_2024": 1591187,
+        "pct_ln_2024": 1.62,
+        "pct_secciones": 2.73,
+        "perfil": "C1: Alta Participación Estable e Intergeneracional",
+        "secciones": 1933
+      },
+      {
+        "categoria": "Asignadas por centroide (historia suficiente)",
+        "ln_2024": 2478820,
+        "pct_ln_2024": 2.52,
+        "pct_secciones": 4.07,
+        "perfil": "C2: Participación en Ascenso con Juventud Activa",
+        "secciones": 2879
+      },
+      {
+        "categoria": "Asignadas por centroide (historia suficiente)",
+        "ln_2024": 2985065,
+        "pct_ln_2024": 3.04,
+        "pct_secciones": 3.96,
+        "perfil": "C3: Liderazgo Femenino con Participación Estancada",
+        "secciones": 2802
+      },
+      {
+        "categoria": "Subtotal asignadas excluidas",
+        "ln_2024": 11772496,
+        "pct_ln_2024": 11.97,
+        "pct_secciones": 17.11,
+        "perfil": "Todas asignadas",
+        "secciones": 12104
+      },
+      {
+        "categoria": "Total con perfil asignado (Panel B + Asignadas)",
+        "ln_2024": 89972014,
+        "pct_ln_2024": 91.5,
+        "pct_secciones": 92.93,
+        "perfil": "Cobertura ampliada",
+        "secciones": 65748
+      },
+      {
+        "categoria": "Excluidas sin historia suficiente (<2 pres o <2 mid)",
+        "ln_2024": 8358334,
+        "pct_ln_2024": 8.5,
+        "pct_secciones": 7.07,
+        "perfil": "Sin perfil asignado (creadas post-2015)",
+        "secciones": 5003
+      },
+      {
+        "categoria": "Total Nacional CCPC 2024",
+        "ln_2024": 98330348,
+        "pct_ln_2024": 100.0,
+        "pct_secciones": 100.0,
+        "perfil": "Universo total",
+        "secciones": 70751
+      }
+    ],
+    "universo_total_ln_2024": 98330348,
+    "universo_total_secciones": 70751
+  },
   "comparacion_k4_k5_k6": [
     {
       "brecha_generacional_orig": 0.2064,
