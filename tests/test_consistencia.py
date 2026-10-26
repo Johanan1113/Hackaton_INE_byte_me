@@ -709,3 +709,37 @@ def test_cobertura_ampliada() -> None:
     assert "5,003" in doc_full, "Cifra '5,003' no encontrada en el texto de Limitaciones del Documento"
 
 
+def test_piloto() -> None:
+    """
+    J1: El MDE y el n del texto coinciden con tabla_15 y con metricas_finales.json.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    pil = data["potencia_piloto_c0"]
+    df_t15 = pd.read_csv(TABLAS_DIR / "tabla_15_potencia_piloto.csv")
+
+    assert len(df_t15) == 3, "tabla_15 debe tener 3 filas para n=250, 500, 1000"
+    row500 = df_t15[df_t15["secciones_por_grupo_n"] == 500].iloc[0]
+
+    assert pil["n_seleccionado"] == 500
+    assert pil["diseno_seleccionado"] == "ANCOVA"
+    assert abs(pil["mde_seleccionado_pts"] - 1.57) < 0.01
+    assert abs(row500["mde_ancova_pts"] - 1.57) < 0.01
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    assert "500 de tratamiento y 500 de control" in doc_full or "500 secciones por grupo" in doc_full
+    assert "1.57" in doc_full, "MDE = 1.57 no encontrado en Documento Técnico"
+    assert "ANCOVA" in doc_full, "Diseño ANCOVA no encontrado en Documento Técnico"
+
+
+def test_paginas() -> None:
+    """
+    J1: Documento Técnico <= 12 páginas, Fichas = 5 páginas.
+    """
+    doc_reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf"))
+    fichas_reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf"))
+
+    assert len(doc_reader.pages) <= 12, f"Documento tiene {len(doc_reader.pages)} páginas (> 12)"
+    assert len(doc_reader.pages) >= 8, f"Documento tiene {len(doc_reader.pages)} páginas (< 8)"
+    assert len(fichas_reader.pages) == 5, f"Fichas tiene {len(fichas_reader.pages)} páginas (!= 5)"
+
+

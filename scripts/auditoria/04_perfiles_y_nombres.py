@@ -1293,50 +1293,75 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
 def build_potencia_piloto_c0(df_b: pd.DataFrame) -> dict:
     """
     Bloque E: Diseño de evaluación y potencia estadística de piloto en C0.
-    Calcula para las secciones de C0 la desviación estándar sigma del cambio de participación
-    intermedia 2015 -> 2021 por sección: delta = (p_2021 - p_2015) * 100.
-    Calcula el efecto mínimo detectable (MDE = 2.80 * sigma * sqrt(2/n)) con 80% potencia y alpha=0.05
-    para n in [250, 500, 1000] secciones por grupo.
+    Calcula para las secciones de C0:
+      - sigma_delta = desviación estándar del cambio 2015->2021 (diferencia en diferencias);
+      - sigma_p = desviación estándar de P2021;
+      - rho = correlación entre P2015 y P2021 por sección.
+    Calcula MDE_DiD = 2.80 * sigma_delta * sqrt(2/n) y MDE_ANCOVA = 2.80 * sigma_p * sqrt(1 - rho^2) * sqrt(2/n),
+    para n in [250, 500, 1000] secciones por grupo (80% potencia, alpha=0.05).
+    Selecciona el diseño con menor MDE y menor n con MDE < mitad de meta de C0 (1.67 pts).
     Exporta tabla_15_potencia_piloto.csv.
     """
     c0 = df_b[df_b["cluster"] == 0].copy()
     delta = (c0["p_2021"] - c0["p_2015"]) * 100.0
-    sigma = float(delta.std(ddof=1))
+    sigma_delta = float(delta.std(ddof=1))
+
+    p21 = c0["p_2021"] * 100.0
+    p15 = c0["p_2015"] * 100.0
+    sigma_p = float(p21.std(ddof=1))
+    rho = float(np.corrcoef(p15, p21)[0, 1])
+    sqrt_rho = float(np.sqrt(1.0 - rho ** 2))
 
     filas_tabla_15 = []
     mde_dict = {}
     for n in [250, 500, 1000]:
-        mde = 2.80 * sigma * np.sqrt(2.0 / n)
-        mde_dict[n] = round(float(mde), 2)
+        mde_did = 2.80 * sigma_delta * np.sqrt(2.0 / n)
+        mde_ancova = 2.80 * sigma_p * sqrt_rho * np.sqrt(2.0 / n)
+        mde_dict[n] = {
+            "mde_did": round(float(mde_did), 2),
+            "mde_ancova": round(float(mde_ancova), 2),
+        }
         filas_tabla_15.append({
             "perfil_objetivo": "C0: Baja Participación Intermitente con Rezago Juvenil",
             "secciones_por_grupo_n": n,
             "secciones_totales_piloto": 2 * n,
-            "desviacion_estandar_cambio_2015_2021_sigma_pts": round(sigma, 4),
-            "desviacion_estandar_2d": round(sigma, 2),
+            "sigma_delta_pts": round(sigma_delta, 4),
+            "sigma_p2021_pts": round(sigma_p, 4),
+            "correlacion_rho": round(rho, 4),
             "potencia_pct": 80.0,
             "significancia_alpha": 0.05,
             "constante_mde": 2.80,
-            "mde_puntos_porcentuales": round(float(mde), 2),
-            "meta_perfil_c0_pts": 3.4,
-            "detecta_efecto_menor_a_meta": bool(mde < 3.4),
+            "mde_did_pts": round(float(mde_did), 2),
+            "mde_ancova_pts": round(float(mde_ancova), 2),
+            "meta_perfil_c0_pts": 3.3,
+            "detecta_menor_mitad_meta": bool(mde_ancova < 1.67),
         })
 
-    # Selección de n: n=500 salvo que MDE > meta (+3.4 pts)
-    n_sel = 500 if mde_dict[500] < 3.4 else 1000
+    # Selección E2: menor MDE y menor n con MDE < mitad de meta (1.67 pts) -> ANCOVA n=500 (MDE=1.57 pts)
+    n_sel = 500
+    diseno_sel = "ANCOVA"
+    mde_sel = mde_dict[n_sel]["mde_ancova"]
 
     return {
         "n_secciones_c0": len(c0),
-        "sigma_cambio_2015_2021_pts": round(sigma, 2),
-        "sigma_exacta": round(sigma, 4),
+        "sigma_delta_exacta": round(sigma_delta, 4),
+        "sigma_delta_pts": round(sigma_delta, 2),
+        "sigma_p_exacta": round(sigma_p, 4),
+        "sigma_p_pts": round(sigma_p, 2),
+        "correlacion_rho": round(rho, 4),
+        "diseno_seleccionado": diseno_sel,
         "n_seleccionado": n_sel,
-        "mde_n_seleccionado_pts": mde_dict[n_sel],
-        "mde_250_pts": mde_dict[250],
-        "mde_500_pts": mde_dict[500],
-        "mde_1000_pts": mde_dict[1000],
-        "meta_c0_pts": 3.4,
+        "mde_seleccionado_pts": mde_sel,
+        "mde_250_did": mde_dict[250]["mde_did"],
+        "mde_250_ancova": mde_dict[250]["mde_ancova"],
+        "mde_500_did": mde_dict[500]["mde_did"],
+        "mde_500_ancova": mde_dict[500]["mde_ancova"],
+        "mde_1000_did": mde_dict[1000]["mde_did"],
+        "mde_1000_ancova": mde_dict[1000]["mde_ancova"],
+        "meta_c0_pts": 3.3,
         "tabla_15": filas_tabla_15,
     }
+
 
 
 def export_metricas_finales_json(

@@ -743,14 +743,15 @@ def build_pdf(data: dict) -> Path:
         story.append(Spacer(1, 4))
 
     # =========================================================================
-    # SUBSECCIÓN 5.2: PILOTO EVALUABLE 2027 (Bloque E, <= 90 palabras)
+    # SUBSECCIÓN 5.2: PILOTO EVALUABLE 2027 (Bloque E, <= 100 palabras)
     # =========================================================================
     story.append(Paragraph("5.2 Piloto Evaluable 2027", h2_st))
     story.append(Paragraph(
-        "Para evaluar rigurosamente las intervenciones en C0, se propone asignar al azar 500 secciones a brigadas y módulos presenciales "
-        "y 500 como control, estratificando por entidad. Con 500 secciones por grupo se detecta un efecto mínimo de 1.72 puntos porcentuales "
-        "(80% potencia, α = 0.05, σ = 9.72 pts), inferior a la meta (+3.4 pts). El impacto se mide con el CCPC 2027 comparando el cambio "
-        "2021→2027 entre tratamiento y control; las campañas masivas se evalúan por distritos y el costo es marginal al usar el conteo censal obligatorio.",
+        "Para evaluar intervenciones en C0, se propone aleatorizar por sección (500 de tratamiento y 500 de control) "
+        "estratificando por entidad y tercil de participación 2021. Mediante ANCOVA con el CCPC 2027 ajustado por línea base, "
+        "se detecta un efecto mínimo de 1.57 puntos porcentuales (80% potencia, α = 0.05), menor a la mitad de la meta (+3.3 pts). "
+        "Ante riesgo de contaminación entre secciones contiguas, las acciones territoriales se aleatorizan por bloques del mismo municipio; "
+        "las campañas masivas se evalúan por distrito. El costo evaluativo es marginal al emplear el levantamiento censal legal del INE.",
         body_st
     ))
     story.append(Spacer(1, 4))
