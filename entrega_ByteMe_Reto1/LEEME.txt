@@ -1,0 +1,76 @@
+================================================================================
+CONCURSO INE: "HACKEA LA PARTICIPACIÓN: DATOS QUE CONSTRUYEN DEMOCRACIA"
+PAQUETE DE ENTREGA OFICIAL · RETO 1: PERFILES CIUDADANOS DE PARTICIPACIÓN
+================================================================================
+
+1. DATOS DEL EQUIPO
+--------------------------------------------------------------------------------
+Equipo:            Byte me
+Eje / Reto:        Reto 1 — Perfiles ciudadanos de participación
+Repositorio:       https://github.com/Johanan1113/Hackaton_INE_byte_me
+
+Integrantes:
+1. Johanan Olivares Gutiérrez (representante)
+2. Oscar Ariel Cuevas Martínez
+3. Saúl Alexis Arias González
+
+
+2. INVENTARIO DE ARCHIVOS ENTREGADOS
+--------------------------------------------------------------------------------
+1. Documento_Tecnico_ByteMe.pdf
+   Documento técnico oficial (12 páginas, tipografía Arial modal 11 pt, 
+   interlineado 1.5, márgenes de 2.5 cm). Contiene la auditoría de microdatos
+   del CCPC 2009–2024, la cascada de depuración (53,644 secciones del Panel B),
+   la justificación de k=4 perfiles mediante K-Means++, validación temporal
+   (2009–2021 -> 2024), cobertura ampliada (91.5% Lista Nominal), cuantificación
+   de impacto electoral (607 mil – 1.27 millones votantes adicionales) y diseño
+   del piloto evaluable ANCOVA 2027 (n=500 por grupo, MDE = 1.57 pts).
+
+2. Fichas_Perfiles_ByteMe.pdf
+   Fichas infográficas ejecutivas en 5 páginas horizontales (tamaño Carta,
+   tipografía >= 10 pt):
+   - Página 1: Portada ejecutiva y síntesis metodológica nacional.
+   - Página 2: Perfil C0 — Baja Participación Intermitente con Rezago Juvenil.
+   - Página 3: Perfil C1 — Alta Participación Estable e Intergeneracional.
+   - Página 4: Perfil C2 — Participación en Ascenso con Juventud Activa.
+   - Página 5: Perfil C3 — Liderazgo Femenino con Participación Estancada.
+
+3. Fichas individuales en formato PNG (300 DPI):
+   - Fichas_Portada.png:        Portada ejecutiva y matriz nacional.
+   - Ficha_C0.png:              Ficha infográfica C0.
+   - Ficha_C1.png:              Ficha infográfica C1.
+   - Ficha_C2.png:              Ficha infográfica C2.
+   - Ficha_C3.png:              Ficha infográfica C3.
+   - Fichas_Perfiles_ByteMe.png: Mosaico vertical completo de las 5 páginas.
+
+4. LEEME.txt
+   Este archivo descriptivo de la entrega.
+
+
+3. ESPACIOS RESERVADOS PARA DOCUMENTOS DEL EQUIPO
+--------------------------------------------------------------------------------
+[ ] Presentación ejecutiva del proyecto (pitch / diapositivas, formato PDF)
+    -> Archivo a incorporar por el equipo: Presentacion_Ejecutiva_ByteMe.pdf
+
+[ ] Carta de postulación / aceptación institucional del integrante 1
+    -> Archivo a incorporar por el equipo: Carta_Postulacion_Johanan_Olivares.pdf
+
+[ ] Carta de postulación / aceptación institucional del integrante 2
+    -> Archivo a incorporar por el equipo: Carta_Postulacion_Oscar_Cuevas.pdf
+
+[ ] Carta de postulación / aceptación institucional del integrante 3
+    -> Archivo a incorporar por el equipo: Carta_Postulacion_Saul_Arias.pdf
+
+
+4. REPRODUCIBILIDAD Y CÓDIGO FUENTE
+--------------------------------------------------------------------------------
+Todo el código fuente, pruebas automatizadas y scripts de auditoría están
+disponibles en el repositorio público:
+https://github.com/Johanan1113/Hackaton_INE_byte_me
+
+Para reproducir el pipeline completo desde cero:
+1. Clonar el repositorio.
+2. Descargar los ZIPs del CCPC 2009–2024 en data/raw_zips/ (ver README.md).
+3. Ejecutar: python run_all.py
+4. Ejecutar las pruebas unitarias: pytest -v
+================================================================================

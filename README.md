@@ -53,6 +53,13 @@ reto1_perfiles_participacion/
 ├── BITACORA.md                                      # Bitácora técnica cronológica y trazabilidad de cambios
 ├── requirements.txt                                 # Dependencias fijadas del entorno de ejecución
 ├── run_all.py                                       # Orquestador maestro reproducible de punta a punta
+├── entrega_ByteMe_Reto1/                            # Carpeta con el paquete de entrega formal del concurso
+│   ├── Documento_Tecnico_ByteMe.pdf                 # Documento Técnico (12 págs, Arial 11 pt / interlineado 1.5)
+│   ├── Fichas_Perfiles_ByteMe.pdf                   # Fichas de perfiles (5 págs horizontales, texto >= 10 pt)
+│   ├── Fichas_Portada.png                           # Portada ejecutiva (300 DPI)
+│   ├── Ficha_C0.png ... Ficha_C3.png                # Fichas individuales por perfil (300 DPI)
+│   ├── Fichas_Perfiles_ByteMe.png                   # Mosaico vertical de 5 páginas (300 DPI)
+│   └── LEEME.txt                                    # Manifiesto formal de entrega y reserva de espacios
 ├── plantillas/
 │   └── documento_tecnico.md.j2                      # Plantilla Jinja2 del documento técnico
 ├── scripts/auditoria/
@@ -61,26 +68,25 @@ reto1_perfiles_participacion/
 │   ├── 02_verificacion_datos.py                     # Fase 1: Verificación profunda de datos CCPC 2009–2024
 │   ├── 03_robustez_modelo.py                        # Fase 2: Robustez del modelo y clustering k=4
 │   ├── 04_perfiles_y_nombres.py                     # Fase 3: Perfiles, estrategias y metricas_finales.json
-│   ├── 05_exportar_tablas.py                        # Fase 4: Exportación de las 12 tablas oficiales en CSV
+│   ├── 05_exportar_tablas.py                        # Fase 4: Exportación de las 18 tablas oficiales en CSV (utf-8-sig)
 │   ├── 06_generar_figuras.py                        # Fase 5: Generación de figuras analíticas a 300 DPI
 │   ├── 07_compilar_documento.py                     # Fase 6: Compilación del Documento Técnico PDF (Arial 11/19)
 │   ├── 08_generar_fichas.py                         # Fase 7: Generación de Fichas de Perfiles (PDF 5 págs y PNGs)
 │   └── 09_validacion_consistencia.py                # Fase 8: Validación automatizada de consistencia y cifras
 ├── tests/
-│   └── test_consistencia.py                         # Suite de pruebas automatizadas con pytest
+│   └── test_consistencia.py                         # Suite de 23 pruebas automatizadas con pytest
 └── outputs/
     ├── metricas_finales.json                        # Fuente única de verdad (cero cifras escritas a mano)
     ├── reporte_validacion_consistencia.json         # Resultado de validación automatizada
-    ├── tablas/                                      # 12 tablas CSV oficiales (tabla_01..tabla_12)
+    ├── perfil_por_seccion_2024.csv                  # Tipología seccional nacional (65,748 secciones, 91.5% LN)
+    ├── juntas_prioritarias_por_perfil.csv           # Priorización territorial distrital (300 distritos)
+    ├── tablas/                                      # 18 tablas CSV oficiales en utf-8-sig (tabla_01..tabla_17)
     ├── figuras/                                     # Figuras PNG a 300 DPI
     └── entregables/
-        ├── Documento_Tecnico_ByteMe.pdf             # Documento Técnico Oficial (8 a 12 págs, Arial 11 pt / 19 pt leading)
+        ├── Documento_Tecnico_ByteMe.pdf             # Documento Técnico Oficial (12 págs, Arial 11 pt / 19 pt leading)
         ├── Fichas_Perfiles_ByteMe.pdf               # Fichas de los 4 Perfiles (5 págs horizontales)
         ├── Fichas_Portada.png                       # Ficha Portada en PNG a 300 DPI
-        ├── Ficha_C0.png                             # Ficha C0 en PNG a 300 DPI
-        ├── Ficha_C1.png                             # Ficha C1 en PNG a 300 DPI
-        ├── Ficha_C2.png                             # Ficha C2 en PNG a 300 DPI
-        ├── Ficha_C3.png                             # Ficha C3 en PNG a 300 DPI
+        ├── Ficha_C0.png ... Ficha_C3.png            # Fichas C0 a C3 en PNG a 300 DPI
         └── Fichas_Perfiles_ByteMe.png               # Vista combinada de Fichas a 300 DPI
 ```
 
@@ -96,11 +102,13 @@ Los datos abiertos de los Conteos Censales de Participación Ciudadana correspon
 - **2021:** Conteo Censal de Participación Ciudadana 2021 (elección intermedia).
 - **2024:** Conteo Censal de Participación Ciudadana 2024 (elección presidencial).
 
-Para reproducir desde cero, los archivos comprimidos provistos por el INE deben residir en `data/raw_zips/` (o enlazados simbólicamente desde el directorio de almacenamiento local de conteos censales):
+Plataforma oficial de descarga: https://www.ine.mx/conteos-censales-participacion-ciudadana/
+
+Para reproducir desde cero, los archivos comprimidos provistos por el INE deben residir en `data/raw_zips/` (o extraerse en `data/raw_csvs/`):
 ```bash
-# Ejemplo de enlace o copia de los microdatos crudos:
+# Crear directorio de datos crudos:
 mkdir -p data/raw_zips
-# Colocar dentro de data/raw_zips/ los paquetes zip o directorios oficiales del CCPC 2009-2024
+# Descargar o copiar los ZIPs de microdatos del CCPC 2009-2024 en data/raw_zips/
 ```
 
 ---
@@ -115,9 +123,36 @@ mkdir -p data/raw_zips
 # 1. Instalar dependencias exactas
 pip install -r requirements.txt
 
-# 2. Ejecutar todo el pipeline desde cero
+# 2. Ejecutar todo el pipeline desde cero (determinista, random_state=42)
 python run_all.py
 
-# 3. Ejecutar la suite de pruebas de consistencia y control de cifras
+# 3. Ejecutar la suite completa de 23 pruebas de consistencia y control de cifras
 pytest tests/test_consistencia.py -v
 ```
+
+---
+
+## 6. Instrucciones de Publicación del Repositorio (para el equipo)
+
+Para publicar el repositorio en GitHub sin alterar ramas protegidas:
+```bash
+# 1. Confirmar rama y estado de git limpio:
+git checkout version-final
+git status
+
+# 2. Verificar que no haya archivos mayores a 50 MB ni datos crudos rastreados:
+git ls-files | while read f; do if [ -f "$f" ]; then size=$(stat -c%s "$f"); if [ $size -gt 50000000 ]; then echo "$f: $((size/1024/1024)) MB"; fi; fi; done
+
+# 3. Fusionar con main (avance rápido / fast-forward):
+git checkout main
+git merge version-final --ff-only
+
+# 4. Enviar cambios al repositorio remoto en GitHub:
+git push origin main
+git push origin version-final
+
+# 5. Si se etiqueta una versión de entrega formal:
+git tag -a v1.0.0 -m "Entrega Oficial Reto 1 - Hackea la participación INE 2026 - Equipo Byte me"
+git push origin v1.0.0
+```
+
