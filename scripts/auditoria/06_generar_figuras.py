@@ -223,7 +223,7 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=6.5, frameon=True)
 
     fig.tight_layout()
-    fig.savefig(OUT_FIGURAS / "fig2_evolucion_temporal.png", dpi=300)
+    fig.savefig(OUT_FIGURAS / "fig2_evolucion_temporal.png", dpi=480)
     plt.close(fig)
 
 
@@ -521,7 +521,7 @@ def generate_fig6_benchmark_k(data: dict) -> None:
     ax2.legend(loc="lower left", fontsize=7.0, frameon=True)
 
     fig.tight_layout()
-    fig.savefig(OUT_FIGURAS / "fig6_benchmark_k.png", dpi=300)
+    fig.savefig(OUT_FIGURAS / "fig6_benchmark_k.png", dpi=600)
     plt.close(fig)
 
 

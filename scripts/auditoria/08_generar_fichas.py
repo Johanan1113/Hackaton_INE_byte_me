@@ -73,9 +73,8 @@ PROFILE_TEXTS = {
             "y barreras de tiempo en jóvenes trabajadores o estudiantes no escolarizados."
         ),
         "propuesta": (
-            "Pedagogía legislativa sobre el impacto directo de las elecciones intermedias en transporte masivo y plataformas digitales; "
-            "módulos itinerantes de credencialización en parques industriales, tianguis y centros laborales; y activación cívica con la plataforma "
-            "'Conóceles' para jóvenes no escolarizados y universitarios."
+            "Pedagogía electoral sobre comicios intermedios en transporte masivo; "
+            "atención prioritaria a jóvenes no escolarizados en centros laborales y parques industriales; y módulos universitarios del INE."
         ),
         "meta": "Elevar la participación a 49.5% en la intermedia de 2027 (+3.4 pts vs 2021) y el voto juvenil 18–29 a 39.1% (+3.9 pts).",
         "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",
@@ -116,8 +115,8 @@ PROFILE_TEXTS = {
             "y la creciente politización de demandas locales y servicios en zonas en consolidación."
         ),
         "propuesta": (
-            "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y causas ciudadanas; "
-            "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión intensiva de candidaturas mediante 'Conóceles'."
+            "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "
+            "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar información de todas las candidaturas."
         ),
         "meta": "Consolidar una participación ≥ 60.4% en la intermedia de 2027 y sostener una razón de participación juvenil ≥ 0.88.",
         "indicador": "Tasa ponderada SV/(SV+NV) 2027 y razón de participación juvenil CCPC.",
@@ -129,17 +128,17 @@ PROFILE_TEXTS = {
     },
     3: {
         "quienes_son": (
-            "Secciones con marcada sobrerrepresentación campesina (41.2% rural vs 26.9% nacional). "
+            "Secciones con marcada sobrerrepresentación rural (41.2% vs 26.9% del panel). "
             "Se distingue por un notable liderazgo de las mujeres (60.9% de participación vs 49.7% en hombres, brecha de +11.2 pts) "
             "y una caída en comicios presidenciales desde 2012."
         ),
         "hipotesis": (
-            "Hipótesis: El rezago del voto masculino y la caída presidencial obedecen a la migración laboral masculina temporal, "
-            "dispersión geográfica de casillas y desatención de demandas productivas del campo."
+            "Hipótesis: El rezago del voto masculino y la caída presidencial obedecen a la migración laboral masculina temporal "
+            "y dispersión geográfica de casillas."
         ),
         "propuesta": (
             "Campaña focalizada de motivación del voto masculino en centros agropecuarios, cooperativas y rutas de transporte; "
-            "fortalecimiento de rutas móviles y casillas extraordinarias de la DEOE; y alianzas con redes comunitarias de mujeres como promotoras cívicas del hogar."
+            "fortalecimiento de rutas móviles y casillas extraordinarias de la DEOE; y alianzas con redes comunitarias de mujeres como promotoras cívicas."
         ),
         "meta": "Elevar la participación a 51.1% en 2027, 58.1% en 2030 y el voto masculino a 46.3% en 2027 (cerrando la mitad de la brecha con el Panel B).",
         "indicador": "Tasa seccional masculina y general ponderada SV/(SV+NV) en CCPC.",
@@ -147,46 +146,47 @@ PROFILE_TEXTS = {
         "lema": "La participación de todas y todos cuenta: sumemos la voz de hombres y jóvenes en cada comunidad",
         "brecha_label": "Brecha de Género",
         "brecha_val": "+11.2 pts",
-        "brecha_sub": "Mayor liderazgo femenino a favor de M",
+        "brecha_sub": "Las mujeres votan más que los hombres",
     },
 }
 
 
 def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038, color: str = "#1E3A8A") -> None:
     """Dibuja un ícono geométrico distintivo limpio para cada perfil en coordenadas de transAxes."""
-    circ = Circle((cx, cy), radius, facecolor=color, edgecolor="white", linewidth=2.0, transform=ax.transAxes, zorder=6)
+    circ = Circle((cx, cy), radius, facecolor=color, edgecolor="white", linewidth=max(1.0, 2.0 * radius / 0.038), transform=ax.transAxes, zorder=6)
     ax.add_patch(circ)
+    scale = radius / 0.038
     if cid == 0:
         # Barras intermitentes (alta-baja-alta-baja)
         for idx, h in enumerate([0.014, 0.032, 0.016, 0.030]):
-            bx = cx - 0.020 + idx * 0.011
-            by = cy - 0.016
-            ax.add_patch(Rectangle((bx, by), 0.007, h, facecolor="white", transform=ax.transAxes, zorder=7))
+            bx = cx + (-0.020 + idx * 0.011) * scale
+            by = cy - 0.016 * scale
+            ax.add_patch(Rectangle((bx, by), 0.007 * scale, h * scale, facecolor="white", transform=ax.transAxes, zorder=7))
     elif cid == 1:
         # Escudo de constancia cívica
         pts = np.array([
-            [cx, cy + 0.022],
-            [cx + 0.018, cy + 0.010],
-            [cx + 0.014, cy - 0.016],
-            [cx, cy - 0.024],
-            [cx - 0.014, cy - 0.016],
-            [cx - 0.018, cy + 0.010],
+            [cx, cy + 0.022 * scale],
+            [cx + 0.018 * scale, cy + 0.010 * scale],
+            [cx + 0.014 * scale, cy - 0.016 * scale],
+            [cx, cy - 0.024 * scale],
+            [cx - 0.014 * scale, cy - 0.016 * scale],
+            [cx - 0.018 * scale, cy + 0.010 * scale],
         ])
         ax.add_patch(Polygon(pts, closed=True, facecolor="white", transform=ax.transAxes, zorder=7))
     elif cid == 2:
         # Flecha ascendente
-        ax.plot([cx - 0.018, cx - 0.005, cx + 0.006, cx + 0.018],
-                [cy - 0.014, cy - 0.002, cy - 0.006, cy + 0.016],
-                color="white", linewidth=2.8, transform=ax.transAxes, zorder=7)
-        ax.plot([cx + 0.008, cx + 0.018, cx + 0.018],
-                [cy + 0.016, cy + 0.016, cy + 0.005],
-                color="white", linewidth=2.8, transform=ax.transAxes, zorder=7)
+        ax.plot([cx - 0.018 * scale, cx - 0.005 * scale, cx + 0.006 * scale, cx + 0.018 * scale],
+                [cy - 0.014 * scale, cy - 0.002 * scale, cy - 0.006 * scale, cy + 0.016 * scale],
+                color="white", linewidth=max(1.0, 2.8 * scale), transform=ax.transAxes, zorder=7)
+        ax.plot([cx + 0.008 * scale, cx + 0.018 * scale, cx + 0.018 * scale],
+                [cy + 0.016 * scale, cy + 0.016 * scale, cy + 0.005 * scale],
+                color="white", linewidth=max(1.0, 2.8 * scale), transform=ax.transAxes, zorder=7)
     elif cid == 3:
         # Símbolo de liderazgo femenino
-        c_inner = Circle((cx, cy + 0.008), 0.011, fill=False, edgecolor="white", linewidth=2.4, transform=ax.transAxes, zorder=7)
+        c_inner = Circle((cx, cy + 0.008 * scale), 0.011 * scale, fill=False, edgecolor="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
         ax.add_patch(c_inner)
-        ax.plot([cx, cx], [cy - 0.003, cy - 0.020], color="white", linewidth=2.4, transform=ax.transAxes, zorder=7)
-        ax.plot([cx - 0.010, cx + 0.010], [cy - 0.012, cy - 0.012], color="white", linewidth=2.4, transform=ax.transAxes, zorder=7)
+        ax.plot([cx, cx], [cy - 0.003 * scale, cy - 0.020 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
+        ax.plot([cx - 0.010 * scale, cx + 0.010 * scale], [cy - 0.012 * scale, cy - 0.012 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
 
 
 def render_cover_page(data: dict) -> plt.Figure:
@@ -246,41 +246,32 @@ def render_cover_page(data: dict) -> plt.Figure:
 
     # Bloque metodológico en exactamente 3 renglones
     meth_box = FancyBboxPatch(
-        (0.04, 0.495), 0.92, 0.145,
+        (0.04, 0.465), 0.92, 0.170,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="#F1F5F9", edgecolor="#94A3B8", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(meth_box)
-    ax.text(0.06, 0.615, "SÍNTESIS METODOLÓGICA (TRES PILARES ANALÍTICOS):", fontsize=10.5, fontweight="bold", color="#0F172A", transform=ax.transAxes)
-    ax.text(
-        0.06, 0.580,
-        "1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.",
-        fontsize=10.0, color="#1F2937", transform=ax.transAxes
-    )
-    ax.text(
-        0.06, 0.545,
-        "2. Panel Principal continuo (Opción B, cero imputación): 53,644 secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento (75.82% secciones y 79.53% LN 2024 en 2,393 municipios).",
-        fontsize=10.0, color="#1F2937", transform=ax.transAxes
-    )
-    ax.text(
-        0.06, 0.510,
-        "3. Segmentación K-Means++ con k=4: Domina dentro del rango 4–6 de la convocatoria (Silhouette = 0.1789, ARI bootstrap = 0.9572 y clasificador Random Forest con 96.29% de exactitud).",
-        fontsize=10.0, color="#1F2937", transform=ax.transAxes
-    )
+    ax.text(0.06, 0.608, "SÍNTESIS METODOLÓGICA (TRES PILARES ANALÍTICOS):", fontsize=10.5, fontweight="bold", color="#0F172A", transform=ax.transAxes)
+    p1_text = textwrap.fill("1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.", width=118)
+    p2_text = textwrap.fill("2. Panel Principal continuo (Opción B, cero imputación): 53,644 secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento (75.82% secciones y 79.53% LN 2024 en 2,393 municipios).", width=118)
+    p3_text = textwrap.fill("3. Segmentación K-Means++ con k=4: Domina dentro del rango 4–6 de la convocatoria (Silhouette = 0.1789, ARI bootstrap = 0.9572 y clasificador Random Forest con 96.29% de exactitud).", width=118)
+    ax.text(0.06, 0.575, p1_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.525, p2_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.475, p3_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Mini-tabla de resumen de los 4 perfiles
-    ax.text(0.04, 0.455, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.04, 0.435, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
 
     col_x = [0.04, 0.09, 0.42, 0.56, 0.69, 0.76, 0.96]
-    y_tbl = 0.420
+    y_tbl = 0.395
     # Encabezado tabla
-    ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.032, facecolor="#1E3A8A", transform=ax.transAxes))
-    ax.text(0.065, y_tbl + 0.008, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.24, y_tbl + 0.008, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.44, y_tbl + 0.008, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.575, y_tbl + 0.008, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.695, y_tbl + 0.008, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.855, y_tbl + 0.008, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.034, facecolor="#1E3A8A", transform=ax.transAxes))
+    ax.text(0.065, y_tbl + 0.009, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.23, y_tbl + 0.009, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.44, y_tbl + 0.009, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.575, y_tbl + 0.009, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.695, y_tbl + 0.009, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.855, y_tbl + 0.009, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
 
     perfiles = data["perfiles"]
     rows_data = [
@@ -299,20 +290,21 @@ def render_cover_page(data: dict) -> plt.Figure:
     ]
 
     for idx, (cid, name, secc, ln, part, rasgo) in enumerate(rows_data):
-        y_r = y_tbl - 0.038 - idx * 0.052
+        y_r = y_tbl - 0.042 - idx * 0.058
         bg_c = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
-        ax.add_patch(Rectangle((0.04, y_r - 0.012), 0.92, 0.048, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
+        ax.add_patch(Rectangle((0.04, y_r - 0.014), 0.92, 0.054, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
         theme_p = THEMES[idx]
-        draw_profile_icon(ax, idx, 0.062, y_r + 0.012, radius=0.014, color=theme_p["primary"])
-        ax.text(0.088, y_r + 0.012, name, fontsize=8.6, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
-        ax.text(0.440, y_r + 0.012, secc, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.575, y_r + 0.012, ln, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.695, y_r + 0.012, part, fontsize=9.2, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.755, y_r + 0.012, rasgo, fontsize=8.4, color="#374151", va="center", transform=ax.transAxes)
+        draw_profile_icon(ax, idx, 0.065, y_r + 0.013, radius=0.015, color=theme_p["primary"])
+        ax.text(0.090, y_r + 0.013, name, fontsize=7.8, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
+        ax.text(0.440, y_r + 0.013, secc, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.575, y_r + 0.013, ln, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.695, y_r + 0.013, part, fontsize=9.5, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        wrapped_rasgo = textwrap.fill(rasgo, width=28)
+        ax.text(0.755, y_r + 0.013, wrapped_rasgo, fontsize=8.2, color="#374151", va="center", transform=ax.transAxes)
 
     # Pie de página institucional
     ax.text(
-        0.50, 0.055,
+        0.50, 0.065,
         "Fuentes: Microdatos Conteos Censales de Participación Ciudadana (CCPC 2009–2024), INE México. Consulta las fichas individuales en las páginas 2 a 5.",
         fontsize=9.2, color="#64748B", ha="center", va="center", style="italic", transform=ax.transAxes
     )
@@ -352,17 +344,17 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     draw_profile_icon(ax, cid, 0.075, 0.912, radius=0.028, color=theme["badge"])
 
     ax.text(
-        0.12, 0.925, f"PERFIL {p['codigo_cluster']}: {p['nombre_propuesto'].upper()}",
+        0.12, 0.925, f"PERFIL {p['codigo_cluster']}: {p['nombre_propuesto']}",
         fontsize=14.5, fontweight="bold", color="white", va="center", transform=ax.transAxes
     )
     cov_str = (
-        f"Cobertura: {p['n_secciones']:,} secciones ({p['pct_secciones_panel']:.1f}% Panel B)   •   "
-        f"LN 2024: {p['ln_2024']:,} electores ({p['pct_ln_panel']:.1f}% Panel B) en {p['n_municipios_con_presencia']:,} municipios   •   "
-        f"Composición: {p['pct_secciones_urbanas']:.1f}% Urbana, {p['pct_secciones_rurales']:.1f}% Rural, {p['pct_secciones_mixtas']:.1f}% Mixta"
+        f"Cobertura: {p['n_secciones']:,} secc. ({p['pct_secciones_panel']:.1f}%)   •   "
+        f"LN: {p['ln_2024']/1e6:.2f}M ({p['pct_ln_panel']:.1f}%) en {p['n_municipios_con_presencia']:,} mun.   •   "
+        f"Composición: {p['pct_secciones_urbanas']:.1f}% Urb., {p['pct_secciones_rurales']:.1f}% Rur., {p['pct_secciones_mixtas']:.1f}% Mix."
     )
     ax.text(
         0.12, 0.885, cov_str,
-        fontsize=8.5, color="#F3F4F6", va="center", transform=ax.transAxes
+        fontsize=8.8, color="#F3F4F6", va="center", transform=ax.transAxes
     )
 
     # 4 Cifras Grandes (Callout Cards) (y=0.745..0.850)
@@ -389,7 +381,7 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
         ax.text(x_starts[i] + card_w / 2, 0.752, sub_c, fontsize=8.2, color="#6B7280", ha="center", va="center", transform=ax.transAxes)
 
     # Columna Izquierda: Gráfica de la serie histórica ponderada (0.035..0.505, y=0.340..0.720)
-    ax_plot = fig.add_axes([0.055, 0.380, 0.440, 0.335])
+    ax_plot = fig.add_axes([0.055, 0.365, 0.440, 0.330])
     p_vals = [p[f"p_{y}_ponderada"] * 100 for y in years]
     b_vals = [pan_b[f"p_{y}_ponderada"] * 100 for y in years]
 
@@ -399,11 +391,23 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
 
     # Línea del cluster
     ax_plot.plot(years, p_vals, marker="o", linewidth=2.8, markersize=7.5, color=theme["primary"], label=f"Perfil {p['codigo_cluster']}", zorder=4)
-    for x_v, y_v in zip(years, p_vals):
-        # C15: Etiquetas 8-10 pt por encima del punto para evitar encimamiento
+    for i_x, (x_v, y_v) in enumerate(zip(years, p_vals)):
+        # E5: Dips (mínimos locales) por debajo con offset negativo; resto por encima con fondo blanco
+        is_dip = False
+        if i_x == 0 and len(p_vals) > 1 and y_v < p_vals[1]:
+            is_dip = True
+        elif i_x == len(p_vals) - 1 and len(p_vals) > 1 and y_v < p_vals[i_x - 1]:
+            is_dip = True
+        elif 0 < i_x < len(p_vals) - 1 and y_v < p_vals[i_x - 1] and y_v < p_vals[i_x + 1]:
+            is_dip = True
+
+        dy = -13 if is_dip else 10
+        va_align = "top" if is_dip else "bottom"
         ax_plot.annotate(
-            f"{y_v:.1f}%", (x_v, y_v), textcoords="offset points", xytext=(0, 9),
-            ha="center", fontsize=9.2, fontweight="bold", color=theme["primary"]
+            f"{y_v:.1f}%", (x_v, y_v), textcoords="offset points", xytext=(0, dy),
+            ha="center", va=va_align, fontsize=8.8, fontweight="bold", color=theme["primary"],
+            bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none", alpha=0.85),
+            zorder=5
         )
 
     # C15: Línea gris punteada Media del Panel B
@@ -412,7 +416,7 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     ax_plot.set_xticklabels([f"{y}\n({'Inter.' if y in (2009,2015,2021) else 'Pres.'})" for y in years], fontsize=9.0)
     ax_plot.set_ylim(min(min(p_vals), min(b_vals)) - 6, max(max(p_vals), max(b_vals)) + 7)
     ax_plot.set_ylabel("Participación SV/(SV+NV) (%)", fontsize=9.5, fontweight="bold")
-    ax_plot.set_title("Trayectoria Electoral Ponderada (2009–2024)", fontsize=10.5, fontweight="bold", pad=8)
+    ax_plot.set_title("Trayectoria Electoral Ponderada (2009–2024)", fontsize=10.5, fontweight="bold", pad=6)
     ax_plot.grid(True, alpha=0.5)
     ax_plot.legend(loc="lower right", fontsize=9.0, frameon=True)
 
@@ -426,18 +430,18 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     ax.add_patch(b1_box)
     ax.text(0.535, 0.706, "QUIÉNES SON:", fontsize=10.0, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
     wrapped_qs = textwrap.fill(texts["quienes_son"], width=62)
-    ax.text(0.535, 0.686, wrapped_qs, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.686, wrapped_qs, fontsize=9.0, color="#1F2937", va="top", transform=ax.transAxes)
 
-    # Bloque 2: Hipótesis de abstencionismo (<= 35 palabras, marcada como hipótesis)
+    # Bloque 2: Hipótesis (E1: Renombrado de HIPÓTESIS DE ABSTENCIONISMO a HIPÓTESIS)
     b2_box = FancyBboxPatch(
         (0.520, 0.475), 0.445, 0.118,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b2_box)
-    ax.text(0.535, 0.575, "HIPÓTESIS DE ABSTENCIONISMO:", fontsize=10.0, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
+    ax.text(0.535, 0.575, "HIPÓTESIS:", fontsize=10.0, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
     wrapped_hip = textwrap.fill(texts["hipotesis"], width=62)
-    ax.text(0.535, 0.555, wrapped_hip, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.555, wrapped_hip, fontsize=9.0, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Bloque 3: Qué proponemos (<= 60 palabras)
     b3_box = FancyBboxPatch(
@@ -447,7 +451,7 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     )
     ax.add_patch(b3_box)
     ax.text(0.535, 0.445, "QUÉ PROPONEMOS (ENCÍVICA / INE):", fontsize=10.0, fontweight="bold", color="#047857", transform=ax.transAxes)
-    wrapped_prop = textwrap.fill(texts["propuesta"], width=64)
+    wrapped_prop = textwrap.fill(texts["propuesta"], width=62)
     ax.text(0.535, 0.425, wrapped_prop, fontsize=8.8, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.122..0.315)
@@ -460,19 +464,27 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
 
     ax.text(0.055, 0.288, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
 
-    # Meta
-    ax.text(0.055, 0.254, "Meta:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.254, textwrap.fill(texts["meta"], width=108), fontsize=9.6, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr = 0.258
+    # Meta (E6: alineación superior de etiquetas con el primer renglón del texto)
+    wrapped_meta = textwrap.fill(texts["meta"], width=108)
+    n_lines_meta = wrapped_meta.count("\n") + 1
+    ax.text(0.055, y_curr, "Meta:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.125, y_curr, wrapped_meta, fontsize=9.4, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.018 + n_lines_meta * 0.016)
 
     # Indicador
-    ax.text(0.055, 0.208, "Indicador:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.208, textwrap.fill(texts["indicador"], width=108), fontsize=9.6, color="#1F2937", va="top", transform=ax.transAxes)
+    wrapped_ind = textwrap.fill(texts["indicador"], width=108)
+    n_lines_ind = wrapped_ind.count("\n") + 1
+    ax.text(0.055, y_curr, "Indicador:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.125, y_curr, wrapped_ind, fontsize=9.4, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.018 + n_lines_ind * 0.016)
 
-    # Unidad y Costo
-    ax.text(0.055, 0.162, "Operación:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.162, texts["unidad_costo"], fontsize=9.6, color="#374151", va="top", transform=ax.transAxes)
+    # Operación
+    wrapped_op = textwrap.fill(texts["unidad_costo"], width=108)
+    ax.text(0.055, y_curr, "Operación:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.125, y_curr, wrapped_op, fontsize=9.4, color="#374151", va="top", transform=ax.transAxes)
 
-    # Lema Neutral al Pie (y=0.045..0.105)
+    # Lema al Pie (y=0.045..0.105) (E1: Renombrado a Lema propuesto)
     lema_box = FancyBboxPatch(
         (0.035, 0.045), 0.930, 0.065,
         boxstyle="round,pad=0.008,rounding_size=0.012",
@@ -480,7 +492,7 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     )
     ax.add_patch(lema_box)
     ax.text(
-        0.50, 0.078, f"Lema Institucional: \"{texts['lema']}\"",
+        0.50, 0.078, f"Lema propuesto: \"{texts['lema']}\"",
         fontsize=11.2, fontweight="bold", style="italic", color="white", ha="center", va="center", transform=ax.transAxes
     )
 

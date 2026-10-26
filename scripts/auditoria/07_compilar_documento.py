@@ -567,7 +567,7 @@ def build_pdf(data: dict) -> Path:
         ),
     ])
     t4_cap = Paragraph(f"Tabla 4. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st)
-    t4_table = styled_table(t5_rows, [88.27, 44.0, 46.0, 44.0, 46.0, 50.0, 62.0, 90.0], highlight_last=True)
+    t4_table = styled_table(t5_rows, [85.27, 42.0, 56.0, 42.0, 44.0, 49.0, 62.0, 90.0], highlight_last=True)
     story.append(KeepTogether([t4_cap, t4_table]))
     story.append(Spacer(1, 4))
 
