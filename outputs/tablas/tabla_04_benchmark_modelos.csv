@@ -1,4 +1,4 @@
-aic,algoritmo,ari_vs_kmeans_mismo_k,bic,bootstrap_ari_ic95_inf,bootstrap_ari_ic95_sup,bootstrap_ari_media,bootstrap_ari_std,calinski_harabasz,cluster_max_pct,cluster_min_pct,configuracion,davies_bouldin,inercia,k,n_clusters_efectivos,pct_ruido,silhouette
+﻿aic,algoritmo,ari_vs_kmeans_mismo_k,bic,bootstrap_ari_ic95_inf,bootstrap_ari_ic95_sup,bootstrap_ari_media,bootstrap_ari_std,calinski_harabasz,cluster_max_pct,cluster_min_pct,configuracion,davies_bouldin,inercia,k,n_clusters_efectivos,pct_ruido,silhouette
 ,K-Means++,1.0,,0.9174,0.9963,0.9734,0.0235,16402.41,42.59,23.48,k=3,1.4875,139446.31,3.0,3,0.0,0.2099
 ,K-Means++,1.0,,0.9091,0.9915,0.9572,0.0253,14435.43,32.85,16.45,k=4,1.538,124339.87,4.0,4,0.0,0.1789
 ,K-Means++,1.0,,0.8728,0.9854,0.9327,0.033,12676.61,30.28,12.95,k=5,1.6109,115520.92,5.0,5,0.0,0.1625

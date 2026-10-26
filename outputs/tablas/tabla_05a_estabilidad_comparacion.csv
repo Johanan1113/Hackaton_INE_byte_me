@@ -1,4 +1,4 @@
-ari_vs_a,ari_vs_b,ari_vs_c,asimetria_skew,calinski_harabasz_k4,curtosis_kurt,davies_bouldin_k4,max,media,mediana,min,p01,p99,seleccionada,silhouette_k4,std,version
+﻿ari_vs_a,ari_vs_b,ari_vs_c,asimetria_skew,calinski_harabasz_k4,curtosis_kurt,davies_bouldin_k4,max,media,mediana,min,p01,p99,seleccionada,silhouette_k4,std,version
 1.0,0.5103,0.6608,3.7833,15778.12,31.2533,1.4414,113.929308,7.077,5.543065,0.916929,2.726637,25.105245,False,0.1965,4.741216,a_inv_cv_sin_acotar
 0.5103,1.0,0.7451,0.1517,13945.15,-0.4784,1.559,0.366561,0.17932,0.180232,0.039694,0.039699,0.366555,False,0.1731,0.072323,b_cv_directo_winsor_p1_p99
 0.6608,0.7451,1.0,0.994,14435.43,0.5726,1.538,3.262136,1.979655,1.878406,1.315506,1.315516,3.262124,True,0.1789,0.41697,c_log1p_inv_cv_winsor_p1_p99

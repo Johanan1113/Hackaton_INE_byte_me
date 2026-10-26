@@ -1,4 +1,4 @@
-constante_mde,desviacion_estandar_2d,desviacion_estandar_cambio_2015_2021_sigma_pts,detecta_efecto_menor_a_meta,mde_puntos_porcentuales,meta_perfil_c0_pts,perfil_objetivo,potencia_pct,secciones_por_grupo_n,secciones_totales_piloto,significancia_alpha
+﻿constante_mde,desviacion_estandar_2d,desviacion_estandar_cambio_2015_2021_sigma_pts,detecta_efecto_menor_a_meta,mde_puntos_porcentuales,meta_perfil_c0_pts,perfil_objetivo,potencia_pct,secciones_por_grupo_n,secciones_totales_piloto,significancia_alpha
 2.8,9.72,9.7191,True,2.43,3.4,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,250,500,0.05
 2.8,9.72,9.7191,True,1.72,3.4,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,500,1000,0.05
 2.8,9.72,9.7191,True,1.22,3.4,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,1000,2000,0.05

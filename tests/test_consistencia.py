@@ -653,7 +653,24 @@ def test_validacion_temporal_reportada() -> None:
     assert "0.139" in doc_full, "η² = 0.139 no encontrado en el Documento Técnico"
     assert "0.474" in doc_full, "Línea base η² = 0.474 no encontrada en el Documento Técnico"
     assert "0.610" in doc_full, "ARI = 0.610 no encontrado en el Documento Técnico"
-    assert "Validación fuera de tiempo" in doc_full, "Párrafo de validación fuera de tiempo no encontrado en el Documento"
+    assert "Estabilidad temporal" in doc_full or "Validación fuera de tiempo" in doc_full, "Párrafo de validación temporal no encontrado en el Documento"
+
+
+def test_valor_agregado_reportado() -> None:
+    """
+    J1: Los ΔR² y valores p coinciden con tabla_13 y aparecen en el texto del documento.
+    """
+    df_t13 = pd.read_csv(TABLAS_DIR / "tabla_13_validacion_temporal.csv")
+    row13 = df_t13.iloc[0]
+
+    assert abs(row13["delta_r2_p2024"] - 0.1479) < 0.001
+    assert abs(row13["delta_r2_cambio"] - 0.0298) < 0.001
+    assert row13["p_valor_p2024_str"] == "< 0.001"
+    assert row13["p_valor_cambio_str"] == "< 0.001"
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    assert "0.148" in doc_full, "ΔR² = 0.148 no encontrado en Documento Técnico"
+    assert "0.030" in doc_full, "ΔR²_c = 0.030 no encontrado en Documento Técnico"
 
 
 def test_cobertura_ampliada() -> None:

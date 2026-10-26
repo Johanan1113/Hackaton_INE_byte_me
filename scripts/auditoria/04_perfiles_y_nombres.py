@@ -25,6 +25,7 @@ from scipy.optimize import linear_sum_assignment
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 from sklearn.preprocessing import RobustScaler
+import statsmodels.api as sm
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUT_FASE2 = PROJECT_ROOT / "outputs" / "fase2"
@@ -716,6 +717,58 @@ def build_validacion_fuera_de_tiempo(df_b: pd.DataFrame) -> dict:
     order_21_str = " < ".join(order_21)
     order_fin_str = " < ".join(order_fin)
 
+    # Bloque A: Valor agregado sobre el nivel histórico (panel B, ponderado por LN 2024)
+    w_ln24 = df_b["ln_2024"].to_numpy(dtype=float)
+    y_p24 = df_b["p_2024"].to_numpy(dtype=float)
+    y_diff = (df_b["p_2024"] - df_b["p_2018"]).to_numpy(dtype=float)
+
+    # 1. Base model: P2024 ~ p_media_2009_2021
+    X_base = sm.add_constant(part_media_21)
+    mod_base_24 = sm.WLS(y_p24, X_base, weights=w_ln24).fit()
+    r2_base_24 = float(mod_base_24.rsquared)
+
+    # 2. Perfil model (k=4): P2024 ~ p_media_2009_2021 + dummies del perfil
+    dummies_fin = pd.get_dummies(final_lbl, prefix="c", drop_first=True, dtype=float)
+    X_perfil_24 = sm.add_constant(pd.concat([pd.Series(part_media_21, name="part_media_21"), dummies_fin], axis=1))
+    mod_perfil_24 = sm.WLS(y_p24, X_perfil_24, weights=w_ln24).fit()
+    r2_perfil_24 = float(mod_perfil_24.rsquared)
+    delta_r2_24 = float(r2_perfil_24 - r2_base_24)
+
+    dummy_cols = [c for c in dummies_fin.columns]
+    f_test_24 = mod_perfil_24.f_test([f"{c} = 0" for c in dummy_cols])
+    f_stat_24 = float(f_test_24.fvalue)
+    p_val_24 = float(f_test_24.pvalue)
+
+    # 3. Cambio model: (P2024 - P2018) ~ p_media_2009_2021
+    mod_base_c = sm.WLS(y_diff, X_base, weights=w_ln24).fit()
+    r2_base_c = float(mod_base_c.rsquared)
+
+    mod_perfil_c = sm.WLS(y_diff, X_perfil_24, weights=w_ln24).fit()
+    r2_perfil_c = float(mod_perfil_c.rsquared)
+    delta_r2_c = float(r2_perfil_c - r2_base_c)
+
+    f_test_c = mod_perfil_c.f_test([f"{c} = 0" for c in dummy_cols])
+    f_stat_c = float(f_test_c.fvalue)
+    p_val_c = float(f_test_c.pvalue)
+
+    # 4. Out-of-time (2009-2021) clusters regressions
+    dummies_21 = pd.get_dummies(lbl_aligned, prefix="c21", drop_first=True, dtype=float)
+    X_perfil_21 = sm.add_constant(pd.concat([pd.Series(part_media_21, name="part_media_21"), dummies_21], axis=1))
+    mod_p21_24 = sm.WLS(y_p24, X_perfil_21, weights=w_ln24).fit()
+    r2_perfil_21_24 = float(mod_p21_24.rsquared)
+    delta_r2_21_24 = float(r2_perfil_21_24 - r2_base_24)
+    dummy_cols_21 = [c for c in dummies_21.columns]
+    f_test_21_24 = mod_p21_24.f_test([f"{c} = 0" for c in dummy_cols_21])
+    f_stat_21_24 = float(f_test_21_24.fvalue)
+    p_val_21_24 = float(f_test_21_24.pvalue)
+
+    mod_p21_c = sm.WLS(y_diff, X_perfil_21, weights=w_ln24).fit()
+    r2_perfil_21_c = float(mod_p21_c.rsquared)
+    delta_r2_21_c = float(r2_perfil_21_c - r2_base_c)
+    f_test_21_c = mod_p21_c.f_test([f"{c} = 0" for c in dummy_cols_21])
+    f_stat_21_c = float(f_test_21_c.fvalue)
+    p_val_21_c = float(f_test_21_c.pvalue)
+
     filas_tabla = []
     for c in range(4):
         s_21 = df_b[lbl_aligned == c]
@@ -744,7 +797,48 @@ def build_validacion_fuera_de_tiempo(df_b: pd.DataFrame) -> dict:
             "eta2_cuartiles_linea_base": round(eta2_quartiles, 4),
             "eta2_cuartiles_3d": round(eta2_quartiles, 3),
             "supera_linea_base": bool(eta2_clusters > eta2_quartiles),
+            "r2_base_p2024": round(r2_base_24, 4),
+            "r2_perfil_p2024": round(r2_perfil_24, 4),
+            "delta_r2_p2024": round(delta_r2_24, 4),
+            "delta_r2_p2024_3d": round(delta_r2_24, 3),
+            "f_stat_p2024": round(f_stat_24, 2),
+            "p_valor_p2024": float(p_val_24),
+            "p_valor_p2024_str": "< 0.001" if p_val_24 < 0.001 else f"= {p_val_24:.4f}",
+            "r2_base_cambio": round(r2_base_c, 4),
+            "r2_perfil_cambio": round(r2_perfil_c, 4),
+            "delta_r2_cambio": round(delta_r2_c, 4),
+            "delta_r2_cambio_3d": round(delta_r2_c, 3),
+            "f_stat_cambio": round(f_stat_c, 2),
+            "p_valor_cambio": float(p_val_c),
+            "p_valor_cambio_str": "< 0.001" if p_val_c < 0.001 else f"= {p_val_c:.4f}",
         })
+
+    va_dict = {
+        "r2_base_p2024": round(r2_base_24, 4),
+        "r2_perfil_p2024": round(r2_perfil_24, 4),
+        "delta_r2_p2024": round(delta_r2_24, 4),
+        "delta_r2_p2024_3d": round(delta_r2_24, 3),
+        "f_stat_p2024": round(f_stat_24, 2),
+        "p_valor_p2024": float(p_val_24),
+        "p_valor_p2024_str": "< 0.001" if p_val_24 < 0.001 else f"= {p_val_24:.4f}",
+        "r2_base_cambio": round(r2_base_c, 4),
+        "r2_perfil_cambio": round(r2_perfil_c, 4),
+        "delta_r2_cambio": round(delta_r2_c, 4),
+        "delta_r2_cambio_3d": round(delta_r2_c, 3),
+        "f_stat_cambio": round(f_stat_c, 2),
+        "p_valor_cambio": float(p_val_c),
+        "p_valor_cambio_str": "< 0.001" if p_val_c < 0.001 else f"= {p_val_c:.4f}",
+        "validacion_temporal_2009_2021": {
+            "r2_perfil_p2024": round(r2_perfil_21_24, 4),
+            "delta_r2_p2024": round(delta_r2_21_24, 4),
+            "f_stat_p2024": round(f_stat_21_24, 2),
+            "p_valor_p2024": float(p_val_21_24),
+            "r2_perfil_cambio": round(r2_perfil_21_c, 4),
+            "delta_r2_cambio": round(delta_r2_21_c, 4),
+            "f_stat_cambio": round(f_stat_21_c, 2),
+            "p_valor_cambio": float(p_val_21_c),
+        },
+    }
 
     return {
         "n_secciones": int(len(df_b)),
@@ -759,6 +853,7 @@ def build_validacion_fuera_de_tiempo(df_b: pd.DataFrame) -> dict:
         "orden_grupos_2009_2021_en_2024": order_21_str,
         "orden_perfiles_finales_en_2024": order_fin_str,
         "orden_idéntico": bool(order_21 == order_fin),
+        "valor_agregado_nivel_historico": va_dict,
         "tabla_13": filas_tabla,
     }
 
@@ -1177,6 +1272,8 @@ def export_metricas_finales_json(
     out_fase1 = PROJECT_ROOT / "outputs" / "fase1"
     metricas_path = PROJECT_ROOT / "outputs" / "metricas_finales.json"
 
+    val_fuera = build_validacion_fuera_de_tiempo(df_b)
+
     payload = {
         "k_seleccionado": 4,
         "entorno_software": {
@@ -1251,7 +1348,8 @@ def export_metricas_finales_json(
         "estrategias": df_estrategias.to_dict(orient="records"),
         "comparacion_k4_k5_k6": df_comp.to_dict(orient="records"),
         "lineas_base_metas": build_lineas_base_metas(df_b),
-        "validacion_fuera_de_tiempo": build_validacion_fuera_de_tiempo(df_b),
+        "validacion_fuera_de_tiempo": val_fuera,
+        "valor_agregado_nivel_historico": val_fuera["valor_agregado_nivel_historico"],
         "cobertura_ampliada_2024": build_cobertura_ampliada(df_b),
         "impacto_y_prioridad_territorial": build_impacto_y_priorizacion_territorial(df_b),
         "potencia_piloto_c0": build_potencia_piloto_c0(df_b),

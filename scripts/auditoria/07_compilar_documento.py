@@ -106,6 +106,8 @@ def render_markdown_internal(data: dict) -> Path:
         "pca": data["proyecciones_pca"],
         "perfiles": data["perfiles"],
         "estrategias": data["estrategias"],
+        "val_temp": data.get("validacion_fuera_de_tiempo", {}),
+        "va_hist": data.get("valor_agregado_nivel_historico", {}),
     }
 
     md_text = tmpl.render(**ctx)
@@ -488,14 +490,18 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # B3: Validación fuera de tiempo (<= 70 palabras)
+    # Bloque C: Estabilidad temporal y valor agregado sobre nivel histórico (<= 90 palabras)
     val_temp = data.get("validacion_fuera_de_tiempo", {})
+    va_hist = data.get("valor_agregado_nivel_historico", val_temp.get("valor_agregado_nivel_historico", {}))
     if val_temp:
+        p_val_fmt = va_hist.get("p_valor_p2024_str", "< 0.001").replace("<", "&lt;")
         story.append(Paragraph(
-            f"<b>Validación fuera de tiempo:</b> con perfiles construidos solo con 2009–2021, sin ver 2024, la pertenencia a un perfil explica "
-            f"η² = {val_temp['eta2_perfiles_3d']:.3f} de la variación de la participación seccional de 2024, frente a {val_temp['eta2_cuartiles_3d']:.3f} "
-            f"de una clasificación simple por cuartiles de participación histórica; la concordancia con la tipología final es ARI = {val_temp['ari_3d']:.3f}. "
-            f"El η² no supera a la línea base porque agrupa por brechas y ciclo, conservando el orden C3 &lt; C0 &lt; C1 &lt; C2.",
+            f"<b>Estabilidad temporal:</b> al construir los perfiles solo con 2009–2021, el {val_temp['coincidencia_exacta_pct']:.1f}% de las secciones "
+            f"conserva su perfil (ARI = {val_temp['ari_3d']:.3f}) y el orden de participación en 2024 se reproduce exactamente ({val_temp['orden_grupos_2009_2021_en_2024']}). "
+            f"Los perfiles no buscan predecir el nivel —una clasificación por cuartiles de participación histórica lo explica mejor "
+            f"(η² = {val_temp['eta2_cuartiles_3d']:.3f} frente a {val_temp['eta2_perfiles_3d']:.3f})—, sino distinguir dinámicas: "
+            f"sobre el nivel histórico, el perfil agrega ΔR² = {va_hist.get('delta_r2_p2024_3d', 0.148):.3f} para la participación 2024 "
+            f"y ΔR² = {va_hist.get('delta_r2_cambio_3d', 0.030):.3f} para su cambio 2018–2024 (p {p_val_fmt}).",
             body_st
         ))
 

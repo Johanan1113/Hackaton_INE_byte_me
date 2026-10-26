@@ -1,4 +1,4 @@
-anova_f_stat,anova_p_value,nota_metodologica,rango_importancia,rf_cv5_accuracy_media,rf_cv5_accuracy_std,rf_gini_importance,rf_permutation_importance_mean,rf_permutation_importance_std,variable
+﻿anova_f_stat,anova_p_value,nota_metodologica,rango_importancia,rf_cv5_accuracy_media,rf_cv5_accuracy_std,rf_gini_importance,rf_permutation_importance_mean,rf_permutation_importance_std,variable
 18684.13,0.0,Medida de interpretabilidad interna sobre las mismas 7 variables del clustering (no validación externa),1,0.9629,0.0009,0.2167,0.1937,0.0011,ratio_participacion_joven
 29701.07,0.0,Medida de interpretabilidad interna sobre las mismas 7 variables del clustering (no validación externa),2,0.9629,0.0009,0.1998,0.2116,0.001,estabilidad_participacion
 17943.97,0.0,Medida de interpretabilidad interna sobre las mismas 7 variables del clustering (no validación externa),3,0.9629,0.0009,0.1556,0.1642,0.0012,brecha_generacional

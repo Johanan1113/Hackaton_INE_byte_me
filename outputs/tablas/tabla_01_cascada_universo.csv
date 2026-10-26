@@ -1,4 +1,4 @@
-descripcion,etapa,ln_2024,municipios,pct_ln_2024,pct_secciones_2024,secciones,secciones_excluidas_paso
+﻿descripcion,etapa,ln_2024,municipios,pct_ln_2024,pct_secciones_2024,secciones,secciones_excluidas_paso
 Unión histórica de secciones registradas en al menos una elección (2009-2024),0_union_historica_2009_2024,98330348,2477,100.0,102.73,72681,0
 "Secciones activas en el CCPC 2024 (excluye 1,930 secciones dadas de baja entre 2009 y 2021)",1_universo_2024,98330348,2477,100.0,100.0,70751,1930
 "Secciones presentes en las 6 elecciones 2009-2024 (excluye 8,703 secciones creadas post-2009)",2_panel_continuo_2009_2024,85936860,2473,87.4,87.7,62048,8703
