@@ -252,7 +252,7 @@ def build_pdf(data: dict) -> Path:
         f"de Participación Ciudadana (CCPC) en las seis elecciones federales celebradas entre {serie[0]['anio']} y {serie[-1]['anio']}. "
         f"Durante la validación de los datos se identificó un hallazgo metodológico central: en los archivos abiertos del CCPC, la Lista Nominal "
         f"cumple la identidad exacta <b>LN = SV + NV + NS</b>, donde <b>SV</b> corresponde a las personas que sí votaron, <b>NV</b> a quienes no votaron "
-        f"y <b>NS</b> a los registros cuyos cuadernillos no estuvieron disponibles para captura por recuento distrital o contingencias operativas "
+        f"y <b>NS</b> a los registros no especificados (cuadernillos sin marcas de votación, no disponibles para captura o con páginas faltantes, según el catálogo de campos del INE) "
         f"({serie[3]['ns_total_anio']:,} electores = {serie[3]['pct_ns_anio']:.2f}% de la LN en {serie[3]['anio']}, y "
         f"{serie[5]['ns_total_anio']:,} electores = {serie[5]['pct_ns_anio']:.2f}% en {serie[5]['anio']}). "
         f"Calcular <b>SV / LN</b> en lugar de la fórmula <b>SV / (SV + NV)</b> asigna 0.0% de participación a las secciones sin captura "
@@ -284,17 +284,15 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph("2. Datos y Tratamiento: Corrección por Registros NS y Cascada del Universo", h1_st))
     # C2, C10, C3
     story.append(Paragraph(
-        f"Durante la validación de los datos se identificó que en los microdatos abiertos de los Conteos Censales de Participación Ciudadana (CCPC), "
-        f"la Lista Nominal se desagrega en cuatro categorías: electores que sufragaron (SV), electores que no votaron (NV) y electores sin condición "
+        f"En los microdatos abiertos de los Conteos Censales de Participación Ciudadana (CCPC), "
+        f"la Lista Nominal se desagrega en tres categorías: electores que sufragaron (SV), electores que no votaron (NV) y electores sin condición "
         f"especificada de voto (NS). De acuerdo con el catálogo oficial de descripción de campos del INE (<i>01_descripcioncampos_conteoscensales2024.txt</i>): "
         f"<i>\"Registros no especificados en participación, pues corresponden a: Registro correspondiente a un cuadernillo sin marcas de votación; "
         f"Registro correspondiente a un cuadernillo no disponible para su captura; Registro correspondiente a una página no disponible en el cuadernillo.\"</i>",
         body_st
     ))
     story.append(Paragraph(
-        f"Calcular SV / LN en lugar de la fórmula SV / (SV + NV) asigna 0.0% de participación a las secciones sin captura (SV + NV = 0), "
-        f"subestima la participación nacional en {diff_2018:.2f} puntos en 2018 y {diff_2024:.2f} en 2024, y genera grupos artificiales de baja "
-        f"participación en cualquier análisis de conglomerados. Por ello, la tasa de participación seccional y por subgrupos demográficos "
+        f"Por ello, la tasa de participación seccional y por subgrupos demográficos "
         f"(jóvenes de 18–29 años, adultos mayores de 60+ años, mujeres y hombres) se calcula estrictamente como <b>P = SV / (SV + NV)</b>. "
         f"En {serie[-1]['anio']}, los registros no binarios (SEXO = 2) se integran en la tasa total seccional, mientras que la brecha de género se evalúa "
         f"entre mujeres y hombres. La verificación sobre los datos crudos confirmó 0 secciones con SV &gt; LN o SV &gt; (SV + NV), dado que los conteos censales "
@@ -304,7 +302,7 @@ def build_pdf(data: dict) -> Path:
     # C16
     story.append(Paragraph(
         f"La Tabla 1 valida la serie nacional calculada con SV / (SV + NV) contra las publicaciones censales del INE: el estudio comparativo de la "
-        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 11) reporta <b>{serie[0]['oficial_o_referencia_pct']:.2f}%</b> en {serie[0]['anio']}, "
+        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 7, Figura 3.1) reporta <b>{serie[0]['oficial_o_referencia_pct']:.2f}%</b> en {serie[0]['anio']}, "
         f"<b>{serie[1]['oficial_o_referencia_pct']:.2f}%</b> en {serie[1]['anio']} y <b>{serie[2]['oficial_o_referencia_pct']:.2f}%</b> en {serie[2]['anio']}; "
         f"los estudios censales de {serie[3]['anio']} y {serie[5]['anio']} reportan <b>{serie[3]['oficial_o_referencia_pct']:.1f}%</b> "
         f"(dato exacto CCPC: {serie[3]['total_ponderada_sv_svnv_pct']:.2f}%) y <b>{serie[5]['oficial_o_referencia_pct']:.1f}%</b> "
@@ -321,9 +319,9 @@ def build_pdf(data: dict) -> Path:
         Paragraph("Elección", th_c),
         Paragraph("Secciones CCPC", th_c),
         Paragraph("LN CCPC", th_c),
-        Paragraph("Part. Oficial", th_c),
+        Paragraph("Dato censal INE", th_c),
         Paragraph("SV/(SV+NV)", th_c),
-        Paragraph("Efecto NS", th_c),
+        Paragraph("Subestimación con SV/LN (pts)", th_c),
     ]]
     for r in serie:
         of_str = f"{r['oficial_o_referencia_pct']:.2f}%" if r["anio"] in (2009, 2012, 2015) else f"{r['oficial_o_referencia_pct']:.1f}%"
@@ -519,7 +517,7 @@ def build_pdf(data: dict) -> Path:
         Paragraph("Part. Media (z)", th_c),
         Paragraph("Brecha Pres–Inter (z)", th_c),
         Paragraph("Tendencia Anual (z)", th_c),
-        Paragraph("Estabilidad log1p (z)", th_c),
+        Paragraph("Estabilidad (z)", th_c),
         Paragraph("Brecha Gen. / Género / Razón Joven (z)", th_c),
     ]]
     for p in perfiles:
@@ -621,7 +619,7 @@ def build_pdf(data: dict) -> Path:
         f"En <b>C0</b> ({perfiles[0]['pct_secciones_panel']:.2f}% del panel, {perfiles[0]['pct_secciones_urbanas']:.1f}% urbano) se despliegan dos líneas: "
         f"pedagogía legislativa intermedia en transporte masivo y atención a jóvenes que no estudian en centros laborales, parques industriales y tianguis. "
         f"En <b>C3</b> ({perfiles[3]['pct_secciones_urbanas']:.1f}% urbano, con sobrerrepresentación rural de {perfiles[3]['pct_secciones_rurales']:.1f}%), "
-        f"la acción principal busca elevar la participación masculina (43.9% en 2021 vs 48.7% nacional) y revertir la caída presidencial "
+        f"la acción principal busca elevar la participación masculina (43.9% en 2021 vs 48.7% del Panel B) y revertir la caída presidencial "
         f"(de 61.2% en 2012 a 55.6% en 2024), dejando la accesibilidad geográfica rural como acción secundaria.",
         body_st
     ))
@@ -654,7 +652,7 @@ def build_pdf(data: dict) -> Path:
         },
         {
             "perfil": "<b>C3: Liderazgo Femenino con Participación Estancada</b><br/><br/>Secc: 12,574 (23.44%)<br/>Base Inter. 2021: <b>49.5%</b><br/>Base Pres. 2024: <b>55.6%</b><br/>Base Hombres 2021: <b>43.9%</b>",
-            "diag_obj": "Elevar la participación masculina (43.9% vs. 48.7% nacional) y revertir la caída presidencial en 12,574 secciones con sobrerrepresentación rural (41.2%).",
+            "diag_obj": "Elevar la participación masculina (43.9% vs. 48.7% del Panel B) y revertir la caída presidencial en 12,574 secciones con sobrerrepresentación rural (41.2%).",
             "canales_accion": "<b>Canales:</b> Centros de trabajo masculinos (agropecuario, industria, transporte) y radio regional.<br/><br/><b>Acción:</b> Promoción del voto masculino y rutas móviles DEOE de accesibilidad.",
             "meta_ind": "<b>Meta:</b> Elevar participación a 51.1% en 2027, 58.1% en 2030 y voto masculino a 46.3% en 2027.<br/><br/><b>Indicador:</b> Tasa masculina SV/(SV+NV) y participación ponderada.",
             "unidad_costo": "<b>Unidad:</b> Juntas Distritales, DECEyEC y DEOE.<br/><br/><b>Costo:</b> Medio (tiempos oficiales de radio y rutas distritales).",
@@ -745,17 +743,17 @@ def build_pdf(data: dict) -> Path:
         f"<b>2. Análisis de sensibilidad (Opción A):</b> Al evaluar la Opción A sobre las 62,048 secciones continuas tratando años con SV+NV &lt; 50 "
         f"como valores perdidos (sin imputar) y exigiendo al menos 2 comicios presidenciales y 2 intermedios válidos, K-Means++ (k={k_sel}) "
         f"alcanza una concordancia casi perfecta con el Panel Principal B: <b>ARI = {sens[1]['ari_vs_panel_principal_B']:.4f}</b> "
-        f"({sens[1]['coincidencia_exacta_alineada_pct']:.2f}% de coincidencia exacta) en las {sens[1]['secciones_incluidas']:,} secciones comunes. "
-        f"Esto confirma que la estructura de conglomerados es inherente a la geografía electoral y no un artefacto de la depuración.",
+        f"({sens[1]['coincidencia_exacta_alineada_pct']:.2f}% de coincidencia exacta) en las {u['panel_principal_secciones']:,} secciones comunes. "
+        f"Esto indica que la segmentación es robusta a la depuración del panel.",
         body_st
     ))
     # C13: Frase exacta sobre variable indígena y C14: cero PENDIENTES
     story.append(Paragraph(
-        f"<b>3. Limitación por variables demográficas y ventana temporal:</b> Sustituir los promedios hexanuales por un único corte anual reduce la "
-        f"estabilidad a <b>ARI = {win[0]['ari_clustering_6y_vs_2024']:.4f}</b>, lo que exige actualizar la tipología tras cada proceso federal. "
+        f"<b>3. Limitación por variables demográficas y ventana temporal:</b> Sustituir los promedios hexanuales por un único corte anual hace que la "
+        f"concordancia con la tipología base baje a <b>ARI = {win[0]['ari_clustering_6y_vs_2024']:.4f}</b>, lo que exige actualizar la tipología tras cada proceso federal. "
         f"Asimismo, los CSV abiertos del CCPC no incluyen el indicador de población indígena o afromexicana que sí muestra el tablero del INE; "
         f"por ello no se incorporó al modelo. Finalmente, se recomienda a la DECEyEC publicar ese indicador en los CSV abiertos, incluir una bandera "
-        f"explícita de captura en las bases públicas y reforzar la recuperación de cuadernillos tras recuentos distritales para abatir los registros NS.",
+        f"explícita de captura en las bases públicas y reforzar la captura de cuadernillos para abatir los registros NS.",
         body_st
     ))
 
@@ -820,7 +818,7 @@ def build_pdf(data: dict) -> Path:
         )
         canvas.drawRightString(
             PAGE_W - MARGIN, PAGE_H - 1.5 * cm,
-            f"CCPC INE {serie[0]['anio']}–{serie[-1]['anio']} | Tasa Oficial SV/(SV+NV)"
+            f"CCPC INE {serie[0]['anio']}–{serie[-1]['anio']} | Tasa SV/(SV+NV) · Manual CCPC"
         )
         canvas.setStrokeColor(colors.HexColor("#D1D5DB"))
         canvas.setLineWidth(0.5)
@@ -828,7 +826,7 @@ def build_pdf(data: dict) -> Path:
         canvas.line(MARGIN, 1.8 * cm, PAGE_W - MARGIN, 1.8 * cm)
         canvas.drawString(
             MARGIN, 1.2 * cm,
-            "Concurso INE: Hackea la participación — Documento Técnico Oficial"
+            "Concurso INE: Hackea la participación — Documento técnico · Equipo Byte me"
         )
         canvas.drawRightString(PAGE_W - MARGIN, 1.2 * cm, f"Página {doc_obj.page}")
         canvas.restoreState()
