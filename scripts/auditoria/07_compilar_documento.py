@@ -638,6 +638,7 @@ def build_pdf(data: dict) -> Path:
         },
         {
             "perfil": "<b>C1: Alta Participación Estable e Intergeneracional</b><br/><br/>Secc: 8,824 (16.45%)<br/>Base Inter. 2021: <b>62.5%</b><br/>Base Pres. 2024: <b>65.7%</b>",
+            "diag_obj": "Sostener la constancia cívica comunitaria y asegurar el relevo generacional en la integración de mesas directivas de casilla en 8,824 secciones.",
             "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada.",
             "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; aumentar la proporción de casillas instaladas con funcionariado propietario.<br/><br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
             "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (Vocalías de Capacitación y Organización).<br/><br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
@@ -778,9 +779,9 @@ def build_pdf(data: dict) -> Path:
     # =========================================================================
     story.append(Paragraph("8. Reproducibilidad", h1_st))
     story.append(Paragraph(
-        "El pipeline completo es reproducible de inicio a fin ejecutando <i>python run\u200c_all.py</i> bajo Python 3.14.6, DuckDB 2.0.0, scikit-learn 1.9.0, "
+        "El pipeline completo es reproducible de inicio a fin ejecutando <i>python run_all.py</i> bajo Python 3.14.6, DuckDB 2.0.0, scikit-learn 1.9.0, "
         "scipy 1.18.0, umap-learn 0.5.12, pandas 3.0.3 y numpy 2.4.6. El código abierto está disponible en "
-        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font>. Fijando la semilla (random\u200c_state=42), "
+        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font>. Fijando la semilla (random_state=42), "
         "dos corridas consecutivas desde cero generan hashes SHA-256 idénticos en métricas y etiquetas. Los datos crudos se descargan de la Plataforma CCPC del INE "
         "conforme a las instrucciones del README y no se redistribuyen.",
         body_st

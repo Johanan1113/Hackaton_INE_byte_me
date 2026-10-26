@@ -408,16 +408,34 @@ def test_frases_prohibidas() -> None:
 
 def test_sin_snake_case() -> None:
     """
-    H2: La expresión regular \\b[a-z]+_[a-z0-9_]+\\b tiene 0 coincidencias en el texto de ambos PDF.
+    B2: La expresión regular \\b[a-z]+_[a-z0-9_]+\\b tiene 0 coincidencias en el texto de ambos PDF,
+    salvo por la lista blanca autorizada de comandos técnicos: run_all, random_state.
     """
     pattern = re.compile(r"\b[a-z]+_[a-z0-9_]+\b")
+    whitelist = {"run_all", "random_state"}
+
     doc_text = "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages)
     fichas_text = "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages)
 
-    matches_doc = pattern.findall(doc_text)
-    matches_fichas = pattern.findall(fichas_text)
-    assert not matches_doc, f"snake_case detectado en Documento_Tecnico_ByteMe.pdf: {matches_doc}"
-    assert not matches_fichas, f"snake_case detectado en Fichas_Perfiles_ByteMe.pdf: {matches_fichas}"
+    matches_doc = [m for m in pattern.findall(doc_text) if m not in whitelist]
+    matches_fichas = [m for m in pattern.findall(fichas_text) if m not in whitelist]
+    assert not matches_doc, f"snake_case no autorizado detectado en Documento_Tecnico_ByteMe.pdf: {matches_doc}"
+    assert not matches_fichas, f"snake_case no autorizado detectado en Fichas_Perfiles_ByteMe.pdf: {matches_fichas}"
+
+
+def test_sin_caracteres_invisibles() -> None:
+    """
+    B3: Verifica la ausencia total de caracteres invisibles o de separación engañosa
+    (U+200B, U+200C, U+200D, U+2060, U+00AD) en el texto extraído de ambos PDFs.
+    """
+    invisible_chars = ["\u200b", "\u200c", "\u200d", "\u2060", "\u00ad"]
+    for pdf_file in [
+        ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf",
+        ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf",
+    ]:
+        text = "\n".join(p.extract_text() for p in pypdf.PdfReader(str(pdf_file)).pages)
+        for ch in invisible_chars:
+            assert ch not in text, f"Carácter invisible U+{ord(ch):04X} detectado en {pdf_file.name}"
 
 
 def test_secciones_obligatorias() -> None:
