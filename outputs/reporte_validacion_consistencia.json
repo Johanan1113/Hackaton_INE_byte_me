@@ -1,0 +1,25 @@
+{
+  "estatus_pytest": "PASSED (8/8)",
+  "paginas_documento_pdf": 12,
+  "paginas_fichas_pdf": 1,
+  "numeros_auditados": {
+    "pool_valores_referencia_autorizados": 1831,
+    "extraidos_documento_md": 1434,
+    "no_encontrados_documento_md": [],
+    "extraidos_documento_pdf": 1350,
+    "no_encontrados_documento_pdf": [],
+    "extraidos_fichas_pdf": 388,
+    "no_encontrados_fichas_pdf": []
+  },
+  "hashes_sha256": {
+    "etiquetas_finales_parquet": "7f0db6a9b1437d9e9703480ca3bfcfe2e1f79908380ccfc967014cf1e2ac74eb",
+    "perfiles_csv": "15d3e0bdd64da6a23ce746ea97902074edd16602d364782ed5cf2494cb9527a4",
+    "estrategias_csv": "9357e942914458b5dcff7058ab4da8bfc97e659185706f0354a2ac4478e2fef0",
+    "metricas_finales_json": "4914720cc9cc2e1e6172da208010f902253688dfd2793e342a3a1b358ac332ee",
+    "Documento_Tecnico_ByteMe_md": "3ea7aabfb8f16ca1bf9c37f7278332992ae0d3d71efa6574c9acee1f8d166ba9",
+    "Documento_Tecnico_ByteMe_pdf": "ea17ef26db51a12dd5b069552bd07059913057956d556f19edb37dde0196a1c3",
+    "Documento_Tecnico_ByteMe_docx": "d908a7ab05e9161bdf3f50334166de5ab5fed3ae2b44a60abdb846c77c33b06d",
+    "Fichas_Perfiles_ByteMe_pdf": "470185cee9f7fc35101e590f789f658322e6c8dd6ea13416b253e6177dd2c9c3",
+    "Fichas_Perfiles_ByteMe_png": "8972788ec2d34503057a1a37d372f15000d9258bc1a8b420854f89363e14aa7e"
+  }
+}

@@ -1,0 +1,7 @@
+descripcion,etapa,ln_2024,municipios,pct_ln_2024,pct_secciones_2024,secciones,secciones_excluidas_paso
+Unión histórica de secciones registradas en al menos una elección (2009-2024),0_union_historica_2009_2024,98330348,2477,100.0,102.73,72681,0
+"Secciones activas en el CCPC 2024 (excluye 1,930 secciones dadas de baja entre 2009 y 2021)",1_universo_2024,98330348,2477,100.0,100.0,70751,1930
+"Secciones presentes en las 6 elecciones 2009-2024 (excluye 8,703 secciones creadas post-2009)",2_panel_continuo_2009_2024,85936860,2473,87.4,87.7,62048,8703
+"Secciones con captura válida SV + NV >= 50 en las 6 elecciones (excluye 7,156 con SV+NV=0 en al menos una elección y 88 con 1<=SV+NV<50)",3_captura_valida_6_elecciones,79932810,2396,81.29,77.46,54804,7244
+"Excluye secciones con cambio abrupto de LN (<0.5x o >2.5x entre elecciones consecutivas; 1,311 en las 62,048 y 1,159 entre las 54,804)",4_sin_saltos_abruptos_ln_consecutivos,78199727,2393,79.53,75.82,53645,1159
+Excluye secciones sin electores en algún grupo etario en los 6 años (1 sección: 14_1645 sin 60+) para garantizar cero imputación,5_panel_principal_opcion_b_cero_imputacion,78199518,2393,79.53,75.82,53644,1

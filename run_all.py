@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Script Maestro de Reproducibilidad Integral (run_all.py)
+Proyecto: Reto 1 - Perfiles Ciudadanos de Participación (Equipo "Byte me")
+
+Ejecuta secuencialmente todo el pipeline de auditoría, modelado (k=4),
+exportación de tablas, generación de figuras a 300 DPI, compilación del
+documento técnico (MD/PDF/DOCX), generación de fichas infográficas (PDF/PNG)
+y suite de validación de consistencia (pytest).
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+STEPS = [
+    ("Fase 0: Inventario del repositorio", "scripts/auditoria/01_inventario_repo.py"),
+    ("Fase 1: Verificación profunda de datos CCPC 2009-2024", "scripts/auditoria/02_verificacion_datos.py"),
+    ("Fase 2: Robustez del modelo y clustering k=4", "scripts/auditoria/03_robustez_modelo.py"),
+    ("Fase 3: Perfiles, estrategias y metricas_finales.json", "scripts/auditoria/04_perfiles_y_nombres.py"),
+    ("Fase 4: Exportación de las 11 tablas oficiales", "scripts/auditoria/05_exportar_tablas.py"),
+    ("Fase 5: Generación de las 7 figuras a 300 DPI", "scripts/auditoria/06_generar_figuras.py"),
+    ("Fase 6: Compilación del Documento Técnico (MD/PDF/DOCX)", "scripts/auditoria/07_compilar_documento.py"),
+    ("Fase 7: Generación de Fichas Resumen (PDF/PNG)", "scripts/auditoria/08_generar_fichas.py"),
+    ("Fase 8: Validación automatizada de consistencia y cifras", "scripts/auditoria/09_validacion_consistencia.py"),
+]
+
+
+def main() -> None:
+    t0 = time.time()
+    for title, rel_script in STEPS:
+        print(f"\n{'=' * 78}\n>>> {title} ({rel_script})\n{'=' * 78}")
+        script_path = PROJECT_ROOT / rel_script
+        subprocess.run([sys.executable, str(script_path)], cwd=str(PROJECT_ROOT), check=True)
+
+    elapsed = time.time() - t0
+    print(f"\n{'=' * 78}\nPIPELINE COMPLETO FINALIZADO CON ÉXITO EN {elapsed:.1f} SEGUNDOS\n{'=' * 78}")
+
+
+if __name__ == "__main__":
+    main()

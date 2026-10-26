@@ -351,7 +351,7 @@ def compute_features_and_universes(panel: pd.DataFrame, reconciliacion: dict) ->
         },
         {
             "etapa": "3_captura_valida_6_elecciones",
-            "descripcion": "Secciones con captura válida SV + NV >= 50 en las 6 elecciones (excluye 4,769 con SV+NV=0 y 2,475 con 1<=SV+NV<50)",
+            "descripcion": "Secciones con captura válida SV + NV >= 50 en las 6 elecciones (excluye 7,156 con SV+NV=0 en al menos una elección y 88 con 1<=SV+NV<50)",
             "secciones": len(c_54804),
             "secciones_excluidas_paso": len(c_62048) - len(c_54804),
             "pct_secciones_2024": round(len(c_54804) / reconciliacion["secciones_2024_total"] * 100, 2),
@@ -393,7 +393,7 @@ def winsorize_series(s: pd.Series, p_low: float = 0.01, p_high: float = 0.99) ->
 
 def test_2_1_stability(df_b: pd.DataFrame) -> pd.DataFrame:
     """
-    2.1 Compara las tres definiciones de estabilidad sobre el Panel Principal (N=53,644):
+    2.1 Compara las tres definiciones de estabilidad sobre el Panel Principal (N=53,644) con k=4:
       (a) 1/CV = P_bar / (sigma + 1e-4) sin acotar (definición original)
       (b) CV = sigma / P_bar winsorizado p1-p99
       (c) log1p(1/CV) winsorizado p1-p99 (definición seleccionada)
@@ -422,7 +422,7 @@ def test_2_1_stability(df_b: pd.DataFrame) -> pd.DataFrame:
         X_df = X_df[FEATURE_COLS]
         X_scaled = RobustScaler().fit_transform(X_df)
 
-        km = KMeans(n_clusters=5, init="k-means++", n_init=50, random_state=42)
+        km = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42)
         lbl = km.fit_predict(X_scaled)
         labels_dict[name] = lbl
 
@@ -441,9 +441,9 @@ def test_2_1_stability(df_b: pd.DataFrame) -> pd.DataFrame:
             "max": round(float(s_est.max()), 6),
             "asimetria_skew": round(float(skew(s_est)), 4),
             "curtosis_kurt": round(float(kurtosis(s_est)), 4),
-            "silhouette_k5": round(float(sil), 4),
-            "davies_bouldin_k5": round(float(db), 4),
-            "calinski_harabasz_k5": round(float(ch), 2),
+            "silhouette_k4": round(float(sil), 4),
+            "davies_bouldin_k4": round(float(db), 4),
+            "calinski_harabasz_k4": round(float(ch), 2),
         })
 
     df_est = pd.DataFrame(rows)
@@ -476,7 +476,7 @@ def prepare_scaled_features(df_b: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarra
 
 def test_2_2_collinearity(X_winsor: pd.DataFrame, X_scaled: np.ndarray, labels_7: np.ndarray) -> pd.DataFrame:
     """
-    2.2 Calcula el VIF de las 7 variables y compara el clustering K-Means (k=5)
+    2.2 Calcula el VIF de las 7 variables y compara el clustering K-Means (k=4)
     con 7 variables, sin ratio_participacion_joven, y sin brecha_generacional.
     """
     X_std = (X_winsor - X_winsor.mean()) / X_winsor.std()
@@ -493,7 +493,7 @@ def test_2_2_collinearity(X_winsor: pd.DataFrame, X_scaled: np.ndarray, labels_7
         c: float(variance_inflation_factor(X_std_no_ratio.values, j))
         for j, c in enumerate(X_std_no_ratio.columns)
     }
-    lbl_no_ratio = KMeans(n_clusters=5, init="k-means++", n_init=50, random_state=42).fit_predict(X_no_ratio)
+    lbl_no_ratio = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42).fit_predict(X_no_ratio)
 
     # Sin brecha_generacional (índice 4)
     idx_no_bgen = [i for i, c in enumerate(FEATURE_COLS) if c != "brecha_generacional"]
@@ -503,7 +503,7 @@ def test_2_2_collinearity(X_winsor: pd.DataFrame, X_scaled: np.ndarray, labels_7
         c: float(variance_inflation_factor(X_std_no_bgen.values, j))
         for j, c in enumerate(X_std_no_bgen.columns)
     }
-    lbl_no_bgen = KMeans(n_clusters=5, init="k-means++", n_init=50, random_state=42).fit_predict(X_no_bgen)
+    lbl_no_bgen = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42).fit_predict(X_no_bgen)
 
     sil_7 = silhouette_score(X_scaled, labels_7, sample_size=20000, random_state=42)
     db_7 = davies_bouldin_score(X_scaled, labels_7)
@@ -544,7 +544,7 @@ def test_2_2_collinearity(X_winsor: pd.DataFrame, X_scaled: np.ndarray, labels_7
 def test_2_3_temporal_windows(df_b: pd.DataFrame, labels_7: np.ndarray) -> pd.DataFrame:
     """
     2.3 Compara la ventana temporal de las variables demográficas:
-    promedio de las 6 elecciones (2009-2024) vs solo 2024.
+    promedio de las 6 elecciones (2009-2024) vs solo 2024 (con k=4).
     """
     X_2024_demog = pd.DataFrame(index=df_b.index)
     X_2024_demog["participacion_media_historica"] = winsorize_series(df_b["participacion_media_historica"])
@@ -556,7 +556,7 @@ def test_2_3_temporal_windows(df_b: pd.DataFrame, labels_7: np.ndarray) -> pd.Da
     X_2024_demog["ratio_participacion_joven"] = winsorize_series(df_b["ratio_participacion_joven_2024"].fillna(df_b["ratio_participacion_joven"]))
 
     X_2024_scaled = RobustScaler().fit_transform(X_2024_demog[FEATURE_COLS])
-    lbl_2024 = KMeans(n_clusters=5, init="k-means++", n_init=50, random_state=42).fit_predict(X_2024_scaled)
+    lbl_2024 = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42).fit_predict(X_2024_scaled)
     ari_window = adjusted_rand_score(labels_7, lbl_2024)
 
     pairs = [
@@ -793,7 +793,7 @@ def test_2_6_sensitivity_option_a(panel_62048: pd.DataFrame, df_b: pd.DataFrame)
         sub_a = df_a[mask_a].copy().reset_index(drop=True)
         X_w = pd.DataFrame({c: winsorize_series(sub_a[c], 0.01, 0.99) for c in FEATURE_COLS})
         X_s = RobustScaler().fit_transform(X_w[FEATURE_COLS])
-        km_a = KMeans(n_clusters=5, init="k-means++", n_init=50, random_state=42)
+        km_a = KMeans(n_clusters=4, init="k-means++", n_init=50, random_state=42)
         sub_a["cluster_a"] = km_a.fit_predict(X_s)
 
         sil_a = silhouette_score(X_s, sub_a["cluster_a"], sample_size=20000, random_state=42)
@@ -816,9 +816,9 @@ def test_2_6_sensitivity_option_a(panel_62048: pd.DataFrame, df_b: pd.DataFrame)
             "secciones_comunes_con_panel_B": len(common),
             "ari_vs_panel_principal_B": round(float(ari_common), 4),
             "coincidencia_exacta_alineada_pct": round(exact_match_pct, 2),
-            "silhouette_k5": round(float(sil_a), 4),
-            "davies_bouldin_k5": round(float(db_a), 4),
-            "calinski_harabasz_k5": round(float(ch_a), 2),
+            "silhouette_k4": round(float(sil_a), 4),
+            "davies_bouldin_k4": round(float(db_a), 4),
+            "calinski_harabasz_k4": round(float(ch_a), 2),
         })
 
     df_sens = pd.DataFrame(results)
@@ -828,13 +828,13 @@ def test_2_6_sensitivity_option_a(panel_62048: pd.DataFrame, df_b: pd.DataFrame)
 
 def test_2_7_transition_matrix(panel_62048: pd.DataFrame, df_b: pd.DataFrame) -> pd.DataFrame:
     """
-    Genera la matriz de transición entre los clusters originales (con el bug SV/LN y el artefacto C4)
-    y los nuevos clusters (con la fórmula oficial SV/(SV+NV) y el Panel Principal Opción B),
+    Genera la matriz de transición entre los clusters originales (k=5 con el bug SV/LN y el artefacto C4)
+    y los nuevos clusters seleccionados (k=4 con la fórmula oficial SV/(SV+NV) y el Panel Principal Opción B),
     incluyendo también la columna de secciones excluidas del Panel Principal.
     """
     orig_path = PROJECT_ROOT / "output" / "datasets" / "dataset_clusters_final.parquet"
-    orig = pd.read_parquet(orig_path)[["edocve", "seccion", "cluster"]].rename(
-        columns={"cluster": "cluster_viejo"}
+    orig = pd.read_parquet(orig_path)[["edocve", "seccion", "cluster", "cluster_name"]].rename(
+        columns={"cluster": "cluster_viejo", "cluster_name": "nombre_viejo"}
     )
     merged = panel_62048[["seccion_id", "edocve", "seccion"]].merge(
         orig, on=["edocve", "seccion"], how="left"
@@ -849,21 +849,24 @@ def test_2_7_transition_matrix(panel_62048: pd.DataFrame, df_b: pd.DataFrame) ->
     for c_old in sorted(merged["cluster_viejo"].dropna().unique()):
         c_old_int = int(c_old)
         sub = merged[merged["cluster_viejo"] == c_old_int]
+        old_name = str(sub["nombre_viejo"].iloc[0])
         total_old = len(sub)
         in_b_sub = sub[sub["cluster_nuevo"] >= 0]
         excl_sub = sub[sub["cluster_nuevo"] == -1]
 
         row = {
             "cluster_viejo": f"C{c_old_int}_viejo",
+            "nombre_viejo": old_name,
             "total_secciones_62048": total_old,
             "excluidas_panel_B_n": len(excl_sub),
             "excluidas_panel_B_pct": round(len(excl_sub) / total_old * 100, 2),
             "en_panel_B_n": len(in_b_sub),
         }
-        for c_new in range(5):
+        for c_new in range(4):
             cnt = int((in_b_sub["cluster_nuevo"] == c_new).sum())
             row[f"a_C{c_new}_nuevo_n"] = cnt
             row[f"a_C{c_new}_nuevo_pct_del_viejo_en_B"] = round(cnt / max(len(in_b_sub), 1) * 100, 2)
+            row[f"a_C{c_new}_nuevo_pct_del_total_viejo"] = round(cnt / max(total_old, 1) * 100, 2)
         row["ari_global_viejo_vs_nuevo_en_B"] = round(float(ari_old_new), 4)
         rows.append(row)
 
@@ -872,23 +875,23 @@ def test_2_7_transition_matrix(panel_62048: pd.DataFrame, df_b: pd.DataFrame) ->
     return df_trans
 
 
-def test_2_8_interpretability(X_scaled: np.ndarray, labels_5: np.ndarray) -> pd.DataFrame:
+def test_2_8_interpretability(X_scaled: np.ndarray, labels_4: np.ndarray) -> pd.DataFrame:
     """
     2.8 Interpretabilidad (no validación externa):
-    Calcula importancia Gini de Random Forest, importancia por permutación y estadístico F de ANOVA.
+    Calcula importancia Gini de Random Forest, importancia por permutación y estadístico F de ANOVA para k=4.
     """
     rf = RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(rf, X_scaled, labels_5, cv=cv, scoring="accuracy", n_jobs=-1)
-    rf.fit(X_scaled, labels_5)
+    cv_scores = cross_val_score(rf, X_scaled, labels_4, cv=cv, scoring="accuracy", n_jobs=-1)
+    rf.fit(X_scaled, labels_4)
 
     perm = permutation_importance(
-        rf, X_scaled, labels_5, n_repeats=10, random_state=42, n_jobs=-1
+        rf, X_scaled, labels_4, n_repeats=10, random_state=42, n_jobs=-1
     )
 
     rows = []
     for i, col in enumerate(FEATURE_COLS):
-        groups = [X_scaled[labels_5 == c, i] for c in range(5)]
+        groups = [X_scaled[labels_4 == c, i] for c in range(4)]
         f_stat, p_val = f_oneway(*groups)
         rows.append({
             "variable": col,
@@ -915,10 +918,11 @@ def compute_projections_and_save_labels(
 ) -> tuple[pd.DataFrame, dict]:
     """
     Calcula PCA (2D) y UMAP (2D, random_state=42) únicamente para visualización,
-    y guarda outputs/fase2/etiquetas_finales.parquet de manera determinista.
+    y guarda outputs/fase2/etiquetas_finales.parquet de manera determinista con k=4 como cluster principal.
     """
-    df_b["cluster"] = km_labels_by_k[5]
+    df_b["cluster"] = km_labels_by_k[4]
     df_b["cluster_k4"] = km_labels_by_k[4]
+    df_b["cluster_k5"] = km_labels_by_k[5]
     df_b["cluster_k6"] = km_labels_by_k[6]
 
     pca = PCA(n_components=2, random_state=42)
@@ -944,6 +948,7 @@ def compute_projections_and_save_labels(
     df_b.to_parquet(out_path, index=False)
 
     pca_info = {
+        "k_seleccionado": 4,
         "pca_var_exp_1": round(float(pca.explained_variance_ratio_[0] * 100), 2),
         "pca_var_exp_2": round(float(pca.explained_variance_ratio_[1] * 100), 2),
         "pca_var_exp_total_2d": round(float(pca.explained_variance_ratio_.sum() * 100), 2),
@@ -963,7 +968,7 @@ def main() -> None:
     panel_62048, df_b, df_univ = compute_features_and_universes(panel_62048, reconciliacion)
     print(f"  -> Panel Principal Opción B: {len(df_b):,} secciones | LN 2024: {df_b['ln_2024'].sum():,}")
 
-    print("[Fase 2] 3/8 Prueba 2.1: Comparación de formulaciones de estabilidad (a, b, c)...")
+    print("[Fase 2] 3/8 Prueba 2.1: Comparación de formulaciones de estabilidad (a, b, c) con k=4...")
     df_est = test_2_1_stability(df_b)
 
     print("[Fase 2] 4/8 Preparando variables winsorizadas (p1-p99) y escaladas (RobustScaler)...")
@@ -971,17 +976,17 @@ def main() -> None:
 
     print("[Fase 2] 5/8 Prueba 2.4: Benchmark K-Means++ (k=3..7, 100 bootstraps), GMM y HDBSCAN...")
     df_bench, km_labels_by_k = test_2_4_benchmark(X_scaled)
-    labels_5 = km_labels_by_k[5]
+    labels_4 = km_labels_by_k[4]
 
-    print("[Fase 2] 6/8 Pruebas 2.2 (VIF colinealidad) y 2.3 (Ventanas temporales)...")
-    test_2_2_collinearity(X_winsor, X_scaled, labels_5)
-    test_2_3_temporal_windows(df_b, labels_5)
+    print("[Fase 2] 6/8 Pruebas 2.2 (VIF colinealidad) y 2.3 (Ventanas temporales) con k=4...")
+    test_2_2_collinearity(X_winsor, X_scaled, labels_4)
+    test_2_3_temporal_windows(df_b, labels_4)
 
-    print("[Fase 2] 7/8 Pruebas 2.6 (Sensibilidad Opción A), 2.7 (Matriz transición) y 2.8 (RF/ANOVA)...")
-    df_b["cluster"] = labels_5
+    print("[Fase 2] 7/8 Pruebas 2.6 (Sensibilidad Opción A), 2.7 (Matriz transición) y 2.8 (RF/ANOVA) con k=4...")
+    df_b["cluster"] = labels_4
     df_sens = test_2_6_sensitivity_option_a(panel_62048, df_b)
     df_trans = test_2_7_transition_matrix(panel_62048, df_b)
-    df_interp = test_2_8_interpretability(X_scaled, labels_5)
+    df_interp = test_2_8_interpretability(X_scaled, labels_4)
 
     print("[Fase 2] 8/8 Calculando proyecciones PCA/UMAP deterministas y guardando etiquetas_finales.parquet...")
     df_b, pca_info = compute_projections_and_save_labels(df_b, X_scaled, km_labels_by_k)

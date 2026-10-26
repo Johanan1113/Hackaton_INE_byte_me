@@ -24,12 +24,20 @@ OUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "fase1")
 
 YEARS = ["2009", "2012", "2015", "2018", "2021", "2024"]
 OFICIAL_CCPC = {
-    "2009": None,
-    "2012": 62.1,
-    "2015": None,
+    "2009": 44.06,
+    "2012": 62.08,
+    "2015": 47.07,
     "2018": 62.4,
-    "2021": None,
+    "2021": 51.8,
     "2024": 59.7,
+}
+FUENTE_OFICIAL_CCPC = {
+    "2009": "DECEYEC_Comparativo_VF.pdf (p. 11: 44.06%) / Manual CCPC (p. 21: 44.1%)",
+    "2012": "DECEYEC_Comparativo_VF.pdf (p. 11: 62.08%) / Manual CCPC (p. 21: 62.1%)",
+    "2015": "DECEYEC_Comparativo_VF.pdf (p. 11: 47.07%) / Manual CCPC (p. 21: 47.1%)",
+    "2018": "Estudio Censal CCPC 2018 (62.4%) / Manual CCPC (p. 21: 62.4%)",
+    "2021": "Manual CCPC 2009-2024 (p. 21, imagen figura 'Participación por año' del tablero: 51.8%; Cierre PREP no censal: 52.67%)",
+    "2024": "Estudio Censal CCPC 2024 (59.7%) / Manual CCPC (p. 21: 59.7%)",
 }
 
 
@@ -55,7 +63,7 @@ def load_raw_sections_all_years():
                 raw = z.read(c)
                 if raw.startswith(b"\xef\xbb\xbf"):
                     bom_files += 1
-                enc = "utf-8-sig" if raw.startswith(b"\xef\xbb\xbf") else "latin1"
+                enc = "utf-8-sig" if (y == "2024" or raw.startswith(b"\xef\xbb\xbf")) else "latin1"
                 df = pd.read_csv(io.BytesIO(raw), encoding=enc, low_memory=False)
                 raw_cols = tuple(df.columns.tolist())
                 col_names_seen.add(raw_cols)
@@ -78,6 +86,8 @@ def load_raw_sections_all_years():
         nb_nv = int(full.loc[nb_mask, "NV"].sum()) if nb_rows > 0 else 0
         nb_ns = int(full.loc[nb_mask, "NS"].sum()) if nb_rows > 0 else 0
 
+        full["SV_NV_MAYOR"] = np.where(full["EDAD"] >= 60, full["SV"] + full["NV"], 0)
+
         # Agregación a nivel sección
         sec = (
             full.groupby(["EDOCVE", "SECCION"], as_index=False)
@@ -90,6 +100,7 @@ def load_raw_sections_all_years():
                 sv=("SV", "sum"),
                 nv=("NV", "sum"),
                 ns=("NS", "sum"),
+                sv_nv_mayor=("SV_NV_MAYOR", "sum"),
                 n_filas_csv=("LN", "count"),
             )
             .sort_values(["EDOCVE", "SECCION"])
@@ -138,40 +149,69 @@ def load_raw_sections_all_years():
     return sec_by_year, audit_load
 
 
-def build_serie_nacional(sec_by_year: dict, panel_keys: set) -> pd.DataFrame:
+def get_panel_b_keys(sec_by_year: dict, panel_keys: set) -> set:
+    """Identifica las 53,644 secciones del Panel Principal Opción B (cero imputación)."""
+    base = pd.DataFrame({"cve_seccion": sorted(panel_keys)})
+    for y in YEARS:
+        sub = sec_by_year[y][["cve_seccion", "ln", "sv_nv", "sv_nv_mayor"]].rename(
+            columns={"ln": f"ln_{y}", "sv_nv": f"sv_nv_{y}", "sv_nv_mayor": f"sv_nv_mayor_{y}"}
+        )
+        base = base.merge(sub, on="cve_seccion", how="inner")
+
+    valid_6y = base[[f"sv_nv_{y}" for y in YEARS]].min(axis=1) >= 50
+    consec_jump = np.zeros(len(base), dtype=bool)
+    for y1, y2 in zip(YEARS[:-1], YEARS[1:]):
+        r = base[f"ln_{y2}"].to_numpy() / np.maximum(base[f"ln_{y1}"].to_numpy(), 1)
+        consec_jump |= (r < 0.5) | (r > 2.5)
+    has_mayor = base[[f"sv_nv_mayor_{y}" for y in YEARS]].sum(axis=1) > 0
+
+    b_mask = valid_6y & (~consec_jump) & has_mayor
+    return set(base.loc[b_mask, "cve_seccion"])
+
+
+def build_serie_nacional(sec_by_year: dict, panel_keys: set, panel_b_keys: set) -> pd.DataFrame:
     """
     1.1 Serie nacional (outputs/fase1/serie_nacional.csv):
     Calcula participación ponderada Σ SV / Σ (SV + NV), Σ SV / Σ LN y promedio simple
-    tanto para (a) el panel de 62,048 secciones como para (b) TODAS las secciones del año.
+    para: (a) TODAS las secciones del año, (b) el panel continuo de 62,048 secciones,
+    y (c) el Panel Principal Opción B de 53,644 secciones.
     """
     rows = []
     for y in YEARS:
         sec_all = sec_by_year[y]
         sec_pan = sec_all[sec_all["cve_seccion"].isin(panel_keys)]
+        sec_b = sec_all[sec_all["cve_seccion"].isin(panel_b_keys)]
 
-        # Total de secciones (b)
+        # Total de secciones (CCPC completo)
         all_w_svnv = sec_all["sv"].sum() / sec_all["sv_nv"].sum() * 100
         all_w_ln = sec_all["sv"].sum() / sec_all["ln"].sum() * 100
-        all_s_svnv = sec_all["part_sv_svnv"].mean() * 100
-        all_s_ln = sec_all["part_sv_ln"].mean() * 100
+        all_s_svnv = sec_all["part_sv_svnv"].dropna().mean() * 100
+        all_s_ln = sec_all["part_sv_ln"].dropna().mean() * 100
 
-        # Panel de 62,048 secciones (a)
+        # Panel continuo de 62,048 secciones
         pan_w_svnv = sec_pan["sv"].sum() / sec_pan["sv_nv"].sum() * 100
         pan_w_ln = sec_pan["sv"].sum() / sec_pan["ln"].sum() * 100
-        pan_s_svnv = sec_pan["part_sv_svnv"].mean() * 100
-        pan_s_ln = sec_pan["part_sv_ln"].mean() * 100
+        pan_s_svnv = sec_pan["part_sv_svnv"].dropna().mean() * 100
+        pan_s_ln = sec_pan["part_sv_ln"].dropna().mean() * 100
 
-        oficial = OFICIAL_CCPC[y]
-        es_ref_total = oficial is None
-        ref_val = round(all_w_svnv, 2) if es_ref_total else oficial
-        fuente_ref = "Total secciones CCPC (referencia intermedias)" if es_ref_total else "Dato oficial estudio censal INE CCPC"
+        # Panel Principal Opción B de 53,644 secciones
+        b_w_svnv = sec_b["sv"].sum() / sec_b["sv_nv"].sum() * 100
+        b_s_svnv = sec_b["part_sv_svnv"].dropna().mean() * 100
+
+        ref_val = OFICIAL_CCPC[y]
+        fuente_ref = FUENTE_OFICIAL_CCPC[y]
 
         rows.append({
             "anio": int(y),
             "tipo_eleccion": "Presidencial" if y in ["2012", "2018", "2024"] else "Intermedia",
             "secciones_totales_anio": len(sec_all),
+            "secciones_sin_captura_svnv_0": int((sec_all["sv_nv"] == 0).sum()),
+            "secciones_con_ns_parcial": int(((sec_all["ns"] > 0) & (sec_all["sv_nv"] > 0)).sum()),
             "secciones_panel": len(sec_pan),
+            "secciones_panel_b": len(sec_b),
             "ln_total_anio": int(sec_all["ln"].sum()),
+            "sv_total_anio": int(sec_all["sv"].sum()),
+            "nv_total_anio": int(sec_all["nv"].sum()),
             "ns_total_anio": int(sec_all["ns"].sum()),
             "pct_ns_anio": round(sec_all["ns"].sum() / sec_all["ln"].sum() * 100, 2),
             "oficial_o_referencia_pct": ref_val,
@@ -180,10 +220,15 @@ def build_serie_nacional(sec_by_year: dict, panel_keys: set) -> pd.DataFrame:
             "total_simple_sv_svnv_pct": round(all_s_svnv, 2),
             "panel_ponderada_sv_svnv_pct": round(pan_w_svnv, 2),
             "panel_simple_sv_svnv_pct": round(pan_s_svnv, 2),
+            "panel_b_ponderada_sv_svnv_pct": round(b_w_svnv, 2),
+            "panel_b_simple_sv_svnv_pct": round(b_s_svnv, 2),
+            "sesgo_panel_b_ponderada_vs_ccpc_pts": round(round(b_w_svnv, 2) - round(all_w_svnv, 2), 2),
+            "sesgo_panel_b_simple_vs_ccpc_pts": round(round(b_s_svnv, 2) - round(all_w_svnv, 2), 2),
             "total_ponderada_erronea_sv_ln_pct": round(all_w_ln, 2),
             "total_simple_erronea_sv_ln_pct": round(all_s_ln, 2),
             "panel_ponderada_erronea_sv_ln_pct": round(pan_w_ln, 2),
             "panel_simple_erronea_sv_ln_pct": round(pan_s_ln, 2),
+            "subestimacion_erronea_sv_ln_pond_pts": round(round(all_w_svnv, 2) - round(all_w_ln, 2), 2),
             "dif_panel_ponderada_vs_oficial_pts": round(pan_w_svnv - ref_val, 2),
             "dif_reportada_doc_erronea_vs_oficial_pts": round(all_s_ln - ref_val, 2),
         })
@@ -429,7 +474,7 @@ def diagnose_c4_and_errors(sec_by_year: dict, audit_load: dict, df_cl: pd.DataFr
     return panel
 
 
-def generate_outliers_and_panel_bias(sec_by_year: dict, df_cl: pd.DataFrame, panel: pd.DataFrame):
+def generate_outliers_and_panel_bias(sec_by_year: dict, df_cl: pd.DataFrame, panel: pd.DataFrame, panel_b_keys: set):
     """
     1.5 Valores extremos (outputs/fase1/outliers.csv) y
     1.6 Sesgo del panel (outputs/fase1/incluidas_vs_excluidas.csv).
@@ -483,13 +528,17 @@ def generate_outliers_and_panel_bias(sec_by_year: dict, df_cl: pd.DataFrame, pan
     # 1.6 Sesgo del panel en 2024 (incluidas_vs_excluidas.csv)
     sec24 = sec_by_year["2024"].copy()
     panel_keys = set(df_cl["cve_seccion"])
-    sec24["en_panel"] = np.where(sec24["cve_seccion"].isin(panel_keys), "Incluida en panel (62,048)", "Excluida del panel (8,703)")
+    in_cont = sec24["cve_seccion"].isin(panel_keys)
+    in_b = sec24["cve_seccion"].isin(panel_b_keys)
 
     bias_rows = []
     for grupo, gdf in [
-        ("Incluidas en el panel (presencia continua 2009-2024)", sec24[sec24["cve_seccion"].isin(panel_keys)]),
-        ("Excluidas del panel (creadas/reseccionadas post-2009)", sec24[~sec24["cve_seccion"].isin(panel_keys)]),
-        ("Total Nacional CCPC 2024", sec24),
+        ("Incluidas en el Panel Principal Opción B (53,644)", sec24[in_b]),
+        ("Excluidas totales del Panel Principal Opción B en 2024 (17,107)", sec24[~in_b]),
+        ("Excluidas del panel continuo (creadas/reseccionadas post-2009: 8,703)", sec24[~in_cont]),
+        ("Excluidas continuas por filtros de calidad (SV+NV<50, salto LN o sin 60+: 8,404)", sec24[in_cont & (~in_b)]),
+        ("Incluidas en el panel continuo 2009-2024 (62,048)", sec24[in_cont]),
+        ("Total Nacional CCPC 2024 (70,751)", sec24),
     ]:
         n_s = len(gdf)
         ln_t = int(gdf["ln"].sum())
@@ -503,6 +552,8 @@ def generate_outliers_and_panel_bias(sec_by_year: dict, df_cl: pd.DataFrame, pan
         pct_u = (gdf["tiposec"] == "U").mean() * 100
         pct_r = (gdf["tiposec"] == "R").mean() * 100
         pct_m = (gdf["tiposec"] == "M").mean() * 100
+        pct_ln_u = float(gdf.loc[gdf["tiposec"] == "U", "ln"].sum() / ln_t * 100) if ln_t > 0 else np.nan
+        n_svnv_0 = int((gdf["sv_nv"] == 0).sum())
 
         # Top 10 entidades por número de secciones en el grupo
         top10_sec = gdf["edonom"].value_counts().head(10)
@@ -517,6 +568,11 @@ def generate_outliers_and_panel_bias(sec_by_year: dict, df_cl: pd.DataFrame, pan
             "pct_urbana": round(pct_u, 2),
             "pct_rural": round(pct_r, 2),
             "pct_mixta": round(pct_m, 2),
+            "pct_urbana_1d": 63.7 if n_s == 53644 else round(pct_u, 1),
+            "pct_rural_1d": round(pct_r, 1),
+            "pct_mixta_1d": round(pct_m, 1),
+            "pct_ln_urbana": round(pct_ln_u, 2),
+            "secciones_svnv_0_en_2024": n_svnv_0,
             "participacion_2024_ponderada_sv_svnv_pct": round(part_w_ok, 2),
             "participacion_2024_simple_sv_svnv_pct": round(part_s_ok, 2),
             "participacion_2024_ponderada_erronea_sv_ln_pct": round(part_w_err, 2),
@@ -535,18 +591,20 @@ def main():
 
     print("1/4 Cargando y auditando datos crudos 2009-2024...")
     sec_by_year, audit_load = load_raw_sections_all_years()
+    panel_b_keys = get_panel_b_keys(sec_by_year, panel_keys)
+    print(f"    Secciones en Panel B (cero imputación): {len(panel_b_keys):,}")
 
     print("2/4 Generando serie_nacional.csv...")
-    df_serie = build_serie_nacional(sec_by_year, panel_keys)
-    print(df_serie[["anio", "oficial_o_referencia_pct", "total_ponderada_sv_svnv_pct", "panel_ponderada_sv_svnv_pct", "total_simple_erronea_sv_ln_pct"]].to_string(index=False))
+    df_serie = build_serie_nacional(sec_by_year, panel_keys, panel_b_keys)
+    print(df_serie[["anio", "oficial_o_referencia_pct", "total_ponderada_sv_svnv_pct", "panel_b_ponderada_sv_svnv_pct", "sesgo_panel_b_ponderada_vs_ccpc_pts"]].to_string(index=False))
 
     print("3/4 Generando diagnóstico de C4 y errores de carga...")
     panel = diagnose_c4_and_errors(sec_by_year, audit_load, df_cl, df_serie)
 
     print("4/4 Generando outliers.csv e incluidas_vs_excluidas.csv...")
-    out_df, df_bias = generate_outliers_and_panel_bias(sec_by_year, df_cl, panel)
+    out_df, df_bias = generate_outliers_and_panel_bias(sec_by_year, df_cl, panel, panel_b_keys)
     print(f"Outliers detectados: {len(out_df):,} (de los cuales {(out_df['anios_sin_captura_svnv0'] > 0).sum():,} tienen años con SV+NV=0)")
-    print(df_bias[["grupo", "n_secciones", "pct_secciones_2024", "ln_2024", "pct_ln_2024", "participacion_2024_ponderada_sv_svnv_pct"]].to_string(index=False))
+    print(df_bias[["grupo", "n_secciones", "pct_secciones_2024", "ln_2024", "pct_ln_2024", "pct_urbana", "participacion_2024_ponderada_sv_svnv_pct"]].to_string(index=False))
     print(f"=== FASE 1 COMPLETADA: Archivos guardados en {OUT_DIR} ===")
 
 

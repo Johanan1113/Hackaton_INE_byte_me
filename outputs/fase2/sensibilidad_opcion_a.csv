@@ -1,3 +1,3 @@
-variante,secciones_incluidas,secciones_adicionales_vs_panel_B,secciones_comunes_con_panel_B,ari_vs_panel_principal_B,coincidencia_exacta_alineada_pct,silhouette_k5,davies_bouldin_k5,calinski_harabasz_k5
-Opcion_A_62048_con_2pres_2inter_sin_filtro_LN,61739,8095,53644,0.9292,97.2,0.162,1.6188,14314.43
-Opcion_A_con_2pres_2inter_y_sin_salto_abrupto_LN,60433,6789,53644,0.9271,97.07,0.1641,1.6192,14012.94
+variante,secciones_incluidas,secciones_adicionales_vs_panel_B,secciones_comunes_con_panel_B,ari_vs_panel_principal_B,coincidencia_exacta_alineada_pct,silhouette_k4,davies_bouldin_k4,calinski_harabasz_k4
+Opcion_A_62048_con_2pres_2inter_sin_filtro_LN,61739,8095,53644,0.9729,98.98,0.1763,1.549,16303.83
+Opcion_A_con_2pres_2inter_y_sin_salto_abrupto_LN,60433,6789,53644,0.9707,98.93,0.1767,1.5494,15964.07
