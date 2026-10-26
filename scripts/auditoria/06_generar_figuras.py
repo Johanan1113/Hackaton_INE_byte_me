@@ -41,9 +41,22 @@ CLUSTER_COLORS = {
     3: "#7570B3",  # C3: Púrpura índigo (Liderazgo Femenino con Participación Estancada)
 }
 
+import matplotlib.font_manager as fm
+
+for _p in [
+    "/usr/share/fonts/TTF/Arial.TTF",
+    "/usr/share/fonts/TTF/Arialbd.TTF",
+    "/usr/share/fonts/TTF/Ariali.TTF",
+    "/usr/share/fonts/TTF/Arialbi.TTF",
+]:
+    if Path(_p).exists():
+        fm.fontManager.addfont(_p)
+
 plt.rcParams.update({
-    "font.family": "sans-serif",
-    "font.sans-serif": ["DejaVu Sans", "Arial", "Liberation Sans"],
+    "font.family": "Arial",
+    "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
     "axes.edgecolor": "#374151",
     "axes.linewidth": 0.8,
     "grid.color": "#E5E7EB",
@@ -144,16 +157,16 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
         )
         for x_val, y_val in zip(years, y_vals):
             if c == 1:
-                dx, dy = 0, 7
+                dx, dy = 0, 9
             elif c == 2:
-                dx, dy = (0, -10) if x_val in (2012, 2018) else (0, 6)
+                dx, dy = (0, -12) if x_val in (2012, 2018) else (0, 8)
             elif c == 3:
-                dx, dy = (0, 6) if x_val in (2009, 2015) else (0, -10)
+                dx, dy = (0, 8) if x_val in (2009, 2015) else (0, -12)
             else:
-                dx, dy = 0, -11
+                dx, dy = 0, -12
             ax1.annotate(
                 f"{y_val:.1f}%", (x_val, y_val), textcoords="offset points",
-                xytext=(dx, dy), ha="center", fontsize=7.3, fontweight="bold", color=CLUSTER_COLORS[c]
+                xytext=(dx, dy), ha="center", fontsize=7.5, fontweight="bold", color=CLUSTER_COLORS[c]
             )
 
     nac_ccpc = [r["total_ponderada_sv_svnv_pct"] for r in serie_nac]
@@ -161,7 +174,7 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     ax1.plot(years, nac_ccpc, linestyle="--", marker="s", linewidth=1.8, markersize=5, color="#111827",
              label="Total Nacional CCPC Ponderado SV/(SV+NV)", zorder=5)
     ax1.plot(years, pan_b_pond, linestyle=":", marker="^", linewidth=1.6, markersize=5, color="#6B7280",
-             label="Media Panel B (53,644 sec.) Ponderada", zorder=3)
+             label="Media del Panel B", zorder=3)
 
     ax1.set_xticks(years)
     ax1.set_xticklabels([f"{y}\n({'Inter.' if y in (2009,2015,2021) else 'Pres.'})" for y in years], fontsize=8.5)
@@ -218,13 +231,13 @@ def generate_fig3_radar_centroides(data: dict) -> None:
     """Figura 3: Heatmap de centroides (z-score + valor original) y perfil paralelo de las 7 variables."""
     perfiles = data["perfiles"]
     feat_info = [
-        ("participacion_media_historica", "Participación Media\nHistórica (%)", lambda v: f"{v*100:.1f}%"),
-        ("brecha_presidencial_intermedia", "Brecha Presidencial-\nIntermedia (pts)", lambda v: f"{v*100:+.1f} pts"),
-        ("tendencia_participacion_beta", "Tendencia Anual\nOLS (pts/año)", lambda v: f"{v*100:+.2f} pts/a"),
-        ("estabilidad_participacion", "Índice de Estabilidad\nlog(1 + 1/CV)", lambda v: f"{v:.2f}"),
-        ("brecha_generacional", "Brecha Generacional\n60+ vs 18-29 (pts)", lambda v: f"{v*100:+.1f} pts"),
-        ("brecha_genero", "Brecha de Género\nM vs H (pts)", lambda v: f"{v*100:+.1f} pts"),
-        ("ratio_participacion_joven", "Ratio Participación\nJoven (18-29 / Total)", lambda v: f"{v:.3f}"),
+        ("participacion_media_historica", "Participación\nMedia (%)", lambda v: f"{v*100:.1f}%"),
+        ("brecha_presidencial_intermedia", "Brecha Presidencial–\nIntermedia (pts)", lambda v: f"{v*100:+.1f} pts"),
+        ("tendencia_participacion_beta", "Tendencia Anual\n(pts/año)", lambda v: f"{v*100:+.2f} pts/a"),
+        ("estabilidad_participacion", "Estabilidad\nlog(1 + 1/CV)", lambda v: f"{v:.2f}"),
+        ("brecha_generacional", "Brecha Generacional\n(60+ menos 18–29)", lambda v: f"{v*100:+.1f} pts"),
+        ("brecha_genero", "Brecha de Género\n(M menos H)", lambda v: f"{v*100:+.1f} pts"),
+        ("ratio_participacion_joven", "Razón de Part.\nJuvenil", lambda v: f"{v:.3f}"),
     ]
 
     z_mat = np.zeros((4, len(feat_info)))
@@ -238,6 +251,7 @@ def generate_fig3_radar_centroides(data: dict) -> None:
             star = "*" if abs(z) >= 0.5 else ""
             annot_mat[i][j] = f"z = {z:+.2f}{star}\n({fmt_fn(orig)})"
 
+    # Figura completa fig3_radar_centroides.png (Paneles A y B)
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13.8, 9.0), gridspec_kw={"height_ratios": [1.15, 1.0]})
 
     im = ax1.imshow(z_mat, cmap="RdBu_r", vmin=-1.5, vmax=1.5, aspect="auto")
@@ -256,7 +270,7 @@ def generate_fig3_radar_centroides(data: dict) -> None:
         fontsize=8.5, fontweight="bold"
     )
     ax1.set_title(
-        "A. Matriz de Centroides por Perfil: Puntaje Estandarizado (z-score) y Valor en Escala Original (* indica variable rectora |z| >= 0.50)",
+        "A. Matriz de Centroides por Perfil: Puntaje Estandarizado (z-score) y Valor en Escala Original (* indica variable rectora |z| ≥ 0.50)",
         fontsize=10.5, fontweight="bold", pad=10
     )
     cbar = fig.colorbar(im, ax=ax1, orientation="vertical", fraction=0.02, pad=0.02)
@@ -286,6 +300,32 @@ def generate_fig3_radar_centroides(data: dict) -> None:
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(OUT_FIGURAS / "fig3_radar_centroides.png", dpi=300)
     plt.close(fig)
+
+    # Panel A standalone para Documento Técnico PDF (fig3a_radar_centroides.png)
+    fig_a, ax_a = plt.subplots(figsize=(11.0, 3.8))
+    im_a = ax_a.imshow(z_mat, cmap="RdBu_r", vmin=-1.5, vmax=1.5, aspect="auto")
+    for i in range(4):
+        for j in range(len(feat_info)):
+            z = z_mat[i, j]
+            txt_color = "white" if abs(z) > 0.85 else "#111827"
+            weight = "bold" if abs(z) >= 0.5 else "normal"
+            ax_a.text(j, i, annot_mat[i][j], ha="center", va="center", color=txt_color, fontsize=8.3, fontweight=weight)
+    ax_a.set_xticks(np.arange(len(feat_info)))
+    ax_a.set_xticklabels([lbl for _, lbl, _ in feat_info], fontsize=8.3, fontweight="bold")
+    ax_a.set_yticks(np.arange(4))
+    ax_a.set_yticklabels(
+        [f"{p['codigo_cluster']}: {p['nombre_propuesto']}\n({p['pct_secciones_panel']:.1f}% panel)" for p in perfiles],
+        fontsize=8.5, fontweight="bold"
+    )
+    cbar_a = fig_a.colorbar(im_a, ax=ax_a, orientation="vertical", fraction=0.025, pad=0.02)
+    cbar_a.set_label("z-score vs Panel B", fontsize=8.5)
+    ax_a.set_title(
+        "Matriz de Centroides por Perfil: Puntaje Estandarizado (z-score) y Valor Original (* indica variable rectora |z| ≥ 0.50)",
+        fontsize=10.0, fontweight="bold", pad=8
+    )
+    fig_a.tight_layout()
+    fig_a.savefig(OUT_FIGURAS / "fig3a_radar_centroides.png", dpi=300)
+    plt.close(fig_a)
 
 
 def generate_fig4_brechas_demograficas(data: dict) -> None:
@@ -446,10 +486,9 @@ def generate_fig6_benchmark_k(data: dict) -> None:
     km_ari_low = [r["bootstrap_ari_media"] - r["bootstrap_ari_ic95_inf"] for r in km_rows]
     km_ari_high = [r["bootstrap_ari_ic95_sup"] - r["bootstrap_ari_media"] for r in km_rows]
 
-    fig, axes = plt.subplots(2, 2, figsize=(13.2, 8.2))
-    (ax1, ax2), (ax3, ax4) = axes
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.2))
 
-    for ax in [ax1, ax2, ax3, ax4]:
+    for ax in [ax1, ax2]:
         ax.axvspan(3.8, 6.2, color="#FEF3C7", alpha=0.55, zorder=0, label="Rango convocatoria (k=4..6)")
         ax.axvline(4, color="#D97706", linestyle="--", linewidth=1.5, zorder=2)
 
@@ -457,56 +496,34 @@ def generate_fig6_benchmark_k(data: dict) -> None:
     ax1.plot(ks, km_sil, marker="o", linewidth=2.3, color="#1D4ED8", label="K-Means++")
     ax1.plot(ks, gmm_sil, marker="s", linestyle="--", linewidth=1.8, color="#6B7280", label="GMM (full)")
     for k_v, v in zip(ks, km_sil):
-        ax1.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8, fontweight="bold")
+        ax1.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8.5, fontweight="bold")
     ax1.set_title("A. Coeficiente de Silhouette (Mayor es mejor)", fontsize=10.5, fontweight="bold")
+    ax1.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
     ax1.set_xticks(ks)
     ax1.set_ylim(0.08, 0.235)
     ax1.grid(True, alpha=0.6)
-    ax1.legend(loc="upper right", fontsize=8)
+    ax1.legend(loc="upper right", fontsize=8.5)
 
-    # Panel B: Davies-Bouldin
-    ax2.plot(ks, km_db, marker="o", linewidth=2.3, color="#047857", label="K-Means++")
-    ax2.plot(ks, gmm_db, marker="s", linestyle="--", linewidth=1.8, color="#6B7280", label="GMM (full)")
-    for k_v, v in zip(ks, km_db):
-        ax2.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, -13), ha="center", fontsize=8, fontweight="bold")
-    ax2.set_title("B. Índice de Davies-Bouldin (Menor es mejor)", fontsize=10.5, fontweight="bold")
-    ax2.set_xticks(ks)
-    ax2.set_ylim(1.40, 2.35)
-    ax2.grid(True, alpha=0.6)
-    ax2.legend(loc="upper left", fontsize=8)
-
-    # Panel C: Calinski-Harabasz
-    ax3.plot(ks, km_ch, marker="o", linewidth=2.3, color="#7C3AED", label="K-Means++")
-    ax3.plot(ks, gmm_ch, marker="s", linestyle="--", linewidth=1.8, color="#6B7280", label="GMM (full)")
-    for k_v, v in zip(ks, km_ch):
-        ax3.annotate(f"{v:,.0f}", (k_v, v), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8, fontweight="bold")
-    ax3.set_title("C. Índice Calinski-Harabasz (Mayor es mejor)", fontsize=10.5, fontweight="bold")
-    ax3.set_xticks(ks)
-    ax3.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
-    ax3.set_ylim(6000, 18500)
-    ax3.grid(True, alpha=0.6)
-    ax3.legend(loc="upper right", fontsize=8)
-
-    # Panel D: Bootstrap ARI (100 réplicas al 80% + IC 95%)
-    ax4.errorbar(
+    # Panel B: Bootstrap ARI (100 réplicas al 80% + IC 95%)
+    ax2.errorbar(
         ks, km_ari, yerr=[km_ari_low, km_ari_high], fmt="-o", linewidth=2.2,
-         capsize=5, color="#B91C1C", label="ARI Bootstrap Media ± IC 95%"
+        capsize=5, color="#B91C1C", label="ARI Bootstrap Media ± IC 95%"
     )
-    ax4.axhline(0.85, color="#374151", linestyle=":", linewidth=1.2, label="Umbral de alta estabilidad (0.85)")
+    ax2.axhline(0.85, color="#374151", linestyle=":", linewidth=1.2, label="Umbral de alta estabilidad (0.85)")
     for k_v, v in zip(ks, km_ari):
-        ax4.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, fontweight="bold")
-    ax4.set_title("D. Estabilidad Bootstrap ARI (100 Réplicas al 80%, IC 95%)", fontsize=10.5, fontweight="bold")
-    ax4.set_xticks(ks)
-    ax4.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
-    ax4.set_ylim(0.78, 1.02)
-    ax4.grid(True, alpha=0.6)
-    ax4.legend(loc="lower left", fontsize=8)
+        ax2.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8.5, fontweight="bold")
+    ax2.set_title("B. Estabilidad Bootstrap ARI (100 Réplicas al 80%, IC 95%)", fontsize=10.5, fontweight="bold")
+    ax2.set_xticks(ks)
+    ax2.set_xlabel("Número de Clusters (k)", fontsize=9.5, fontweight="bold")
+    ax2.set_ylim(0.78, 1.02)
+    ax2.grid(True, alpha=0.6)
+    ax2.legend(loc="lower left", fontsize=8.5)
 
     fig.suptitle(
-        "Selección Empírica de k=4: Mejor Desempeño en Silhouette, Davies-Bouldin y Calinski-Harabasz dentro del Rango 4–6",
-        fontsize=11.8, fontweight="bold", y=0.98
+        "Benchmark de Agrupamiento Seccional: Silhouette y Estabilidad Bootstrap ARI (k=3 a 7)",
+        fontsize=11.5, fontweight="bold", y=0.98
     )
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(OUT_FIGURAS / "fig6_benchmark_k.png", dpi=300)
     plt.close(fig)
 
