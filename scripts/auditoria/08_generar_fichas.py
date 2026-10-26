@@ -279,11 +279,11 @@ def render_cover_page(data: dict) -> plt.Figure:
     tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
     impactos_portada = []
     for idx in range(4):
-        n_elec = tabla_imp[idx].get("electores_impacto_n", 0)
+        miles_str = tabla_imp[idx].get("electores_impacto_str", "")
         if idx in (0, 3):
-            impactos_portada.append(f"+{n_elec:,} votantes")
+            impactos_portada.append(f"{miles_str}")
         else:
-            impactos_portada.append(f"{n_elec:,} en riesgo")
+            impactos_portada.append(f"{miles_str}")
 
     rows_data = [
         ("C0", perfiles[0]["nombre_propuesto"], f"{perfiles[0]['n_secciones']:,} ({perfiles[0]['pct_secciones_panel']:.1f}%)",
@@ -484,10 +484,13 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     top3_str = res_p.get("top3_juntas_str", "")
 
     if cid in (0, 3):
-        txt_impacto = f"+{n_elec:,} votantes si se cumple la meta 2027"
+        miles_str = tabla_imp[cid].get("electores_impacto_str", "")
+        rango_str = tabla_imp[cid].get("rango_impacto_str", "")
+        txt_impacto = f"{miles_str} votantes si se cumple la meta 2027 (rango: {rango_str})"
         lbl_impacto = "Impacto:"
     else:
-        txt_impacto = f"{n_elec:,} votantes si regresa a su promedio intermedio"
+        miles_str = tabla_imp[cid].get("electores_impacto_str", "")
+        txt_impacto = f"{miles_str} votantes si regresa a su promedio intermedio"
         lbl_impacto = "En riesgo:"
 
     y_curr = 0.276

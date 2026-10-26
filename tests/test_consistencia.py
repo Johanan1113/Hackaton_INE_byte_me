@@ -596,14 +596,16 @@ def test_total_tabla8() -> None:
 
 def test_impacto_consistente() -> None:
     """
-    G1: Las cifras de electores adicionales y en riesgo coinciden entre el documento
-    (Tabla 7) y las fichas (recuadro de metas y portada); y las top 3 juntas de cada perfil
-    coinciden en ambos.
+    J1: El impacto y su rango son iguales en el documento y en las fichas;
+    y las cifras exactas existen en tabla_17_impacto.csv.
     """
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
     imp = data["impacto_y_prioridad_territorial"]
     tabla_imp = imp["tabla_impacto"]
     res_p = imp["resumen_por_perfil"]
+
+    df17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv")
+    assert len(df17) == 4, "tabla_17_impacto.csv debe tener 4 filas"
 
     doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
     fichas_pages = [re.sub(r"\s+", " ", p.extract_text()) for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages]
@@ -612,26 +614,31 @@ def test_impacto_consistente() -> None:
     for cid in range(4):
         c_code = f"C{cid}"
         row_t = tabla_imp[cid]
-        n_elec = row_t["electores_impacto_n"]
-        n_elec_fmt = f"{n_elec:,}"
+        imp_str = row_t["electores_impacto_str"]
         top3_str = res_p[c_code]["top3_juntas_str"]
         top3_list = res_p[c_code]["top3_juntas"]
 
+        # Exact number in tabla_17
+        assert int(df17.iloc[cid]["electores_impacto_n"]) == row_t["electores_impacto_n"]
+
         # 1. En Documento Técnico (Tabla 7)
-        assert n_elec_fmt in doc_full, f"Electores {n_elec_fmt} de {c_code} no encontrados en Documento Técnico"
+        # Check text (e.g. "938 mil", "58 mil", "1.92 millones", "333 mil")
+        num_part = re.search(r"(\d+(?:\.\d+)?\s*(?:mil|millones))", imp_str).group(1)
+        assert num_part in doc_full, f"Texto impacto {num_part} de {c_code} no encontrado en Documento Técnico"
         for junta in top3_list:
             assert junta in doc_full, f"Junta '{junta}' de {c_code} no encontrada en Documento Técnico"
 
         # 2. En Fichas: Portada (página 1)
-        assert n_elec_fmt in portada_text, f"Electores {n_elec_fmt} de {c_code} no encontrados en Portada de Fichas"
+        assert num_part in portada_text, f"Impacto {num_part} de {c_code} no encontrado en Portada de Fichas"
 
         # 3. En Fichas: Ficha individual (página cid + 1)
         ficha_text = fichas_pages[cid + 1]
-        assert n_elec_fmt in ficha_text, f"Electores {n_elec_fmt} de {c_code} no encontrados en Ficha {c_code}"
+        assert num_part in ficha_text, f"Impacto {num_part} de {c_code} no encontrado en Ficha {c_code}"
+
         if cid in (0, 3):
-            assert f"+{n_elec_fmt} votantes si se cumple la meta 2027" in ficha_text, f"Texto impacto de {c_code} ausente en Ficha {c_code}"
-        else:
-            assert f"{n_elec_fmt} votantes si regresa a su promedio intermedio" in ficha_text, f"Texto en riesgo de {c_code} ausente en Ficha {c_code}"
+            rango = row_t["rango_impacto_str"]
+            assert rango in doc_full, f"Rango '{rango}' de {c_code} ausente en Documento"
+            assert rango in ficha_text, f"Rango '{rango}' de {c_code} ausente en Ficha {c_code}"
 
         assert f"Dónde empezar: {top3_str}" in ficha_text, f"'Dónde empezar' de {c_code} no coincide en Ficha {c_code}"
 

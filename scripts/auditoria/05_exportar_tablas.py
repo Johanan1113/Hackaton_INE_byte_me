@@ -212,6 +212,12 @@ def main() -> None:
             OUT_TABLAS / "tabla_15_potencia_piloto.csv", index=False, encoding="utf-8-sig"
         )
 
+    # 17. Impacto estimado y priorización territorial (Bloque D)
+    if "impacto_y_prioridad_territorial" in data and "tabla_impacto" in data["impacto_y_prioridad_territorial"]:
+        pd.DataFrame(data["impacto_y_prioridad_territorial"]["tabla_impacto"]).to_csv(
+            OUT_TABLAS / "tabla_17_impacto.csv", index=False, encoding="utf-8-sig"
+        )
+
     sha_m = hashlib.sha256(METRICAS_PATH.read_bytes()).hexdigest()
     n_tabs = len(list(OUT_TABLAS.glob("tabla_*.csv")))
     print(f"[Fase 5] {n_tabs} tablas exportadas en {OUT_TABLAS} desde metricas_finales.json (SHA256={sha_m})")

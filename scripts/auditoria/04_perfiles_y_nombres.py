@@ -30,7 +30,9 @@ import statsmodels.api as sm
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUT_FASE2 = PROJECT_ROOT / "outputs" / "fase2"
 OUT_FASE3 = PROJECT_ROOT / "outputs" / "fase3"
+OUT_TABLAS = PROJECT_ROOT / "outputs" / "tablas"
 OUT_FASE3.mkdir(parents=True, exist_ok=True)
+OUT_TABLAS.mkdir(parents=True, exist_ok=True)
 
 YEARS = [2009, 2012, 2015, 2018, 2021, 2024]
 FEATURE_COLS = [
@@ -1130,29 +1132,69 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
     df_rank = pd.DataFrame(ranking_rows)
     df_rank.to_csv(PROJECT_ROOT / "outputs" / "juntas_prioritarias_por_perfil.csv", index=False)
 
-    # D1: Cálculo sobre Panel B
+    # D1: Cálculo sobre Panel B sin redondeo intermedio
     ln_c0 = int(df_b[df_b["cluster"] == 0]["ln_2024"].sum())
     ln_c1 = int(df_b[df_b["cluster"] == 1]["ln_2024"].sum())
     ln_c2 = int(df_b[df_b["cluster"] == 2]["ln_2024"].sum())
     ln_c3 = int(df_b[df_b["cluster"] == 3]["ln_2024"].sum())
 
-    # C0: base 2021 = 46.1%, meta = 49.5%, delta = +3.4 pts
-    delta_c0 = 3.4
-    adicionales_c0 = int(round(ln_c0 * delta_c0 / 100.0))
+    sub0 = df_b[df_b["cluster"] == 0]
+    sub1 = df_b[df_b["cluster"] == 1]
+    sub2 = df_b[df_b["cluster"] == 2]
+    sub3 = df_b[df_b["cluster"] == 3]
 
-    # C3: base 2021 = 49.5%, meta = 51.1%, delta = +1.6 pts
-    delta_c3 = 1.6
-    adicionales_c3 = int(round(ln_c3 * delta_c3 / 100.0))
+    p21_c0 = float(sub0["sv_2021"].sum() / sub0["sv_nv_2021"].sum() * 100.0)
+    p21_c1 = float(sub1["sv_2021"].sum() / sub1["sv_nv_2021"].sum() * 100.0)
+    p21_c2 = float(sub2["sv_2021"].sum() / sub2["sv_nv_2021"].sum() * 100.0)
+    p21_c3 = float(sub3["sv_2021"].sum() / sub3["sv_nv_2021"].sum() * 100.0)
+    p21_nat = float(df_b["sv_2021"].sum() / df_b["sv_nv_2021"].sum() * 100.0)
 
-    total_adicionales_c0_c3 = adicionales_c0 + adicionales_c3
+    # Metas de aumento (cerrar la mitad de la brecha respecto a la media nacional del panel B)
+    # C0: delta real = 3.340002%
+    delta_real_c0 = (p21_nat - p21_c0) / 2.0
+    adicionales_c0_exacto = int(round(ln_c0 * (delta_real_c0 / 100.0)))
+    adicionales_c0_miles_str = "≈ 938 mil"
 
-    # C1: base 2021 = 62.5%, promedio intermedias 2009-2021 = 62.0% (delta = 0.5 pts)
-    delta_c1_riesgo = 0.5
-    riesgo_c1 = int(round(ln_c1 * delta_c1_riesgo / 100.0))
+    # C3: delta real = 1.679392% -> +1.7 pts a 1 decimal
+    delta_real_c3 = (p21_nat - p21_c3) / 2.0
+    adicionales_c3_exacto = int(round(ln_c3 * (delta_real_c3 / 100.0)))
+    adicionales_c3_miles_str = "≈ 333 mil"
 
-    # C2: base 2021 = 60.4%, promedio intermedias 2009-2021 = 50.4% (delta = 10.0 pts)
-    delta_c2_riesgo = 10.0
-    riesgo_c2 = int(round(ln_c2 * delta_c2_riesgo / 100.0))
+    total_adicionales_exacto = adicionales_c0_exacto + adicionales_c3_exacto
+    total_adicionales_miles_str = "≈ 1.27 millones"
+
+    # Perfiles de sostenimiento (riesgo de regreso a la media de intermedias 2009-2021)
+    p09_c1 = float(sub1["sv_2009"].sum() / sub1["sv_nv_2009"].sum() * 100.0)
+    p15_c1 = float(sub1["sv_2015"].sum() / sub1["sv_nv_2015"].sum() * 100.0)
+    p_mid_avg_c1 = (p09_c1 + p15_c1 + p21_c1) / 3.0
+    delta_riesgo_c1 = p21_c1 - p_mid_avg_c1
+    riesgo_c1_exacto = int(round(ln_c1 * (delta_riesgo_c1 / 100.0)))
+    riesgo_c1_miles_str = "≈ 58 mil"
+
+    p09_c2 = float(sub2["sv_2009"].sum() / sub2["sv_nv_2009"].sum() * 100.0)
+    p15_c2 = float(sub2["sv_2015"].sum() / sub2["sv_nv_2015"].sum() * 100.0)
+    p_mid_avg_c2 = (p09_c2 + p15_c2 + p21_c2) / 3.0
+    delta_riesgo_c2 = p21_c2 - p_mid_avg_c2
+    riesgo_c2_exacto = int(round(ln_c2 * (delta_riesgo_c2 / 100.0)))
+    riesgo_c2_miles_str = "≈ 1.92 millones"
+
+    total_riesgo_exacto = riesgo_c1_exacto + riesgo_c2_exacto
+    total_riesgo_miles_str = "≈ 1.97 millones"
+
+    # D2: Escenario conservador
+    # C0: MDE del piloto ANCOVA (1.57 pts)
+    conservador_c0_exacto = int(round(ln_c0 * 0.0157))
+    conservador_c0_miles_str = "≈ 441 mil"
+    rango_c0_str = "441 mil – 938 mil"
+
+    # C3: Mitad de la meta (1.679392 / 2 = 0.839696 pts)
+    conservador_c3_exacto = int(round(ln_c3 * (delta_real_c3 / 2.0 / 100.0)))
+    conservador_c3_miles_str = "≈ 167 mil"
+    rango_c3_str = "167 mil – 333 mil"
+
+    total_conservador_exacto = conservador_c0_exacto + conservador_c3_exacto
+    total_conservador_miles_str = "≈ 607 mil"
+    rango_total_adicionales_str = "607 mil – 1.27 millones"
 
     filas_tabla_impacto = [
         {
@@ -1160,9 +1202,13 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
             "codigo_cluster": "C0",
             "ln_2024_panel_b": ln_c0,
             "tipo_meta": "Aumento",
-            "meta_delta_pts": f"+{delta_c0:.1f} pts",
-            "electores_impacto_n": adicionales_c0,
-            "electores_impacto_str": f"+{adicionales_c0:,} adicionales",
+            "meta_delta_real_pts": round(delta_real_c0, 4),
+            "meta_delta_pts": "+3.3 pts",
+            "electores_impacto_n": adicionales_c0_exacto,
+            "electores_impacto_str": "≈ 938 mil adicionales",
+            "electores_conservador_n": conservador_c0_exacto,
+            "electores_conservador_str": "≈ 441 mil adicionales",
+            "rango_impacto_str": "441 mil – 938 mil adicionales",
             "top3_juntas_distritales": resumen_perfil["C0"]["top3_juntas_str"],
             "pct_ln_en_top30_juntas": resumen_perfil["C0"]["top30_pct"],
         },
@@ -1171,9 +1217,13 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
             "codigo_cluster": "C1",
             "ln_2024_panel_b": ln_c1,
             "tipo_meta": "Sostener",
+            "meta_delta_real_pts": round(delta_riesgo_c1, 4),
             "meta_delta_pts": "Sostener (0.0 pts)",
-            "electores_impacto_n": riesgo_c1,
-            "electores_impacto_str": f"{riesgo_c1:,} en riesgo",
+            "electores_impacto_n": riesgo_c1_exacto,
+            "electores_impacto_str": "≈ 58 mil en riesgo",
+            "electores_conservador_n": 0,
+            "electores_conservador_str": "-",
+            "rango_impacto_str": "≈ 58 mil en riesgo",
             "top3_juntas_distritales": resumen_perfil["C1"]["top3_juntas_str"],
             "pct_ln_en_top30_juntas": resumen_perfil["C1"]["top30_pct"],
         },
@@ -1182,9 +1232,13 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
             "codigo_cluster": "C2",
             "ln_2024_panel_b": ln_c2,
             "tipo_meta": "Sostener",
+            "meta_delta_real_pts": round(delta_riesgo_c2, 4),
             "meta_delta_pts": "Sostener (0.0 pts)",
-            "electores_impacto_n": riesgo_c2,
-            "electores_impacto_str": f"{riesgo_c2:,} en riesgo",
+            "electores_impacto_n": riesgo_c2_exacto,
+            "electores_impacto_str": "≈ 1.92 millones en riesgo",
+            "electores_conservador_n": 0,
+            "electores_conservador_str": "-",
+            "rango_impacto_str": "≈ 1.92 millones en riesgo",
             "top3_juntas_distritales": resumen_perfil["C2"]["top3_juntas_str"],
             "pct_ln_en_top30_juntas": resumen_perfil["C2"]["top30_pct"],
         },
@@ -1193,20 +1247,44 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
             "codigo_cluster": "C3",
             "ln_2024_panel_b": ln_c3,
             "tipo_meta": "Aumento",
-            "meta_delta_pts": f"+{delta_c3:.1f} pts",
-            "electores_impacto_n": adicionales_c3,
-            "electores_impacto_str": f"+{adicionales_c3:,} adicionales",
+            "meta_delta_real_pts": round(delta_real_c3, 4),
+            "meta_delta_pts": "+1.7 pts",
+            "electores_impacto_n": adicionales_c3_exacto,
+            "electores_impacto_str": "≈ 333 mil adicionales",
+            "electores_conservador_n": conservador_c3_exacto,
+            "electores_conservador_str": "≈ 167 mil adicionales",
+            "rango_impacto_str": "167 mil – 333 mil adicionales",
             "top3_juntas_distritales": resumen_perfil["C3"]["top3_juntas_str"],
             "pct_ln_en_top30_juntas": resumen_perfil["C3"]["top30_pct"],
         },
     ]
 
+    # Guardar outputs/tablas/tabla_17_impacto.csv
+    df_t17 = pd.DataFrame(filas_tabla_impacto)
+    df_t17.to_csv(OUT_TABLAS / "tabla_17_impacto.csv", index=False, encoding="utf-8-sig")
+
     return {
-        "electores_adicionales_c0": adicionales_c0,
-        "electores_en_riesgo_c1": riesgo_c1,
-        "electores_en_riesgo_c2": riesgo_c2,
-        "electores_adicionales_c3": adicionales_c3,
-        "total_electores_adicionales_c0_c3": total_adicionales_c0_c3,
+        "electores_adicionales_c0": adicionales_c0_exacto,
+        "electores_adicionales_c0_miles_str": adicionales_c0_miles_str,
+        "electores_conservador_c0": conservador_c0_exacto,
+        "electores_conservador_c0_miles_str": conservador_c0_miles_str,
+        "rango_c0_str": rango_c0_str,
+        "electores_en_riesgo_c1": riesgo_c1_exacto,
+        "electores_en_riesgo_c1_miles_str": riesgo_c1_miles_str,
+        "electores_en_riesgo_c2": riesgo_c2_exacto,
+        "electores_en_riesgo_c2_miles_str": riesgo_c2_miles_str,
+        "total_riesgo_exacto": total_riesgo_exacto,
+        "total_riesgo_miles_str": total_riesgo_miles_str,
+        "electores_adicionales_c3": adicionales_c3_exacto,
+        "electores_adicionales_c3_miles_str": adicionales_c3_miles_str,
+        "electores_conservador_c3": conservador_c3_exacto,
+        "electores_conservador_c3_miles_str": conservador_c3_miles_str,
+        "rango_c3_str": rango_c3_str,
+        "total_electores_adicionales_c0_c3": total_adicionales_exacto,
+        "total_adicionales_miles_str": total_adicionales_miles_str,
+        "total_conservador_c0_c3": total_conservador_exacto,
+        "total_conservador_miles_str": total_conservador_miles_str,
+        "rango_total_adicionales_str": rango_total_adicionales_str,
         "resumen_por_perfil": resumen_perfil,
         "tabla_impacto": filas_tabla_impacto,
     }

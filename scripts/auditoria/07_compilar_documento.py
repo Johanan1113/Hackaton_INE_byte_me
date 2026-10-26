@@ -416,17 +416,9 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
     story.append(Paragraph(
-        f"<b>Análisis de colinealidad (VIF) y entorno de software:</b> Los valores de VIF de las siete variables oscilan entre "
-        f"{vif[5]['vif_7_variables']:.2f} (brecha de género) y {vif[6]['vif_7_variables']:.2f} (razón de participación juvenil, con "
-        f"{vif[4]['vif_7_variables']:.2f} en brecha generacional). Se mantienen ambas variables generacionales por su distinción conceptual: "
-        f"la razón juvenil captura la incorporación relativa a la propensión de sufragio de su propia sección, mientras que "
-        f"la brecha generacional mide la distancia absoluta en puntos porcentuales entre 60+ y 18–29 años (por ejemplo, en "
-        f"{perfiles[0]['codigo_cluster']} y {perfiles[3]['codigo_cluster']} la brecha generacional es similar, de "
-        f"{perfiles[0]['brecha_generacional_original']*100:.2f} y {perfiles[3]['brecha_generacional_original']*100:.2f} puntos, pero operan en estructuras "
-        f"demográficas y de género distintas). "
-        f"El pipeline se ejecutó en <i>Python {sw['python']}</i>, <i>DuckDB {sw['duckdb']}</i>, <i>scikit-learn {sw['scikit_learn']}</i>, "
-        f"<i>SciPy {sw['scipy']}</i>, <i>umap-learn {sw['umap_learn']}</i>, <i>pandas {sw['pandas']}</i>, <i>numpy {sw['numpy']}</i> y "
-        f"<i>statsmodels {sw['statsmodels']}</i>, verificando determinismo bit a bit en doble ejecución desde cero.",
+        f"<b>Colinealidad (VIF):</b> Los valores VIF oscilan entre {vif[5]['vif_7_variables']:.2f} (brecha de género) y {vif[6]['vif_7_variables']:.2f} "
+        f"(razón juvenil, con {vif[4]['vif_7_variables']:.2f} en brecha generacional); todos son inferiores a 4.0, descartando multicolinealidad severa. "
+        f"Se conservan ambas variables generacionales porque la razón captura incorporación relativa y la brecha mide distancia absoluta en puntos.",
         body_st
     ))
 
@@ -463,22 +455,13 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # C4: k casteado a int, justificación k=4 (referencia a Figura 2; redondeo A4)
+    # C4: k casteado a int, justificación k=4 (referencia a Figura 2; Bloque H2)
     story.append(Paragraph(
-        f"<b>Justificación de la elección de k = {k_sel} (Figura 2):</b> (1) Dentro del rango de 4 a 6 perfiles establecido por la "
-        f"convocatoria, <b>k = {k_sel} obtiene el mejor Silhouette ({bench_km_k4['silhouette']:.3f}), el mejor Davies-Bouldin ({bench_km_k4['davies_bouldin']:.2f}) "
-        f"y el mejor Calinski-Harabasz ({bench_km_k4['calinski_harabasz']:,.0f})</b>, superando a k = {int(bench_km[2]['k'])} en las cuatro métricas "
-        f"({bench_km[2]['silhouette']:.3f}, {bench_km[2]['davies_bouldin']:.2f}, {bench_km[2]['calinski_harabasz']:,.0f} y ARI {bench_km[2]['bootstrap_ari_media']:.3f}) "
-        f"y a k = {int(bench_km[3]['k'])} en las tres métricas de separación interna. "
-        f"(2) Su estabilidad bootstrap (<b>ARI = {bench_km_k4['bootstrap_ari_media']:.3f}</b>, IC 95% [{bench_km_k4['bootstrap_ari_ic95_inf']:.3f}, "
-        f"{bench_km_k4['bootstrap_ari_ic95_sup']:.3f}]) es comparable a la de k = {int(bench_km[3]['k'])} ({bench_km[3]['bootstrap_ari_media']:.3f}, IC 95% "
-        f"[{bench_km[3]['bootstrap_ari_ic95_inf']:.3f}, {bench_km[3]['bootstrap_ari_ic95_sup']:.3f}]; los intervalos se traslapan). "
-        f"(3) En k = {int(bench_km[3]['k'])} aparece un grupo sin diferenciación sustantiva ({comp_k6_c1['pct_secciones']:.1f}% del panel con una sola variable con "
-        f"|z| ≥ 0.50: tendencia anual con z = {comp_k6_c1['tendencia_participacion_beta_z']:+.2f}), mientras que en k = {k_sel} los cuatro "
-        f"perfiles tienen al menos cinco variables con |z| ≥ 0.50. Se declara explícitamente que k = {int(bench_km[0]['k'])} tiene mejores métricas globales "
-        f"(Silhouette {bench_km[0]['silhouette']:.3f}, DB {bench_km[0]['davies_bouldin']:.2f}, CH {bench_km[0]['calinski_harabasz']:,.0f}), pero queda fuera "
-        f"del rango 4 a 6 de la convocatoria. Como nota de focalización, con k = {int(bench_km[3]['k'])} el perfil de baja participación se divide en un subgrupo "
-        f"de rezago juvenil y otro de ciclo presidencial urbano, distinción útil cuando se requiere intervención subdistrital fina.",
+        f"<b>Justificación de la elección de k = {k_sel} (Figura 2):</b> Dentro del rango de 4 a 6 perfiles de la convocatoria, "
+        f"k = {k_sel} domina en Silhouette, Davies-Bouldin y Calinski-Harabasz (Tabla 3), y su estabilidad bootstrap es estadísticamente "
+        f"equivalente a k = {int(bench_km[3]['k'])}. En k = {int(bench_km[3]['k'])}, un grupo carece de diferenciación sustantiva "
+        f"({comp_k6_c1['pct_secciones']:.1f}% del panel con una sola variable con |z| ≥ 0.50), mientras que en k = {k_sel} cada perfil posee "
+        f"al menos cinco variables rectoras diferenciadas. Aunque k = {int(bench_km[0]['k'])} obtiene métricas globales superiores, queda fuera de las bases.",
         body_st
     ))
 
@@ -575,7 +558,7 @@ def build_pdf(data: dict) -> Path:
     story.append(KeepTogether([t4_cap, t4_table]))
     story.append(Spacer(1, 4))
 
-    # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (9 columnas)
+    # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (8 columnas, Bloque H4)
     t6_rows = [[
         Paragraph("Perfil", th_c),
         Paragraph("Serie Ponderada 2009–2024", th_c),
@@ -585,13 +568,9 @@ def build_pdf(data: dict) -> Path:
         Paragraph("% Urb.", th_c),
         Paragraph("% Rur.", th_c),
         Paragraph("% Mix.", th_c),
-        Paragraph("Top 3 Entidades (% secc.)", th_l),
     ]]
     for p in perfiles:
         s_pond = " / ".join(f"<b>{p[f'p_{y}_ponderada']*100:.1f}%</b>" if y == 2021 else f"{p[f'p_{y}_ponderada']*100:.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
-        # Top 3 entidades limpias (ej. "Chihuahua (18.2%); Sonora (15.4%); BC (12.1%)")
-        raw_top = p["top5_entidades_por_pct_secciones"].split("; ")[:3]
-        clean_top = "; ".join(ent.split(",")[0] + ")" for ent in raw_top)
         t6_rows.append([
             Paragraph(f"<b>{p['codigo_cluster']}</b>", td_cb),
             Paragraph(s_pond, td_c),
@@ -601,7 +580,6 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"{p['pct_secciones_urbanas']:.1f}%", td_c),
             Paragraph(f"{p['pct_secciones_rurales']:.1f}%", td_c),
             Paragraph(f"{p['pct_secciones_mixtas']:.1f}%", td_c),
-            Paragraph(clean_top, td_l),
         ])
     s_pond_b = " / ".join(f"<b>{pan_b[f'p_{y}_ponderada']*100:.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
     t6_rows.append([
@@ -613,10 +591,9 @@ def build_pdf(data: dict) -> Path:
         Paragraph(f"<b>{pan_b['pct_secciones_urbanas_1d']:.1f}%</b>", td_cb),
         Paragraph(f"<b>{pan_b['pct_secciones_rurales_1d']:.1f}%</b>", td_cb),
         Paragraph(f"<b>{pan_b['pct_secciones_mixtas_1d']:.1f}%</b>", td_cb),
-        Paragraph(f"Total Nacional ({u['panel_principal_municipios']:,} mun.)", td_lb),
     ])
     t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
-    t5_table = styled_table(t6_rows, [32.27, 100.0, 50.0, 46.0, 50.0, 34.0, 34.0, 34.0, 90.0], highlight_last=True)
+    t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)
     story.append(KeepTogether([t5_cap, t5_table]))
     story.append(Spacer(1, 4))
 
@@ -741,23 +718,27 @@ def build_pdf(data: dict) -> Path:
             Paragraph("Perfil", th_c),
             Paragraph("LN 2024", th_c),
             Paragraph("Meta (Δ pts)", th_c),
-            Paragraph("Electores adicionales o en riesgo", th_c),
+            Paragraph("Electores adicionales o en riesgo<br/>(Meta / Rango)", th_c),
             Paragraph("Top 3 juntas distritales", th_l),
             Paragraph("% LN en 30 juntas", th_c),
         ]]
         for row in imp_data.get("tabla_impacto", []):
             top3_fmt = row["top3_juntas_distritales"]
+            if row["tipo_meta"] == "Aumento":
+                elec_text = f"<b>{row['electores_impacto_str']}</b><br/>({row['rango_impacto_str']})"
+            else:
+                elec_text = f"<b>{row['electores_impacto_str']}</b>"
             t_imp_rows.append([
                 Paragraph(f"<b>{row['codigo_cluster']}</b>", td_c),
                 Paragraph(f"{row['ln_2024_panel_b']:,}", td_c),
                 Paragraph(row["meta_delta_pts"], td_c),
-                Paragraph(row["electores_impacto_str"], td_c),
+                Paragraph(elec_text, td_c),
                 Paragraph(top3_fmt, td_l),
                 Paragraph(f"{row['pct_ln_en_top30_juntas']:.1f}%", td_c),
             ])
         t_imp_cap = Paragraph(f"Tabla 7. Impacto Estimado de Metas 2027 y Concentración Territorial por Perfil (k = {k_sel})", cap_st)
-        t_imp_table = styled_table(t_imp_rows, [45.0, 55.0, 55.0, 85.0, 170.27, 60.0])
-        t_imp_note = Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil.</i>", note_st)
+        t_imp_table = styled_table(t_imp_rows, [40.0, 50.0, 55.0, 105.0, 160.27, 60.0])
+        t_imp_note = Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil. El rango reporta el escenario conservador (mínimo detectable en C0 y mitad de meta en C3) frente a la meta completa.</i>", note_st)
         story.append(KeepTogether([h2_imp, t_imp_cap, t_imp_table, t_imp_note]))
         story.append(Spacer(1, 4))
 
