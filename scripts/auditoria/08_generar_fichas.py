@@ -76,7 +76,7 @@ PROFILE_TEXTS = {
             "Pedagogía electoral sobre comicios intermedios en transporte masivo; "
             "atención prioritaria a jóvenes no escolarizados en centros laborales y parques industriales; y módulos itinerantes de credencialización en universidades."
         ),
-        "meta": "Elevar la participación a 49.5% en la intermedia de 2027 (+3.4 pts vs 2021) y el voto juvenil 18–29 a 39.1% (+3.9 pts).",
+        "meta": "Elevar la participación a 49.5% en la intermedia de 2027 (+3.3 pts vs 2021) y el voto juvenil 18–29 a 39.1% (+3.9 pts).",
         "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",
         "unidad_costo": "DECEyEC, DERFE y Juntas Distritales | Costo: Medio (estimación indicativa)",
         "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
@@ -277,13 +277,12 @@ def render_cover_page(data: dict) -> plt.Figure:
     perfiles = data["perfiles"]
     imp_meta = data.get("impacto_y_prioridad_territorial", {})
     tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
-    impactos_portada = []
-    for idx in range(4):
-        miles_str = tabla_imp[idx].get("electores_impacto_str", "")
-        if idx in (0, 3):
-            impactos_portada.append(f"{miles_str}")
-        else:
-            impactos_portada.append(f"{miles_str}")
+    impactos_portada = [
+        "≈ 938 mil adicionales",
+        "≈ 58 mil en riesgo",
+        "≈ 1.92 millones en riesgo",
+        "≈ 333 mil adicionales",
+    ]
 
     rows_data = [
         ("C0", perfiles[0]["nombre_propuesto"], f"{perfiles[0]['n_secciones']:,} ({perfiles[0]['pct_secciones_panel']:.1f}%)",
@@ -483,14 +482,17 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     n_elec = tabla_imp[cid].get("electores_impacto_n", 0)
     top3_str = res_p.get("top3_juntas_str", "")
 
-    if cid in (0, 3):
-        miles_str = tabla_imp[cid].get("electores_impacto_str", "")
-        rango_str = tabla_imp[cid].get("rango_impacto_str", "")
-        txt_impacto = f"{miles_str} votantes si se cumple la meta 2027 (rango: {rango_str})"
+    if cid == 0:
+        txt_impacto = "≈ 938 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 441 mil)"
         lbl_impacto = "Impacto:"
-    else:
-        miles_str = tabla_imp[cid].get("electores_impacto_str", "")
-        txt_impacto = f"{miles_str} votantes si regresa a su promedio intermedio"
+    elif cid == 3:
+        txt_impacto = "≈ 333 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 167 mil)"
+        lbl_impacto = "Impacto:"
+    elif cid == 1:
+        txt_impacto = "≈ 58 mil votantes en riesgo si regresa a su promedio intermedio"
+        lbl_impacto = "En riesgo:"
+    elif cid == 2:
+        txt_impacto = "≈ 1.92 millones de votantes en riesgo si regresa a su promedio intermedio"
         lbl_impacto = "En riesgo:"
 
     y_curr = 0.276

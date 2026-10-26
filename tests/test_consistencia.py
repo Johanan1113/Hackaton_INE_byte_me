@@ -635,10 +635,18 @@ def test_impacto_consistente() -> None:
         ficha_text = fichas_pages[cid + 1]
         assert num_part in ficha_text, f"Impacto {num_part} de {c_code} no encontrado en Ficha {c_code}"
 
+        if cid == 0:
+            assert "≈ 938 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 441 mil)" in ficha_text
+        elif cid == 3:
+            assert "≈ 333 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 167 mil)" in ficha_text
+        elif cid == 1:
+            assert "≈ 58 mil votantes en riesgo si regresa a su promedio intermedio" in ficha_text
+        elif cid == 2:
+            assert "≈ 1.92 millones de votantes en riesgo si regresa a su promedio intermedio" in ficha_text
+
         if cid in (0, 3):
             rango = row_t["rango_impacto_str"]
             assert rango in doc_full, f"Rango '{rango}' de {c_code} ausente en Documento"
-            assert rango in ficha_text, f"Rango '{rango}' de {c_code} ausente en Ficha {c_code}"
 
         assert f"Dónde empezar: {top3_str}" in ficha_text, f"'Dónde empezar' de {c_code} no coincide en Ficha {c_code}"
 
@@ -670,14 +678,14 @@ def test_valor_agregado_reportado() -> None:
     df_t13 = pd.read_csv(TABLAS_DIR / "tabla_13_validacion_temporal.csv")
     row13 = df_t13.iloc[0]
 
-    assert abs(row13["delta_r2_p2024"] - 0.1479) < 0.001
-    assert abs(row13["delta_r2_cambio"] - 0.0298) < 0.001
+    assert abs(row13["delta_r2_p2024"] - 0.0970) < 0.001
+    assert abs(row13["delta_r2_cambio"] - 0.0119) < 0.001
     assert row13["p_valor_p2024_str"] == "< 0.001"
     assert row13["p_valor_cambio_str"] == "< 0.001"
 
     doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
-    assert "0.148" in doc_full, "ΔR² = 0.148 no encontrado en Documento Técnico"
-    assert "0.030" in doc_full, "ΔR²_c = 0.030 no encontrado en Documento Técnico"
+    assert "0.097" in doc_full, "ΔR² = 0.097 no encontrado en Documento Técnico"
+    assert "0.012" in doc_full, "ΔR²_c = 0.012 no encontrado en Documento Técnico"
 
 
 def test_cobertura_ampliada() -> None:

@@ -304,14 +304,14 @@ def build_pdf(data: dict) -> Path:
     # C16
     story.append(Paragraph(
         f"La Tabla 1 valida la serie nacional calculada con SV / (SV + NV) contra las publicaciones censales del INE: el estudio comparativo de la "
-        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 7, Figura 3.1) reporta <b>{serie[0]['oficial_o_referencia_pct']:.1f}%</b> en {serie[0]['anio']}, "
-        f"<b>{serie[1]['oficial_o_referencia_pct']:.1f}%</b> en {serie[1]['anio']} y <b>{serie[2]['oficial_o_referencia_pct']:.1f}%</b> en {serie[2]['anio']}; "
+        f"DECEyEC (<i>DECEYEC_Comparativo_VF.pdf</i>, p. 7, Figura 3.1) reporta <b>{serie[0]['oficial_o_referencia_pct']:.2f}%</b> en {serie[0]['anio']}, "
+        f"<b>{serie[1]['oficial_o_referencia_pct']:.2f}%</b> en {serie[1]['anio']} y <b>{serie[2]['oficial_o_referencia_pct']:.2f}%</b> en {serie[2]['anio']}; "
         f"los estudios censales de {serie[3]['anio']} y {serie[5]['anio']} reportan <b>{serie[3]['oficial_o_referencia_pct']:.1f}%</b> "
-        f"(dato CCPC: {serie[3]['total_ponderada_sv_svnv_pct']:.1f}%) y <b>{serie[5]['oficial_o_referencia_pct']:.1f}%</b> "
-        f"(dato CCPC: {serie[5]['total_ponderada_sv_svnv_pct']:.1f}%). Para {serie[4]['anio']}, el dato censal oficial de "
+        f"(cálculo CCPC: {serie[3]['total_ponderada_sv_svnv_pct']:.2f}%) y <b>{serie[5]['oficial_o_referencia_pct']:.1f}%</b> "
+        f"(cálculo CCPC: {serie[5]['total_ponderada_sv_svnv_pct']:.2f}%). Para {serie[4]['anio']}, el dato censal de "
         f"<b>{serie[4]['oficial_o_referencia_pct']:.1f}%</b> proviene de la imagen del tablero interactivo en la página 21 de "
-        f"<i>Manual-Conteos-Censales-2009-2024.pdf</i> (figura en sección <i>\"Participación por año\"</i>; el cálculo seccional ponderado es "
-        f"<b>{serie[4]['total_ponderada_sv_svnv_pct']:.1f}%</b>; como referencia no censal, el PREP cerró en 52.7%).",
+        f"<i>Manual-Conteos-Censales-2009-2024.pdf</i> (figura en sección <i>\"Participación por año\"</i>) frente a "
+        f"<b>{serie[4]['total_ponderada_sv_svnv_pct']:.2f}%</b> calculado en el CCPC (como referencia no censal, el PREP cerró en 52.7%).",
         body_st
     ))
 
@@ -481,13 +481,25 @@ def build_pdf(data: dict) -> Path:
     va_hist = data.get("valor_agregado_nivel_historico", val_temp.get("valor_agregado_nivel_historico", {}))
     if val_temp:
         p_val_fmt = va_hist.get("p_valor_p2024_str", "< 0.001").replace("<", "&lt;")
+        d_r2_p = va_hist.get("delta_r2_p2024_3d", 0.097)
+        d_r2_c = va_hist.get("delta_r2_cambio_3d", 0.012)
+        if d_r2_p >= 0.01:
+            frase_dinamicas = (
+                f"sino distinguir dinámicas: con perfiles construidos sin datos de 2024, el perfil agrega "
+                f"ΔR² = {d_r2_p:.3f} sobre el nivel histórico para explicar la participación 2024 y "
+                f"ΔR² = {d_r2_c:.3f} para su cambio 2018–2024 (p {p_val_fmt})."
+            )
+        else:
+            frase_dinamicas = (
+                f"sino distinguir dinámicas de participación (ciclo, tendencia y brechas) que orientan acciones "
+                f"diferenciadas; su aporte para predecir el nivel de 2024 más allá del promedio histórico es marginal "
+                f"(ΔR² = {d_r2_p:.3f})."
+            )
         story.append(Paragraph(
             f"<b>Estabilidad temporal:</b> al construir los perfiles solo con 2009–2021, el {val_temp['coincidencia_exacta_pct']:.1f}% de las secciones "
             f"conserva su perfil (ARI = {val_temp['ari_3d']:.3f}) y el orden de participación en 2024 se reproduce exactamente ({val_temp['orden_grupos_2009_2021_en_2024']}). "
             f"Los perfiles no buscan predecir el nivel —una clasificación por cuartiles de participación histórica lo explica mejor "
-            f"(η² = {val_temp['eta2_cuartiles_3d']:.3f} frente a {val_temp['eta2_perfiles_3d']:.3f})—, sino distinguir dinámicas: "
-            f"sobre el nivel histórico, el perfil agrega ΔR² = {va_hist.get('delta_r2_p2024_3d', 0.148):.3f} para la participación 2024 "
-            f"y ΔR² = {va_hist.get('delta_r2_cambio_3d', 0.030):.3f} para su cambio 2018–2024 (p {p_val_fmt}).",
+            f"(η² = {val_temp['eta2_cuartiles_3d']:.3f} frente a {val_temp['eta2_perfiles_3d']:.3f})—, {frase_dinamicas}",
             body_st
         ))
 
@@ -655,7 +667,7 @@ def build_pdf(data: dict) -> Path:
             "perfil": "<b>C0: Baja Participación Intermitente con Rezago Juvenil</b><br/>Secc: 17,622 (32.85%)<br/>Base Inter. 2021: <b>46.1%</b><br/>Base Pres. 2024: <b>56.9%</b><br/>Base Joven 2021: <b>35.2%</b>",
             "diag_obj": "Mitigar el abstencionismo en elecciones intermedias y elevar la votación de jóvenes (18–29 años) escolarizados y no escolarizados en 17,622 secciones urbanas.",
             "canales_accion": "<b>Canales:</b> Transporte metropolitano, plataforma 'Conóceles', tianguis, centros laborales y universidades.<br/><b>Acción:</b> Campaña cívica y brigadas móviles de actualización registral (DERFE/DECEyEC).",
-            "meta_ind": "<b>Meta:</b> Elevar participación a 49.5% en 2027 (+3.4 pts vs. 2021) y voto juvenil a 39.1% (+3.9 pts).<br/><b>Indicador:</b> Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC.",
+            "meta_ind": "<b>Meta:</b> Elevar participación a 49.5% en 2027 (+3.3 pts vs 2021) y voto juvenil a 39.1% (+3.9 pts).<br/><b>Indicador:</b> Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC.",
             "unidad_costo": "<b>Unidad:</b> DECEyEC, DERFE y Juntas Distritales.<br/><b>Costo:</b> Medio (estimación indicativa; tiempos oficiales y módulos itinerantes).",
             "lema": "<i>\"Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027\"</i>",
         },
@@ -752,9 +764,11 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         "Para evaluar intervenciones en C0, se propone aleatorizar por sección (500 de tratamiento y 500 de control) "
         "estratificando por entidad y tercil de participación 2021. Mediante ANCOVA con el CCPC 2027 ajustado por línea base, "
-        "se detecta un efecto mínimo de 1.57 puntos porcentuales (80% potencia, α = 0.05), menor a la mitad de la meta (+3.3 pts). "
-        "Ante riesgo de contaminación entre secciones contiguas, las acciones territoriales se aleatorizan por bloques del mismo municipio; "
-        "las campañas masivas se evalúan por distrito. El costo evaluativo es marginal al emplear el levantamiento censal legal del INE.",
+        "se detecta un efecto mínimo de 1.57 puntos porcentuales (80% potencia, α = 0.05), menor que la mitad de la meta de C0 "
+        "(+3.3 pts; mitad = 1.7 pts). Ante riesgo de contaminación entre secciones contiguas, las acciones territoriales se aleatorizan "
+        "por bloques del mismo municipio; las campañas masivas se evalúan por distrito. El costo evaluativo es marginal al emplear el "
+        "levantamiento censal legal del INE. El efecto mínimo detectable corresponde a aleatorización por sección; si se aleatoriza por "
+        "bloques de secciones del mismo municipio, debe ajustarse por el efecto de diseño (correlación intrabloque).",
         body_st
     ))
     story.append(Spacer(1, 4))
