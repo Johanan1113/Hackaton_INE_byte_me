@@ -262,45 +262,57 @@ def render_cover_page(data: dict) -> plt.Figure:
     # Mini-tabla de resumen de los 4 perfiles
     ax.text(0.04, 0.410, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
 
-    col_x = [0.04, 0.09, 0.42, 0.56, 0.69, 0.76, 0.96]
+    col_x = [0.04, 0.09, 0.36, 0.47, 0.57, 0.67, 0.80, 0.96]
     y_tbl = 0.365
     # Encabezado tabla
     ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.034, facecolor="#1E3A8A", transform=ax.transAxes))
     ax.text(0.065, y_tbl + 0.009, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.23, y_tbl + 0.009, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.44, y_tbl + 0.009, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.575, y_tbl + 0.009, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.695, y_tbl + 0.009, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.855, y_tbl + 0.009, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.205, y_tbl + 0.009, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.380, y_tbl + 0.009, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.490, y_tbl + 0.009, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.585, y_tbl + 0.009, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.685, y_tbl + 0.009, "Impacto 2027", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.835, y_tbl + 0.009, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
 
     perfiles = data["perfiles"]
+    imp_meta = data.get("impacto_y_prioridad_territorial", {})
+    tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
+    impactos_portada = []
+    for idx in range(4):
+        n_elec = tabla_imp[idx].get("electores_impacto_n", 0)
+        if idx in (0, 3):
+            impactos_portada.append(f"+{n_elec:,} votantes")
+        else:
+            impactos_portada.append(f"{n_elec:,} en riesgo")
+
     rows_data = [
         ("C0", perfiles[0]["nombre_propuesto"], f"{perfiles[0]['n_secciones']:,} ({perfiles[0]['pct_secciones_panel']:.1f}%)",
          f"{perfiles[0]['ln_2024']/1e6:.2f}M ({perfiles[0]['pct_ln_panel']:.1f}%)", f"{perfiles[0]['participacion_media_historica_original']*100:.1f}%",
-         "Rezago juvenil y ciclo presidencial urbano"),
+         impactos_portada[0], "Rezago juvenil y ciclo presidencial"),
         ("C1", perfiles[1]["nombre_propuesto"], f"{perfiles[1]['n_secciones']:,} ({perfiles[1]['pct_secciones_panel']:.1f}%)",
          f"{perfiles[1]['ln_2024']/1e6:.2f}M ({perfiles[1]['pct_ln_panel']:.1f}%)", f"{perfiles[1]['participacion_media_historica_original']*100:.1f}%",
-         "Máxima estabilidad y cohesión comunitaria"),
+         impactos_portada[1], "Máxima estabilidad y cohesión"),
         ("C2", perfiles[2]["nombre_propuesto"], f"{perfiles[2]['n_secciones']:,} ({perfiles[2]['pct_secciones_panel']:.1f}%)",
          f"{perfiles[2]['ln_2024']/1e6:.2f}M ({perfiles[2]['pct_ln_panel']:.1f}%)", f"{perfiles[2]['participacion_media_historica_original']*100:.1f}%",
-         "Ascenso continuo (+1.28 pts/año) y juventud activa"),
+         impactos_portada[2], "Ascenso continuo (+1.28 pts/año)"),
         ("C3", perfiles[3]["nombre_propuesto"], f"{perfiles[3]['n_secciones']:,} ({perfiles[3]['pct_secciones_panel']:.1f}%)",
          f"{perfiles[3]['ln_2024']/1e6:.2f}M ({perfiles[3]['pct_ln_panel']:.1f}%)", f"{perfiles[3]['participacion_media_historica_original']*100:.1f}%",
-         "Liderazgo femenino (+11.2 pts) y rezago masculino"),
+         impactos_portada[3], "Liderazgo femenino (+11.2 pts)"),
     ]
 
-    for idx, (cid, name, secc, ln, part, rasgo) in enumerate(rows_data):
+    for idx, (cid, name, secc, ln, part, imp_txt, rasgo) in enumerate(rows_data):
         y_r = y_tbl - 0.042 - idx * 0.058
         bg_c = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
         ax.add_patch(Rectangle((0.04, y_r - 0.014), 0.92, 0.054, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
         theme_p = THEMES[idx]
         draw_profile_icon(ax, idx, 0.065, y_r + 0.013, radius=0.015, color=theme_p["primary"])
-        ax.text(0.090, y_r + 0.013, name, fontsize=7.8, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
-        ax.text(0.440, y_r + 0.013, secc, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.575, y_r + 0.013, ln, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.695, y_r + 0.013, part, fontsize=9.5, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        wrapped_rasgo = textwrap.fill(rasgo, width=28)
-        ax.text(0.755, y_r + 0.013, wrapped_rasgo, fontsize=8.2, color="#374151", va="center", transform=ax.transAxes)
+        ax.text(0.088, y_r + 0.013, name, fontsize=7.4, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
+        ax.text(0.380, y_r + 0.013, secc, fontsize=8.4, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.490, y_r + 0.013, ln, fontsize=8.4, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.585, y_r + 0.013, part, fontsize=9.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.685, y_r + 0.013, imp_txt, fontsize=8.6, fontweight="bold", color="#1E3A8A", ha="center", va="center", transform=ax.transAxes)
+        wrapped_rasgo = textwrap.fill(rasgo, width=22)
+        ax.text(0.760, y_r + 0.013, wrapped_rasgo, fontsize=7.8, color="#374151", va="center", transform=ax.transAxes)
 
     # Pie de página institucional
     ax.text(
@@ -455,34 +467,58 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     ax.text(0.535, 0.425, wrapped_prop, fontsize=8.8, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.122..0.315)
+    # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.116..0.325)
     meta_box = FancyBboxPatch(
-        (0.035, 0.122), 0.930, 0.193,
+        (0.035, 0.116), 0.930, 0.209,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes
     )
     ax.add_patch(meta_box)
 
-    ax.text(0.055, 0.288, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
+    ax.text(0.055, 0.302, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
 
-    y_curr = 0.258
+    imp_meta = data.get("impacto_y_prioridad_territorial", {})
+    tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
+    res_p = imp_meta.get("resumen_por_perfil", {}).get(f"C{cid}", {})
+    n_elec = tabla_imp[cid].get("electores_impacto_n", 0)
+    top3_str = res_p.get("top3_juntas_str", "")
+
+    if cid in (0, 3):
+        txt_impacto = f"+{n_elec:,} votantes si se cumple la meta 2027"
+        lbl_impacto = "Impacto:"
+    else:
+        txt_impacto = f"{n_elec:,} votantes si regresa a su promedio intermedio"
+        lbl_impacto = "En riesgo:"
+
+    y_curr = 0.276
     # Meta (E6: alineación superior de etiquetas con el primer renglón del texto)
-    wrapped_meta = textwrap.fill(texts["meta"], width=108)
+    wrapped_meta = textwrap.fill(texts["meta"], width=105)
     n_lines_meta = wrapped_meta.count("\n") + 1
     ax.text(0.055, y_curr, "Meta:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.125, y_curr, wrapped_meta, fontsize=9.4, color="#1F2937", va="top", transform=ax.transAxes)
-    y_curr -= (0.018 + n_lines_meta * 0.016)
+    ax.text(0.160, y_curr, wrapped_meta, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.017 + n_lines_meta * 0.015)
+
+    # Impacto / En riesgo
+    ax.text(0.055, y_curr, lbl_impacto, fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.160, y_curr, txt_impacto, fontsize=10.0, fontweight="bold", color=theme["primary"], va="top", transform=ax.transAxes)
+    y_curr -= 0.026
+
+    # Dónde empezar
+    ax.text(0.055, y_curr, "Dónde empezar:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.160, y_curr, top3_str, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= 0.026
 
     # Indicador
-    wrapped_ind = textwrap.fill(texts["indicador"], width=108)
+    wrapped_ind = textwrap.fill(texts["indicador"], width=105)
     n_lines_ind = wrapped_ind.count("\n") + 1
     ax.text(0.055, y_curr, "Indicador:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.125, y_curr, wrapped_ind, fontsize=9.4, color="#1F2937", va="top", transform=ax.transAxes)
-    y_curr -= (0.018 + n_lines_ind * 0.016)
+    ax.text(0.160, y_curr, wrapped_ind, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.017 + n_lines_ind * 0.015)
 
     # Operación
-    wrapped_op = textwrap.fill(texts["unidad_costo"], width=108)
+    wrapped_op = textwrap.fill(texts["unidad_costo"], width=105)
     ax.text(0.055, y_curr, "Operación:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.125, y_curr, wrapped_op, fontsize=9.4, color="#374151", va="top", transform=ax.transAxes)
+    ax.text(0.160, y_curr, wrapped_op, fontsize=10.0, color="#374151", va="top", transform=ax.transAxes)
 
     # Lema al Pie (y=0.045..0.105) (E1: Renombrado a Lema propuesto)
     lema_box = FancyBboxPatch(
