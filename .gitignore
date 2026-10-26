@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+tests/__pycache__/
+.pytest_cache/
+
+# Datos crudos y binarios pesados
+data/raw_zips/
+data/raw_csvs/
+*.zip
+*.tar.gz
+*.parquet
+outputs/fase2/*.parquet
+output/datasets/*.parquet

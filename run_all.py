@@ -20,14 +20,15 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 STEPS = [
-    ("Fase 0: Inventario del repositorio", "scripts/auditoria/01_inventario_repo.py"),
-    ("Fase 1: Verificación profunda de datos CCPC 2009-2024", "scripts/auditoria/02_verificacion_datos.py"),
+    ("Fase 0.1: Inventario del repositorio y esquemas", "scripts/auditoria/00_inventario.py"),
+    ("Fase 0.2: Reproducción de línea base del modelo", "scripts/auditoria/01_baseline_reproduccion.py"),
+    ("Fase 1: Verificación profunda de datos CCPC 2009–2024", "scripts/auditoria/02_verificacion_datos.py"),
     ("Fase 2: Robustez del modelo y clustering k=4", "scripts/auditoria/03_robustez_modelo.py"),
     ("Fase 3: Perfiles, estrategias y metricas_finales.json", "scripts/auditoria/04_perfiles_y_nombres.py"),
-    ("Fase 4: Exportación de las 11 tablas oficiales", "scripts/auditoria/05_exportar_tablas.py"),
-    ("Fase 5: Generación de las 7 figuras a 300 DPI", "scripts/auditoria/06_generar_figuras.py"),
-    ("Fase 6: Compilación del Documento Técnico (MD/PDF/DOCX)", "scripts/auditoria/07_compilar_documento.py"),
-    ("Fase 7: Generación de Fichas Resumen (PDF/PNG)", "scripts/auditoria/08_generar_fichas.py"),
+    ("Fase 4: Exportación de tablas oficiales", "scripts/auditoria/05_exportar_tablas.py"),
+    ("Fase 5: Generación de figuras a 300 DPI", "scripts/auditoria/06_generar_figuras.py"),
+    ("Fase 6: Compilación del Documento Técnico PDF", "scripts/auditoria/07_compilar_documento.py"),
+    ("Fase 7: Generación de Fichas de Perfiles (PDF/PNG)", "scripts/auditoria/08_generar_fichas.py"),
     ("Fase 8: Validación automatizada de consistencia y cifras", "scripts/auditoria/09_validacion_consistencia.py"),
 ]
 
