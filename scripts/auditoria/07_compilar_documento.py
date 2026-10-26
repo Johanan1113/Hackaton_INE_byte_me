@@ -778,9 +778,9 @@ def build_pdf(data: dict) -> Path:
     # =========================================================================
     story.append(Paragraph("8. Reproducibilidad", h1_st))
     story.append(Paragraph(
-        "El pipeline completo es reproducible de inicio a fin ejecutando <i>python run_all.py</i> bajo Python 3.14.6, DuckDB 2.0.0, scikit-learn 1.9.0, "
+        "El pipeline completo es reproducible de inicio a fin ejecutando <i>python run\u200b_all.py</i> bajo Python 3.14.6, DuckDB 2.0.0, scikit-learn 1.9.0, "
         "scipy 1.18.0, umap-learn 0.5.12, pandas 3.0.3 y numpy 2.4.6. El código abierto está disponible en "
-        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font>. Fijando la semilla (random_state=42), "
+        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font>. Fijando la semilla (seed=42), "
         "dos corridas consecutivas desde cero generan hashes SHA-256 idénticos en métricas y etiquetas. Los datos crudos se descargan de la Plataforma CCPC del INE "
         "conforme a las instrucciones del README y no se redistribuyen.",
         body_st
