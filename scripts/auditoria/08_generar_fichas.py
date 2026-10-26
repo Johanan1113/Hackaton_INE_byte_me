@@ -70,11 +70,11 @@ PROFILE_TEXTS = {
         ),
         "hipotesis": (
             "Hipótesis: El abstencionismo se debe a la desafección hacia elecciones legislativas intermedias, alta movilidad residencial "
-            "y barreras de tiempo en jóvenes trabajadores o estudiantes no escolarizados."
+            "y barreras de tiempo en jóvenes trabajadores o no escolarizados."
         ),
         "propuesta": (
             "Pedagogía electoral sobre comicios intermedios en transporte masivo; "
-            "atención prioritaria a jóvenes no escolarizados en centros laborales y parques industriales; y módulos universitarios del INE."
+            "atención prioritaria a jóvenes no escolarizados en centros laborales y parques industriales; y módulos itinerantes de credencialización en universidades."
         ),
         "meta": "Elevar la participación a 49.5% en la intermedia de 2027 (+3.4 pts vs 2021) y el voto juvenil 18–29 a 39.1% (+3.9 pts).",
         "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",

@@ -141,8 +141,8 @@ def styled_table(rows_data: list[list[Paragraph]], col_widths: list[float], high
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ("TOPPADDING", (0, 0), (-1, -1), 2.5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 2.5),
-        ("LEFTPADDING", (0, 0), (-1, -1), 2.5),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 2.5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 2.0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 2.0),
         ("GRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#CBD5E1")),
         ("ROWBACKGROUNDS", (0, 1), (-1, -2 if highlight_last else -1), [colors.white, colors.HexColor("#F8FAFC")]),
     ]
@@ -530,7 +530,7 @@ def build_pdf(data: dict) -> Path:
         Paragraph("Secc.<br/>(% Panel)", th_c),
         Paragraph(f"LN {serie[-1]['anio']}<br/>(% Panel)", th_c),
         Paragraph("Part. Media<br/>(z)", th_c),
-        Paragraph("Brecha Pres–Inter (z)", th_c),
+        Paragraph("Pres–Int.<br/>(z)", th_c),
         Paragraph("Tend. Anual<br/>(z)", th_c),
         Paragraph("Estabilidad<br/>(z)", th_c),
         Paragraph("Gen. / Género /<br/>Razón Joven (z)", th_c),
@@ -567,7 +567,7 @@ def build_pdf(data: dict) -> Path:
         ),
     ])
     t4_cap = Paragraph(f"Tabla 4. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st)
-    t4_table = styled_table(t5_rows, [85.27, 42.0, 56.0, 42.0, 44.0, 49.0, 62.0, 90.0], highlight_last=True)
+    t4_table = styled_table(t5_rows, [90.27, 48.0, 56.0, 47.0, 44.0, 46.0, 55.0, 84.0], highlight_last=True)
     story.append(KeepTogether([t4_cap, t4_table]))
     story.append(Spacer(1, 4))
 
@@ -618,9 +618,10 @@ def build_pdf(data: dict) -> Path:
 
     # Diagnósticos por perfil (C8: la más baja/alta de los cuatro perfiles, C12: glifos ≥ y ≤)
     for p in perfiles:
+        just_clean = p['justificacion_regla_3_2'].replace(" (log(1 + 1/CV))", "").replace("(log(1 + 1/CV))", "")
         story.append(Paragraph(
             f"• <b>{p['codigo_cluster']} — {p['nombre_propuesto']} ({p['n_secciones']:,} secciones, {p['pct_secciones_panel']:.2f}% del panel; "
-            f"{p['ln_2024']:,} electores, {p['pct_ln_panel']:.2f}% LN):</b> {p['justificacion_regla_3_2']}",
+            f"{p['ln_2024']:,} electores, {p['pct_ln_panel']:.2f}% LN):</b> {just_clean}",
             bullet_st
         ))
 
@@ -697,7 +698,7 @@ def build_pdf(data: dict) -> Path:
             Paragraph(item["lema"], td_l),
         ])
     story.append(Paragraph(f"Tabla 6. Estrategias Focalizadas por Perfil Ciudadano (k = {k_sel}), Líneas Base, Metas y Viabilidad Operativa", cap_st))
-    story.append(styled_table(t7_rows, [75.27, 85.0, 95.0, 80.0, 65.0, 70.0]))
+    story.append(styled_table(t7_rows, [82.27, 92.0, 88.0, 78.0, 62.0, 68.0]))
     # D4: Regla de metas
     story.append(Paragraph(
         "<i>Regla de metas: los perfiles por debajo del promedio del panel buscan cerrar la mitad de su diferencia con él en la siguiente elección del mismo tipo; los perfiles por encima buscan sostener su nivel.</i>",
@@ -796,13 +797,14 @@ def build_pdf(data: dict) -> Path:
     # SECCIÓN 8: REPRODUCIBILIDAD (E2: exactamente <= 90 palabras)
     # =========================================================================
     story.append(Paragraph("8. Reproducibilidad", h1_st))
+    repro_st = ParagraphStyle("ReproLeft", parent=body_st, alignment=TA_LEFT)
     story.append(Paragraph(
         "El pipeline completo es reproducible de inicio a fin ejecutando <i>python run_all.py</i> bajo Python 3.14.6, DuckDB 2.0.0, scikit-learn 1.9.0, "
-        "scipy 1.18.0, umap-learn 0.5.12, pandas 3.0.3 y numpy 2.4.6. El código abierto está disponible en "
-        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font>. Fijando la semilla (random_state=42), "
-        "dos corridas consecutivas desde cero generan hashes SHA-256 idénticos en métricas y etiquetas. Los datos crudos se descargan de la Plataforma CCPC del INE "
-        "conforme a las instrucciones del README y no se redistribuyen.",
-        body_st
+        "scipy 1.18.0, umap-learn 0.5.12, pandas 3.0.3 y numpy 2.4.6. El código abierto está disponible en:<br/>"
+        "<font color=\"#1E3A8A\"><u>https://github.com/Johanan1113/Hackaton_INE_byte_me</u></font><br/>"
+        "Fijando la semilla (random_state=42), dos corridas consecutivas desde cero generan hashes SHA-256 idénticos en métricas y etiquetas. "
+        "Los datos crudos se descargan de la Plataforma CCPC del INE conforme a las instrucciones del README y no se redistribuyen.",
+        repro_st
     ))
 
     # =========================================================================

@@ -155,18 +155,21 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
             years, y_vals, marker="o", linewidth=1.6, markersize=4.0,
             color=CLUSTER_COLORS[c], label=lbl, zorder=4
         )
+        offsets_map = {
+            (0, 2009): (0, -9), (1, 2009): (0, 5), (2, 2009): (0, 5), (3, 2009): (0, 5),
+            (0, 2012): (0, -9), (1, 2012): (0, 5), (2, 2012): (0, 5), (3, 2012): (0, 5),
+            (0, 2015): (0, -9), (1, 2015): (0, 5), (2, 2015): (0, -9), (3, 2015): (0, 5),
+            (0, 2018): (0, 5), (1, 2018): (0, -9), (2, 2018): (0, 5), (3, 2018): (0, -9),
+            (0, 2021): (0, -9), (1, 2021): (0, 5), (2, 2021): (0, -9), (3, 2021): (0, 5),
+            (0, 2024): (0, 5), (1, 2024): (0, -9), (2, 2024): (0, 5), (3, 2024): (0, -9),
+        }
         for x_val, y_val in zip(years, y_vals):
-            if c == 1:
-                dx, dy = 0, 5
-            elif c == 2:
-                dx, dy = (0, -8) if x_val in (2012, 2018) else (0, 5)
-            elif c == 3:
-                dx, dy = (0, 5) if x_val in (2009, 2015) else (0, -8)
-            else:
-                dx, dy = 0, -8
+            dx, dy = offsets_map.get((c, x_val), (0, 5))
             ax1.annotate(
                 f"{y_val:.1f}%", (x_val, y_val), textcoords="offset points",
-                xytext=(dx, dy), ha="center", fontsize=6.8, fontweight="bold", color=CLUSTER_COLORS[c]
+                xytext=(dx, dy), ha="center", fontsize=6.8, fontweight="bold", color=CLUSTER_COLORS[c],
+                bbox=dict(boxstyle="round,pad=0.10", facecolor="white", edgecolor="none", alpha=0.85),
+                zorder=6
             )
 
     nac_ccpc = [r["total_ponderada_sv_svnv_pct"] for r in serie_nac]
@@ -495,15 +498,14 @@ def generate_fig6_benchmark_k(data: dict) -> None:
         ax.set_xlabel("Número de Clusters (k)", fontsize=8.0, fontweight="bold")
         ax.grid(True, alpha=0.5, linestyle="--", linewidth=0.5)
 
-    # Panel A: Silhouette
+    # Panel A: Silhouette (K-Means++)
     ax1.plot(ks, km_sil, marker="o", linewidth=1.8, markersize=4.5, color="#1D4ED8", label="K-Means++")
-    ax1.plot(ks, gmm_sil, marker="s", linestyle="--", linewidth=1.4, markersize=4.0, color="#6B7280", label="GMM")
     for k_v, v in zip(ks, km_sil):
         ax1.annotate(f"{v:.4f}", (k_v, v), textcoords="offset points", xytext=(0, 5), ha="center", fontsize=7.2, fontweight="bold")
     ax1.set_title("A. Silhouette (Mayor es mejor)", fontsize=8.5, fontweight="bold")
     ax1.set_xticks(ks)
     ax1.set_ylabel("Silhouette", fontsize=8.0, fontweight="bold")
-    ax1.set_ylim(0.08, 0.235)
+    ax1.set_ylim(0.12, 0.235)
     ax1.legend(loc="upper right", fontsize=7.0, frameon=True)
 
     # Panel B: Bootstrap ARI (100 réplicas al 80% + IC 95%)
