@@ -271,16 +271,16 @@ def render_cover_page(data: dict) -> plt.Figure:
     # Mini-tabla de resumen de los 4 perfiles
     ax.text(0.04, 0.455, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
 
-    col_x = [0.04, 0.10, 0.38, 0.52, 0.65, 0.77, 0.96]
+    col_x = [0.04, 0.09, 0.42, 0.56, 0.69, 0.76, 0.96]
     y_tbl = 0.420
     # Encabezado tabla
     ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.032, facecolor="#1E3A8A", transform=ax.transAxes))
-    ax.text(0.07, y_tbl + 0.008, "Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.24, y_tbl + 0.008, "Nombre Oficial del Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.45, y_tbl + 0.008, "Secciones (% Panel)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.585, y_tbl + 0.008, "LN 2024 (% LN)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.71, y_tbl + 0.008, "Part. Media", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.865, y_tbl + 0.008, "Rasgo Distintivo Clave", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.065, y_tbl + 0.008, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.24, y_tbl + 0.008, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.44, y_tbl + 0.008, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.575, y_tbl + 0.008, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.695, y_tbl + 0.008, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.855, y_tbl + 0.008, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
 
     perfiles = data["perfiles"]
     rows_data = [
@@ -303,12 +303,12 @@ def render_cover_page(data: dict) -> plt.Figure:
         bg_c = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
         ax.add_patch(Rectangle((0.04, y_r - 0.012), 0.92, 0.048, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
         theme_p = THEMES[idx]
-        draw_profile_icon(ax, idx, 0.07, y_r + 0.012, radius=0.016, color=theme_p["primary"])
-        ax.text(0.10, y_r + 0.012, f"<b>{name}</b>", fontsize=9.8, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
-        ax.text(0.45, y_r + 0.012, secc, fontsize=9.6, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.585, y_r + 0.012, ln, fontsize=9.6, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.71, y_r + 0.012, f"<b>{part}</b>", fontsize=10.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.78, y_r + 0.012, rasgo, fontsize=9.0, color="#374151", va="center", transform=ax.transAxes)
+        draw_profile_icon(ax, idx, 0.062, y_r + 0.012, radius=0.014, color=theme_p["primary"])
+        ax.text(0.088, y_r + 0.012, name, fontsize=8.6, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
+        ax.text(0.440, y_r + 0.012, secc, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.575, y_r + 0.012, ln, fontsize=8.8, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.695, y_r + 0.012, part, fontsize=9.2, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.755, y_r + 0.012, rasgo, fontsize=8.4, color="#374151", va="center", transform=ax.transAxes)
 
     # Pie de página institucional
     ax.text(
@@ -356,13 +356,13 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
         fontsize=14.5, fontweight="bold", color="white", va="center", transform=ax.transAxes
     )
     cov_str = (
-        f"Cobertura Seccional: {p['n_secciones']:,} secciones ({p['pct_secciones_panel']:.2f}% Panel B)   •   "
-        f"Lista Nominal 2024: {p['ln_2024']:,} electores ({p['pct_ln_panel']:.2f}% Panel B) en {p['n_municipios_con_presencia']:,} municipios   •   "
+        f"Cobertura: {p['n_secciones']:,} secciones ({p['pct_secciones_panel']:.1f}% Panel B)   •   "
+        f"LN 2024: {p['ln_2024']:,} electores ({p['pct_ln_panel']:.1f}% Panel B) en {p['n_municipios_con_presencia']:,} municipios   •   "
         f"Composición: {p['pct_secciones_urbanas']:.1f}% Urbana, {p['pct_secciones_rurales']:.1f}% Rural, {p['pct_secciones_mixtas']:.1f}% Mixta"
     )
     ax.text(
         0.12, 0.885, cov_str,
-        fontsize=9.5, color="#F3F4F6", va="center", transform=ax.transAxes
+        fontsize=8.5, color="#F3F4F6", va="center", transform=ax.transAxes
     )
 
     # 4 Cifras Grandes (Callout Cards) (y=0.745..0.850)
@@ -419,58 +419,58 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     # Columna Derecha: Bloques de Diagnóstico e Intervención (0.520..0.965, y=0.340..0.720)
     # Bloque 1: Quiénes son (<= 45 palabras)
     b1_box = FancyBboxPatch(
-        (0.520, 0.595), 0.445, 0.125,
+        (0.520, 0.605), 0.445, 0.118,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b1_box)
-    ax.text(0.535, 0.702, "QUIÉNES SON:", fontsize=10.2, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
-    wrapped_qs = textwrap.fill(texts["quienes_son"], width=58)
-    ax.text(0.535, 0.680, wrapped_qs, fontsize=9.8, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.706, "QUIÉNES SON:", fontsize=10.0, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
+    wrapped_qs = textwrap.fill(texts["quienes_son"], width=62)
+    ax.text(0.535, 0.686, wrapped_qs, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Bloque 2: Hipótesis de abstencionismo (<= 35 palabras, marcada como hipótesis)
     b2_box = FancyBboxPatch(
-        (0.520, 0.465), 0.445, 0.115,
+        (0.520, 0.475), 0.445, 0.118,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b2_box)
-    ax.text(0.535, 0.562, "HIPÓTESIS DE ABSTENCIONISMO:", fontsize=10.2, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
-    wrapped_hip = textwrap.fill(texts["hipotesis"], width=58)
-    ax.text(0.535, 0.540, wrapped_hip, fontsize=9.8, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.575, "HIPÓTESIS DE ABSTENCIONISMO:", fontsize=10.0, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
+    wrapped_hip = textwrap.fill(texts["hipotesis"], width=62)
+    ax.text(0.535, 0.555, wrapped_hip, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Bloque 3: Qué proponemos (<= 60 palabras)
     b3_box = FancyBboxPatch(
-        (0.520, 0.340), 0.445, 0.112,
+        (0.520, 0.345), 0.445, 0.118,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b3_box)
-    ax.text(0.535, 0.435, "QUÉ PROPONEMOS (ENCÍVICA / INE):", fontsize=10.2, fontweight="bold", color="#047857", transform=ax.transAxes)
-    wrapped_prop = textwrap.fill(texts["propuesta"], width=58)
-    ax.text(0.535, 0.413, wrapped_prop, fontsize=9.6, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.445, "QUÉ PROPONEMOS (ENCÍVICA / INE):", fontsize=10.0, fontweight="bold", color="#047857", transform=ax.transAxes)
+    wrapped_prop = textwrap.fill(texts["propuesta"], width=64)
+    ax.text(0.535, 0.425, wrapped_prop, fontsize=8.8, color="#1F2937", va="top", transform=ax.transAxes)
 
-    # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.135..0.320)
+    # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.122..0.315)
     meta_box = FancyBboxPatch(
-        (0.035, 0.130), 0.930, 0.190,
+        (0.035, 0.122), 0.930, 0.193,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes
     )
     ax.add_patch(meta_box)
 
-    ax.text(0.055, 0.295, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=11.0, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
+    ax.text(0.055, 0.288, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
 
     # Meta
-    ax.text(0.055, 0.260, "Meta:", fontsize=10.2, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.260, textwrap.fill(texts["meta"], width=102), fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.055, 0.254, "Meta:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
+    ax.text(0.125, 0.254, textwrap.fill(texts["meta"], width=108), fontsize=9.6, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Indicador
-    ax.text(0.055, 0.215, "Indicador:", fontsize=10.2, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.215, textwrap.fill(texts["indicador"], width=102), fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.055, 0.208, "Indicador:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
+    ax.text(0.125, 0.208, textwrap.fill(texts["indicador"], width=108), fontsize=9.6, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Unidad y Costo
-    ax.text(0.055, 0.170, "Operación:", fontsize=10.2, fontweight="bold", color="#111827", transform=ax.transAxes)
-    ax.text(0.125, 0.170, texts["unidad_costo"], fontsize=10.0, color="#374151", va="top", transform=ax.transAxes)
+    ax.text(0.055, 0.162, "Operación:", fontsize=10.0, fontweight="bold", color="#111827", transform=ax.transAxes)
+    ax.text(0.125, 0.162, texts["unidad_costo"], fontsize=9.6, color="#374151", va="top", transform=ax.transAxes)
 
     # Lema Neutral al Pie (y=0.045..0.105)
     lema_box = FancyBboxPatch(

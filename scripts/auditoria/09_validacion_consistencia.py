@@ -49,7 +49,6 @@ def main() -> None:
 
     md_path = PROJECT_ROOT / "outputs" / "entregables" / "Documento_Tecnico_ByteMe.md"
     pdf_path = PROJECT_ROOT / "outputs" / "entregables" / "Documento_Tecnico_ByteMe.pdf"
-    docx_path = PROJECT_ROOT / "outputs" / "entregables" / "Documento_Tecnico_ByteMe.docx"
     fichas_pdf = PROJECT_ROOT / "outputs" / "entregables" / "Fichas_Perfiles_ByteMe.pdf"
     fichas_png = PROJECT_ROOT / "outputs" / "entregables" / "Fichas_Perfiles_ByteMe.png"
 
@@ -74,7 +73,7 @@ def main() -> None:
         sys.exit(res.returncode)
 
     report = {
-        "estatus_pytest": "PASSED (8/8)",
+        "estatus_pytest": "PASSED (15/15)",
         "paginas_documento_pdf": len(pdf_reader.pages),
         "paginas_fichas_pdf": len(fichas_reader.pages),
         "numeros_auditados": {
@@ -93,9 +92,13 @@ def main() -> None:
             "metricas_finales_json": sha256_file(PROJECT_ROOT / "outputs" / "metricas_finales.json"),
             "Documento_Tecnico_ByteMe_md": sha256_file(md_path),
             "Documento_Tecnico_ByteMe_pdf": sha256_file(pdf_path),
-            "Documento_Tecnico_ByteMe_docx": sha256_file(docx_path),
             "Fichas_Perfiles_ByteMe_pdf": sha256_file(fichas_pdf),
             "Fichas_Perfiles_ByteMe_png": sha256_file(fichas_png),
+            "Fichas_Portada_png": sha256_file(PROJECT_ROOT / "outputs" / "entregables" / "Fichas_Portada.png"),
+            "Ficha_C0_png": sha256_file(PROJECT_ROOT / "outputs" / "entregables" / "Ficha_C0.png"),
+            "Ficha_C1_png": sha256_file(PROJECT_ROOT / "outputs" / "entregables" / "Ficha_C1.png"),
+            "Ficha_C2_png": sha256_file(PROJECT_ROOT / "outputs" / "entregables" / "Ficha_C2.png"),
+            "Ficha_C3_png": sha256_file(PROJECT_ROOT / "outputs" / "entregables" / "Ficha_C3.png"),
         },
     }
 
