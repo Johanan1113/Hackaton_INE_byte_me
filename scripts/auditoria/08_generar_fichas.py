@@ -230,23 +230,23 @@ def render_cover_page(data: dict) -> plt.Figure:
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(team_box)
-    ax.text(0.06, 0.760, "Equipo:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
-    ax.text(0.13, 0.760, "Byte me", fontsize=10.5, color="#111827", transform=ax.transAxes)
+    ax.text(0.06, 0.765, "Equipo:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.13, 0.765, "Byte me", fontsize=10.5, color="#111827", transform=ax.transAxes)
 
-    ax.text(0.06, 0.725, "Integrantes:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.06, 0.730, "Integrantes:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
     members_str = "1. Johanan Olivares Gutiérrez (representante)   ·   2. Oscar Ariel Cuevas Martínez   ·   3. Saúl Alexis Arias González"
-    ax.text(0.16, 0.725, members_str, fontsize=10.2, color="#111827", transform=ax.transAxes)
+    ax.text(0.16, 0.730, members_str, fontsize=10.2, color="#111827", transform=ax.transAxes)
 
-    ax.text(0.06, 0.690, "Repositorio público:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
-    ax.text(0.21, 0.690, "https://github.com/Johanan1113/Hackaton_INE_byte_me", fontsize=10.2, color="#1D4ED8", transform=ax.transAxes)
+    ax.text(0.06, 0.695, "Repositorio público:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.21, 0.695, "https://github.com/Johanan1113/Hackaton_INE_byte_me", fontsize=10.2, color="#1D4ED8", transform=ax.transAxes)
 
-    ax.text(0.06, 0.665, "Entorno de software:", fontsize=9.5, fontweight="bold", color="#4B5563", transform=ax.transAxes)
-    ax.text(0.21, 0.665, "Python 3.14.6 · DuckDB 2.0.0 · scikit-learn 1.9.0 · scipy 1.18.0 · umap-learn 0.5.12 · pandas 3.0.3 · numpy 2.4.6",
+    ax.text(0.06, 0.670, "Entorno de software:", fontsize=9.5, fontweight="bold", color="#4B5563", transform=ax.transAxes)
+    ax.text(0.21, 0.670, "Python 3.14.6 · DuckDB 2.0.0 · scikit-learn 1.9.0 · scipy 1.18.0 · umap-learn 0.5.12 · pandas 3.0.3 · numpy 2.4.6",
             fontsize=9.0, color="#4B5563", transform=ax.transAxes)
 
     # Bloque metodológico en exactamente 3 renglones
     meth_box = FancyBboxPatch(
-        (0.04, 0.465), 0.92, 0.170,
+        (0.04, 0.445), 0.92, 0.190,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="#F1F5F9", edgecolor="#94A3B8", linewidth=1.2, transform=ax.transAxes
     )
@@ -255,15 +255,15 @@ def render_cover_page(data: dict) -> plt.Figure:
     p1_text = textwrap.fill("1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.", width=118)
     p2_text = textwrap.fill("2. Panel Principal continuo (Opción B, cero imputación): 53,644 secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento (75.82% secciones y 79.53% LN 2024 en 2,393 municipios).", width=118)
     p3_text = textwrap.fill("3. Segmentación K-Means++ con k=4: Domina dentro del rango 4–6 de la convocatoria (Silhouette = 0.1789, ARI bootstrap = 0.9572 y clasificador Random Forest con 96.29% de exactitud).", width=118)
-    ax.text(0.06, 0.575, p1_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
-    ax.text(0.06, 0.525, p2_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
-    ax.text(0.06, 0.475, p3_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.578, p1_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.532, p2_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.486, p3_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Mini-tabla de resumen de los 4 perfiles
-    ax.text(0.04, 0.435, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.04, 0.410, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
 
     col_x = [0.04, 0.09, 0.42, 0.56, 0.69, 0.76, 0.96]
-    y_tbl = 0.395
+    y_tbl = 0.365
     # Encabezado tabla
     ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.034, facecolor="#1E3A8A", transform=ax.transAxes))
     ax.text(0.065, y_tbl + 0.009, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
@@ -381,7 +381,7 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
         ax.text(x_starts[i] + card_w / 2, 0.752, sub_c, fontsize=8.2, color="#6B7280", ha="center", va="center", transform=ax.transAxes)
 
     # Columna Izquierda: Gráfica de la serie histórica ponderada (0.035..0.505, y=0.340..0.720)
-    ax_plot = fig.add_axes([0.055, 0.365, 0.440, 0.330])
+    ax_plot = fig.add_axes([0.055, 0.380, 0.440, 0.315])
     p_vals = [p[f"p_{y}_ponderada"] * 100 for y in years]
     b_vals = [pan_b[f"p_{y}_ponderada"] * 100 for y in years]
 

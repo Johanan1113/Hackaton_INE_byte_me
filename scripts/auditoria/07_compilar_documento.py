@@ -838,7 +838,7 @@ def build_pdf(data: dict) -> Path:
         )
         canvas.drawRightString(
             PAGE_W - MARGIN, PAGE_H - 1.5 * cm,
-            f"CCPC INE {serie[0]['anio']}–{serie[-1]['anio']} | Tasa SV/(SV+NV) · Manual CCPC"
+            "Tasa SV/(SV+NV) · Manual CCPC"
         )
         canvas.setStrokeColor(colors.HexColor("#D1D5DB"))
         canvas.setLineWidth(0.5)

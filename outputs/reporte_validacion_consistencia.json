@@ -3,27 +3,27 @@
   "paginas_documento_pdf": 12,
   "paginas_fichas_pdf": 5,
   "numeros_auditados": {
-    "pool_valores_referencia_autorizados": 1906,
+    "pool_valores_referencia_autorizados": 1905,
     "extraidos_documento_md": 1445,
     "no_encontrados_documento_md": [],
-    "extraidos_documento_pdf": 1035,
+    "extraidos_documento_pdf": 1029,
     "no_encontrados_documento_pdf": [],
-    "extraidos_fichas_pdf": 270,
+    "extraidos_fichas_pdf": 266,
     "no_encontrados_fichas_pdf": []
   },
   "hashes_sha256": {
     "etiquetas_finales_parquet": "7f0db6a9b1437d9e9703480ca3bfcfe2e1f79908380ccfc967014cf1e2ac74eb",
     "perfiles_csv": "7133a028b376117028630a689760e30186eec8d3ea5298c295e9c280dac21532",
-    "estrategias_csv": "1b1add467689b37eef0b8112b34a52ddb98a25b91f7ca15d7ba51942f443dc86",
-    "metricas_finales_json": "3e9eefbbccd5b56ad14e07ac49a22907d7882c6eda5280f8b93a07effc2dd1f0",
-    "Documento_Tecnico_ByteMe_md": "233ee6d6326a17b5de7e932322281464838e2f0664956d7dcd575ef06b5b6566",
-    "Documento_Tecnico_ByteMe_pdf": "dc6e8b387823ef865e49945f711cdd8c5afd6c2adb53f2d78a3f810308d07fe5",
-    "Fichas_Perfiles_ByteMe_pdf": "6d43d0319dd8d0df88ca44104c27c62263b2436c105c1d081c4414f11c75ee69",
-    "Fichas_Perfiles_ByteMe_png": "fcdf65dad8539bd1e8a7f3777bd43861b5ae7533bf64e25e1563b2eb58e46ca2",
-    "Fichas_Portada_png": "7b1aebe7ef7d8a81ec0618a1dd440992e6eda7bad2b806bb9916026bfc08b0d7",
-    "Ficha_C0_png": "5c4bb7ad21b0860ca11b96b4db7241f7116c81d7dca9667da18e970dd0a97c96",
-    "Ficha_C1_png": "11c07107ced2d885413a8db64b7e45d7b050d5cf1faae378229d47b1443840f1",
-    "Ficha_C2_png": "9c295cce2b9ef3463473b4346cb368ada5d7d755eb9a61d09ea77558e378b551",
-    "Ficha_C3_png": "c54377da7e02d2ae6bd64e8190255b531badcae9915c65d5a310a71ed0bb6fc5"
+    "estrategias_csv": "9a9c2637380e60aad3d45e6c584756d3fec98630c5e6322f26f28bce414841ee",
+    "metricas_finales_json": "e523b52c94971c5812b3b7f2514a033dfe8bd78648d2dedb0f041fdf30ad7dc6",
+    "Documento_Tecnico_ByteMe_md": "f5856231d3240dac9510bc7917a0425082e174bb8f15914aa235fcbd287481a4",
+    "Documento_Tecnico_ByteMe_pdf": "a12cf6d023ce9391608fe1216e1beb63e1cca7f9e4ca80ba740e12baa7e777f3",
+    "Fichas_Perfiles_ByteMe_pdf": "32772eb066e78e7ac101b6975f8b75cd3f50939bd57a944e78dab80efeb2cb18",
+    "Fichas_Perfiles_ByteMe_png": "0c4894fc799d17785e07cc251e53f37568eee5846ee40e4b93b874b05d85cb20",
+    "Fichas_Portada_png": "f83326780731f795a77478a739d089d54673ec4cc9091dd5143f7631c51b172b",
+    "Ficha_C0_png": "83d373fc42335ff7290c0847e2c3a5cd663c7b4140da7a3766e0ddec5094a0cd",
+    "Ficha_C1_png": "929aefd322d63e40475a540356c890095d6611fbb8f6a41edff161f6bdffaf71",
+    "Ficha_C2_png": "300f7c94d9d3996b9a932195c0268d9617a527d53ae0a82db1e096bf463b82c4",
+    "Ficha_C3_png": "b92f130b945a17276152582bf66581099ff11be0de555fdfb8eb3a8e2423f0d6"
   }
 }
