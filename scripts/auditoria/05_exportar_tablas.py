@@ -190,8 +190,12 @@ def main() -> None:
     # 11. Interpretabilidad RF / ANOVA
     pd.DataFrame(data["interpretabilidad_rf_anova"]).to_csv(OUT_TABLAS / "tabla_11_interpretabilidad_rf_anova.csv", index=False)
 
+    # 12. Líneas base y metas cuantitativas (Bloque D)
+    if "lineas_base_metas" in data:
+        pd.DataFrame(data["lineas_base_metas"]).to_csv(OUT_TABLAS / "tabla_12_lineas_base_metas.csv", index=False)
+
     sha_m = hashlib.sha256(METRICAS_PATH.read_bytes()).hexdigest()
-    print(f"[Fase 5] 11 tablas exportadas en {OUT_TABLAS} desde metricas_finales.json (SHA256={sha_m})")
+    print(f"[Fase 5] 12 tablas exportadas en {OUT_TABLAS} desde metricas_finales.json (SHA256={sha_m})")
 
 
 if __name__ == "__main__":

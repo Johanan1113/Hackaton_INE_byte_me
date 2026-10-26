@@ -44,16 +44,16 @@ CLUSTER_META = {
         "codigo": "C0",
         "nombre": "Baja Participación Intermitente con Rezago Juvenil",
         "variables_rectoras_z": (
-            "estabilidad_participacion (z=-0.65), participacion_media_historica (z=-0.65), "
-            "ratio_participacion_joven (z=-0.62), brecha_presidencial_intermedia (z=+0.60), "
-            "brecha_generacional (z=+0.58)"
+            "estabilidad (log(1 + 1/CV)) (z=-0.65), participación media (z=-0.65), "
+            "razón de participación juvenil (z=-0.62), brecha presidencial–intermedia (z=+0.60), "
+            "brecha generacional (60+ menos 18–29) (z=+0.58)"
         ),
         "justificacion_regla_3_2": (
-            "Sus 5 variables con |z|>=0.5 son estabilidad_participacion (-0.65, mínima nacional: 1.7036), "
-            "participacion_media_historica (-0.65, mínima nacional: 50.37%), ratio_participacion_joven "
-            "(-0.62, mínimo nacional: 0.7963 con 40.17% de votación juvenil), brecha_presidencial_intermedia "
-            "(+0.60, máxima nacional: +17.31 pts entre presidenciales 59.02% e intermedias 41.71%) y "
-            "brecha_generacional (+0.58: +20.64 pts entre 60+ con 60.81% y 18-29 con 40.17%). Concentra el "
+            "Sus 5 variables con |z| ≥ 0.5 son estabilidad (log(1 + 1/CV)) (-0.65, la más baja de los cuatro perfiles: 1.7036), "
+            "participación media (-0.65, la más baja de los cuatro perfiles: 50.37%), razón de participación juvenil "
+            "(-0.62, la más baja de los cuatro perfiles: 0.7963 con 40.17% de votación juvenil), brecha presidencial–intermedia "
+            "(+0.60, la más alta de los cuatro perfiles: +17.31 pts entre presidenciales 59.02% e intermedias 41.71%) y "
+            "brecha generacional (+0.58: +20.64 pts entre 60+ con 60.81% y 18–29 con 40.17%). Concentra el "
             "32.85% de las secciones del panel y es predominantemente urbano (78.99% de secciones urbanas)."
         ),
         "lema_neutral": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
@@ -65,7 +65,7 @@ CLUSTER_META = {
         "objetivo_especifico": (
             "Reducir la caída de participación en elecciones intermedias (línea base ponderada de 46.1% en 2021 "
             "frente a 56.9% en la presidencial de 2024) e incrementar la tasa de votación del grupo de 18 a 29 años "
-            "(línea base hexanual de 40.2%) en las 17,622 secciones del perfil."
+            "(línea base 2021 de 35.2%) en las 17,622 secciones del perfil."
         ),
         "canal_principal": (
             "Doble línea de intervención: (1) Ciclo intermedio urbano: transporte público masivo, corredores "
@@ -93,34 +93,33 @@ CLUSTER_META = {
             "y convenios con instituciones educativas y centros de trabajo)."
         ),
         "meta_cuantitativa": (
-            "Elevar la participación ponderada del cluster en la elección intermedia de 2027 a 49.5% (+3.4 puntos "
-            "porcentuales respecto al 46.1% observado en la intermedia de 2021, cerrando la mitad de la diferencia "
-            "frente al 52.8% del Panel B en 2021) e incrementar la tasa de votación juvenil (18-29 años) de su "
-            "línea base hexanual de 40.2% a 43.5% (+3.3 pts)."
+            "Elevar la participación ponderada a 49.5% en la intermedia de 2027 (línea base 2021: 46.1%, cerrando "
+            "la mitad de la brecha frente al 52.8% del panel) y la participación juvenil (18–29 años) a 39.1% en 2027 "
+            "(línea base 2021: 35.2%, cerrando la mitad frente al 43.1% del panel)."
         ),
         "indicador_seguimiento": (
-            "Tasa de participación ponderada SV/(SV+NV) del cluster en la intermedia de 2027 (vs 46.1% en 2021) y "
-            "tasa seccional SV/(SV+NV) del grupo 18-29 años en el CCPC 2027."
+            "Tasa de participación ponderada SV/(SV+NV) del perfil en la intermedia de 2027 (vs. 46.1% en 2021) y "
+            "tasa seccional SV/(SV+NV) del grupo 18–29 años en el CCPC 2027."
         ),
-        "horizonte_temporal": "Permanente con intensificación preelectoral rumbo a la intermedia 2026-2027",
+        "horizonte_temporal": "Permanente con intensificación preelectoral rumbo a la intermedia 2026–2027",
     },
     1: {
         "codigo": "C1",
         "nombre": "Alta Participación Estable e Intergeneracional",
         "variables_rectoras_z": (
-            "estabilidad_participacion (z=+1.42), brecha_presidencial_intermedia (z=-1.10), "
-            "brecha_generacional (z=-1.07), ratio_participacion_joven (z=+1.04), "
-            "participacion_media_historica (z=+0.95), tendencia_participacion_beta (z=-0.73)"
+            "estabilidad (log(1 + 1/CV)) (z=+1.42), brecha presidencial–intermedia (z=-1.10), "
+            "brecha generacional (60+ menos 18–29) (z=-1.07), razón de participación juvenil (z=+1.04), "
+            "participación media (z=+0.95), tendencia anual (z=-0.73)"
         ),
         "justificacion_regla_3_2": (
-            "Presenta los niveles más altos de estabilidad_participacion (+1.42: 2.5897), ratio_participacion_joven "
-            "(+1.04: 0.9090, con 59.10% de votación juvenil) y participacion_media_historica (+0.95: 65.05%, con "
-            "67.74% en presidenciales y 62.37% en intermedias), así como las menores brechas presidencial-intermedia "
-            "(-1.10: +5.37 pts) y generacional (-1.07: +8.78 pts). Su pendiente anual es ligeramente positiva "
-            "(+0.15 pts/año, z=-0.73 respecto a la media nacional de +0.68 pts/año) porque ya partía de un nivel "
-            "alto en 2009 (59.17% ponderado / 59.30% simple)."
+            "Presenta los niveles más altos de los cuatro perfiles en estabilidad (log(1 + 1/CV)) (+1.42: 2.5897), "
+            "razón de participación juvenil (+1.04: 0.9090, con 59.10% de votación juvenil) y participación media "
+            "(+0.95: 65.05%, con 67.74% en presidenciales y 62.37% en intermedias), así como las menores brechas "
+            "presidencial–intermedia (-1.10: +5.37 pts) y generacional (-1.07: +8.78 pts). Su pendiente anual es "
+            "ligeramente positiva (+0.15 pts/año, z=-0.73 respecto a la media nacional de +0.68 pts/año) porque ya "
+            "partía de un nivel alto en 2009 (59.17% ponderado / 59.30% simple)."
         ),
-        "lema_neutral": "La constancia cívica fortalece a tu comunidad: intégrate como funcionaria o funcionario de casilla",
+        "lema_neutral": "Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo",
         "hipotesis_abstencionismo": (
             "Hipótesis: cohesión comunitaria e intergeneracional consolidada en contextos urbanos (46.0%), rurales "
             "(40.9%) y mixtos (13.1%) que sostiene altos niveles de sufragio en ambos tipos de elección; su principal "
@@ -144,41 +143,43 @@ CLUSTER_META = {
             "liderazgo cívico juvenil para el relevo generacional y reclutamiento temprano de Capacitadores-Asistentes "
             "Electorales (CAE) y funcionariado de casilla por las Juntas Distritales Ejecutivas."
         ),
-        "unidad_responsable": "DECEyEC y Dirección Ejecutiva de Capacitación Electoral y Educación Cívica en las Juntas Distritales Ejecutivas",
+        "unidad_responsable": (
+            "DECEyEC en coordinación con las Juntas Distritales Ejecutivas (Vocalías de Capacitación Electoral y Educación Cívica y Vocalías de Organización Electoral)"
+        ),
         "costo_estimado_orden_magnitud": (
             "Nivel Bajo — Estimación indicativa de orden operativo (sujeta a presupuestación de DECEyEC y Juntas "
             "Distritales Ejecutivas; absorbible dentro de los programas ordinarios de educación cívica y capacitación electoral distrital)."
         ),
         "meta_cuantitativa": (
-            "Sostener una participación ponderada >= 62.5% en la elección intermedia de 2027 (preservando el 62.5% "
-            "observado en la intermedia de 2021) y >= 67.5% en la elección presidencial de 2030 (acorde con su media "
-            "presidencial de 67.7%), logrando el 100% de integración de Mesas Directivas de Casilla con funcionariado propietario capacitado."
+            "Sostener una participación ponderada ≥ 62.5% en la elección intermedia de 2027 (preservando el 62.5% "
+            "observado en la intermedia de 2021) y sostener al menos el nivel de 2024 (65.7%) en la elección presidencial de 2030, "
+            "logrando el 100% de casillas integradas con personas insaculadas y capacitadas."
         ),
         "indicador_seguimiento": (
-            "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs 62.5% en 2021), en la "
-            "presidencial de 2030 (vs 65.7% en 2024), y porcentaje de casillas integradas con propietarios en primera insaculación."
+            "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs. 62.5% en 2021), en la "
+            "presidencial de 2030 (vs. 65.7% en 2024), y porcentaje de casillas integradas con personas insaculadas y capacitadas."
         ),
-        "horizonte_temporal": "Continuo de mantenimiento y relevo generacional (2025-2030)",
+        "horizonte_temporal": "Continuo de mantenimiento y relevo generacional (2025–2030)",
     },
     2: {
         "codigo": "C2",
         "nombre": "Participación en Ascenso con Juventud Activa",
         "variables_rectoras_z": (
-            "tendencia_participacion_beta (z=+0.84), ratio_participacion_joven (z=+0.60), "
-            "brecha_generacional (z=-0.59), brecha_presidencial_intermedia (z=+0.53), "
-            "estabilidad_participacion (z=-0.53)"
+            "tendencia anual (z=+0.84), razón de participación juvenil (z=+0.60), "
+            "brecha generacional (60+ menos 18–29) (z=-0.59), brecha presidencial–intermedia (z=+0.53), "
+            "estabilidad (log(1 + 1/CV)) (z=-0.53)"
         ),
         "justificacion_regla_3_2": (
-            "Sus 5 variables con |z|>=0.5 son tendencia_participacion_beta (+0.84, máxima nacional: +1.28 pts/año, "
+            "Sus 5 variables con |z| ≥ 0.5 son tendencia anual (+0.84, la más alta de los cuatro perfiles: +1.28 pts/año, "
             "pasando de 41.83% ponderado en 2009 a 60.37% en la intermedia de 2021 y 68.04% en la presidencial de 2024), "
-            "ratio_participacion_joven (+0.60: 0.8793 con 51.81% de votación juvenil), brecha_generacional (-0.59: +12.20 pts), "
-            "brecha_presidencial_intermedia (+0.53: +16.81 pts porque partió de intermedias bajas en 2009 y 2015) y "
-            "estabilidad_participacion (-0.53 por ese mismo ascenso)."
+            "razón de participación juvenil (+0.60: 0.8793 con 51.81% de votación juvenil), brecha generacional (-0.59: +12.20 pts), "
+            "brecha presidencial–intermedia (+0.53: +16.81 pts porque partió de intermedias bajas en 2009 y 2015) y "
+            "estabilidad (log(1 + 1/CV)) (-0.53 por ese mismo ascenso)."
         ),
         "lema_neutral": "Tu participación ya transforma tu comunidad: consolidemos el voto en cada elección",
         "hipotesis_abstencionismo": (
             "Hipótesis: creciente movilización cívica y dinamismo demográfico juvenil en secciones urbanas (68.6%) y "
-            "periurbanas/rurales (31.4%) que elevó la participación intermedia de 41.8% (2009) y 48.3% (2015) a 60.4% "
+            "rurales (22.3%) y mixtas (9.1%) que elevó la participación intermedia de 41.8% (2009) y 48.3% (2015) a 60.4% "
             "(2021); el riesgo principal es la regresión hacia su media intermedia histórica (50.5%) si no se "
             "institucionaliza el hábito del voto legislativo."
         ),
@@ -206,33 +207,33 @@ CLUSTER_META = {
             "Distritales Ejecutivas; basada en foros distritales, vinculación comunitaria y comunicación digital institucional)."
         ),
         "meta_cuantitativa": (
-            "Consolidar en la elección intermedia de 2027 una participación ponderada >= 60.4% (sosteniendo la línea "
+            "Consolidar en la elección intermedia de 2027 una participación ponderada ≥ 60.4% (sosteniendo la línea "
             "base observada en la intermedia de 2021 de 60.4% e impidiendo una regresión hacia su media intermedia "
-            "histórica de 50.5%) y mantener el ratio_participacion_joven >= 0.88."
+            "histórica de 50.5%) y mantener la razón de participación juvenil ≥ 0.88."
         ),
         "indicador_seguimiento": (
-            "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs 60.4% en 2021 y vs 48.3% en 2015) "
-            "y ratio_participacion_joven en el CCPC 2027."
+            "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs. 60.4% en 2021 y vs. 48.3% en 2015) "
+            "y razón de participación juvenil en el CCPC 2027."
         ),
-        "horizonte_temporal": "Consolidación en el ciclo intermedio 2025-2027",
+        "horizonte_temporal": "Consolidación en el ciclo intermedio 2025–2027",
     },
     3: {
         "codigo": "C3",
         "nombre": "Liderazgo Femenino con Participación Estancada",
         "variables_rectoras_z": (
-            "tendencia_participacion_beta (z=-0.83), brecha_genero (z=+0.78), "
-            "brecha_presidencial_intermedia (z=-0.69), brecha_generacional (z=+0.62), "
-            "ratio_participacion_joven (z=-0.56), estabilidad_participacion (z=+0.52)"
+            "tendencia anual (z=-0.83), brecha de género (mujeres menos hombres) (z=+0.78), "
+            "brecha presidencial–intermedia (z=-0.69), brecha generacional (60+ menos 18–29) (z=+0.62), "
+            "razón de participación juvenil (z=-0.56), estabilidad (log(1 + 1/CV)) (z=+0.52)"
         ),
         "justificacion_regla_3_2": (
-            "Sus 6 variables con |z|>=0.5 son tendencia_participacion_beta (z=-0.83 respecto a la media nacional: su "
+            "Sus 6 variables con |z| ≥ 0.5 son tendencia anual (z=-0.83 respecto a la media nacional: su "
             "pendiente global es +0.08 pts/año, positiva pero estancada porque las intermedias se mantuvieron en "
             "49.6% [2009], 50.4% [2015] y 49.5% [2021], mientras que la participación presidencial cayó de 61.2% "
-            "ponderado en 2012 a 59.0% en 2018 y 55.6% en 2024), brecha_genero (+0.78, máxima nacional: +11.15 pts a "
-            "favor de las mujeres con 60.85% vs 49.70% en hombres), brecha_presidencial_intermedia (-0.69: +8.20 pts), "
-            "brecha_generacional (+0.62: +20.94 pts, 60+ con 65.35% vs 18-29 con 44.41%), ratio_participacion_joven "
-            "(-0.56: 0.8007) y estabilidad_participacion (+0.52: 2.2047). Su composición es 48.8% urbana, 41.2% rural "
-            "y 10.0% mixta (pluralidad urbana con sobrerrepresentación rural frente al 26.9% del panel)."
+            "ponderado en 2012 a 59.0% en 2018 y 55.6% en 2024), brecha de género (+0.78, la más alta de los "
+            "cuatro perfiles: +11.15 pts a favor de las mujeres con 60.85% vs 49.70% en hombres), brecha presidencial–intermedia "
+            "(-0.69: +8.20 pts), brecha generacional (+0.62: +20.94 pts, 60+ con 65.35% vs 18–29 con 44.41%), "
+            "razón de participación juvenil (-0.56: 0.8007) y estabilidad (log(1 + 1/CV)) (+0.52: 2.2047). Su "
+            "composición es 48.8% urbana, 41.2% rural y 10.0% mixta (pluralidad urbana con sobrerrepresentación rural frente al 26.9% del panel)."
         ),
         "lema_neutral": "La participación de todas y todos cuenta: sumemos la voz de hombres y jóvenes en cada comunidad",
         "hipotesis_abstencionismo": (
@@ -242,7 +243,7 @@ CLUSTER_META = {
             "aunado en su segmento rural (41.2% de las secciones) a costos de traslado físico a la casilla."
         ),
         "objetivo_especifico": (
-            "Elevar la participación masculina (línea base hexanual de 49.70% frente a 60.85% en mujeres) y revertir "
+            "Elevar la participación masculina (línea base 2021 de 43.94% frente a 48.66% nacional) y revertir "
             "la caída en elecciones presidenciales (de 61.2% en 2012 a 55.6% en 2024) y el estancamiento en "
             "intermedias (49.5% en 2021) en las 12,574 secciones del perfil, atendiendo como acción secundaria la "
             "accesibilidad en sus localidades con sobrerrepresentación rural."
@@ -271,16 +272,16 @@ CLUSTER_META = {
             "radio regional y rutas de campo distritales)."
         ),
         "meta_cuantitativa": (
-            "Incrementar la participación ponderada del cluster en la elección intermedia de 2027 de 49.5% (línea base "
-            "2021) a 51.5% (+2.0 pts), recuperar en la elección presidencial de 2030 la participación de 55.6% (línea "
-            "base 2024) a 58.5% (+2.9 pts), y elevar la tasa de participación masculina de su línea base hexanual de "
-            "49.7% a 52.5% (+2.8 pts, reduciendo la brecha de género de 11.15 a ~8.4 pts)."
+            "Elevar la participación ponderada en la elección intermedia de 2027 a 51.1% (línea base 2021: 49.5%, "
+            "cerrando la mitad de la brecha frente al 52.8% del panel), recuperar en la presidencial de 2030 a 58.1% "
+            "(línea base 2024: 55.6%, cerrando la mitad frente al 60.6% del panel), y elevar la participación masculina a "
+            "46.3% en 2027 (línea base 2021: 43.9%, cerrando la mitad frente al 48.7% del panel)."
         ),
         "indicador_seguimiento": (
-            "Tasa de participación masculina SV/(SV+NV), participación ponderada en la intermedia de 2027 (vs 49.5% en "
-            "2021) y participación ponderada en la presidencial de 2030 (vs 55.6% en 2024) en el CCPC."
+            "Tasa de participación masculina SV/(SV+NV) (vs. 43.9% en 2021), participación ponderada en la "
+            "intermedia de 2027 (vs. 49.5% en 2021) y participación ponderada en la presidencial de 2030 (vs. 55.6% en 2024) en el CCPC."
         ),
-        "horizonte_temporal": "Mediano y largo plazo con intervención en ciclos 2026-2027 y 2029-2030",
+        "horizonte_temporal": "Mediano y largo plazo con intervención en ciclos 2026–2027 y 2029–2030",
     },
 }
 
@@ -398,8 +399,7 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
         row_p["pct_ln_rural"] = round(r_ln_pct, 2)
         row_p["pct_ln_mixta"] = round(m_ln_pct, 2)
         row_p["pct_secciones_indigenas_afromexicanas"] = (
-            "[PENDIENTE: cálculo, datos necesarios — los CSV de datos abiertos del CCPC 2009-2024 no incluyen el "
-            "indicador de sección indígena/afromexicana; dicho atributo sólo existe en el tablero web Tableau del INE]"
+            "Los CSV abiertos del CCPC no incluyen el indicador de población indígena o afromexicana que sí muestra el tablero del INE; por ello no se incorporó al modelo."
         )
         row_p["top5_entidades_por_pct_secciones"] = top5_sec_str
         row_p["top5_entidades_por_pct_ln_2024"] = top5_ln_str
@@ -544,6 +544,72 @@ def build_panel_b_summary(df_b: pd.DataFrame, df_perfiles: pd.DataFrame) -> dict
     return summary
 
 
+def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
+    """Genera la tabla unificada de líneas base observadas y metas cuantitativas (Bloque D)."""
+    p21_b = float(df_b["sv_2021"].sum() / df_b["sv_nv_2021"].sum() * 100)
+    p24_b = float(df_b["sv_2024"].sum() / df_b["sv_nv_2024"].sum() * 100)
+    j21_b = float(df_b["sv_joven_2021"].sum() / df_b["sv_nv_joven_2021"].sum() * 100)
+    h21_b = float(df_b["sv_hombre_2021"].sum() / df_b["sv_nv_hombre_2021"].sum() * 100)
+    h24_b = float(df_b["sv_hombre_2024"].sum() / df_b["sv_nv_hombre_2024"].sum() * 100)
+
+    rows = []
+    for c in range(4):
+        sub = df_b[df_b["cluster"] == c]
+        p21 = float(sub["sv_2021"].sum() / sub["sv_nv_2021"].sum() * 100)
+        p24 = float(sub["sv_2024"].sum() / sub["sv_nv_2024"].sum() * 100)
+        j21 = float(sub["sv_joven_2021"].sum() / sub["sv_nv_joven_2021"].sum() * 100)
+        h21 = float(sub["sv_hombre_2021"].sum() / sub["sv_nv_hombre_2021"].sum() * 100)
+        h24 = float(sub["sv_hombre_2024"].sum() / sub["sv_nv_hombre_2024"].sum() * 100)
+        meta = CLUSTER_META[c]
+        if c == 0:
+            m_int = "49.5%"
+            m_pres = "sostener ≥ 56.9%"
+            m_jov = "39.1%"
+            m_hom = "N/A"
+        elif c == 1:
+            m_int = "sostener 62.5%"
+            m_pres = "sostener 65.7%"
+            m_jov = "N/A"
+            m_hom = "N/A"
+        elif c == 2:
+            m_int = "sostener 60.4%"
+            m_pres = "sostener 68.0%"
+            m_jov = "razón juvenil ≥ 0.88"
+            m_hom = "N/A"
+        else:
+            m_int = "51.1%"
+            m_pres = "58.1%"
+            m_jov = "N/A"
+            m_hom = "46.3%"
+        rows.append({
+            "codigo_cluster": meta["codigo"],
+            "nombre_perfil": meta["nombre"],
+            "participacion_2021_pond_pct": round(p21, 2),
+            "participacion_2024_pond_pct": round(p24, 2),
+            "tasa_joven_18_29_2021_pond_pct": round(j21, 2),
+            "tasa_hombres_2021_pond_pct": round(h21, 2),
+            "tasa_hombres_2024_pond_pct": round(h24, 2),
+            "meta_intermedia_2027": m_int,
+            "meta_presidencial_2030": m_pres,
+            "meta_tasa_joven": m_jov,
+            "meta_tasa_hombres": m_hom,
+        })
+    rows.append({
+        "codigo_cluster": "Panel B",
+        "nombre_perfil": "Media Nacional Panel B",
+        "participacion_2021_pond_pct": round(p21_b, 2),
+        "participacion_2024_pond_pct": round(p24_b, 2),
+        "tasa_joven_18_29_2021_pond_pct": round(j21_b, 2),
+        "tasa_hombres_2021_pond_pct": round(h21_b, 2),
+        "tasa_hombres_2024_pond_pct": round(h24_b, 2),
+        "meta_intermedia_2027": "52.8%",
+        "meta_presidencial_2030": "60.6%",
+        "meta_tasa_joven": "43.1%",
+        "meta_tasa_hombres": "48.7%",
+    })
+    return rows
+
+
 def export_metricas_finales_json(
     df_b: pd.DataFrame,
     df_univ: pd.DataFrame,
@@ -628,6 +694,7 @@ def export_metricas_finales_json(
         "perfiles": df_perfiles.to_dict(orient="records"),
         "estrategias": df_estrategias.to_dict(orient="records"),
         "comparacion_k4_k5_k6": df_comp.to_dict(orient="records"),
+        "lineas_base_metas": build_lineas_base_metas(df_b),
     }
 
     metricas_path.write_text(
