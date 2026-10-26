@@ -593,3 +593,95 @@ def test_total_tabla8() -> None:
     assert "70,751" in block, f"'70,751' ausente en la fila total de la tabla en Documento: {block}"
     assert "98,330,348" in block, f"'98,330,348' ausente en la fila total de la tabla en Documento: {block}"
 
+
+def test_impacto_consistente() -> None:
+    """
+    G1: Las cifras de electores adicionales y en riesgo coinciden entre el documento
+    (Tabla 7) y las fichas (recuadro de metas y portada); y las top 3 juntas de cada perfil
+    coinciden en ambos.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    imp = data["impacto_y_prioridad_territorial"]
+    tabla_imp = imp["tabla_impacto"]
+    res_p = imp["resumen_por_perfil"]
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    fichas_pages = [re.sub(r"\s+", " ", p.extract_text()) for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages]
+    portada_text = fichas_pages[0]
+
+    for cid in range(4):
+        c_code = f"C{cid}"
+        row_t = tabla_imp[cid]
+        n_elec = row_t["electores_impacto_n"]
+        n_elec_fmt = f"{n_elec:,}"
+        top3_str = res_p[c_code]["top3_juntas_str"]
+        top3_list = res_p[c_code]["top3_juntas"]
+
+        # 1. En Documento Técnico (Tabla 7)
+        assert n_elec_fmt in doc_full, f"Electores {n_elec_fmt} de {c_code} no encontrados en Documento Técnico"
+        for junta in top3_list:
+            assert junta in doc_full, f"Junta '{junta}' de {c_code} no encontrada en Documento Técnico"
+
+        # 2. En Fichas: Portada (página 1)
+        assert n_elec_fmt in portada_text, f"Electores {n_elec_fmt} de {c_code} no encontrados en Portada de Fichas"
+
+        # 3. En Fichas: Ficha individual (página cid + 1)
+        ficha_text = fichas_pages[cid + 1]
+        assert n_elec_fmt in ficha_text, f"Electores {n_elec_fmt} de {c_code} no encontrados en Ficha {c_code}"
+        if cid in (0, 3):
+            assert f"+{n_elec_fmt} votantes si se cumple la meta 2027" in ficha_text, f"Texto impacto de {c_code} ausente en Ficha {c_code}"
+        else:
+            assert f"{n_elec_fmt} votantes si regresa a su promedio intermedio" in ficha_text, f"Texto en riesgo de {c_code} ausente en Ficha {c_code}"
+
+        assert f"Dónde empezar: {top3_str}" in ficha_text, f"'Dónde empezar' de {c_code} no coincide en Ficha {c_code}"
+
+
+def test_validacion_temporal_reportada() -> None:
+    """
+    G1: Las cifras de η² (0.139 / 0.1386), línea base (0.474 / 0.4742) y ARI (0.610 / 0.6101)
+    coinciden con tabla_13 y aparecen en el documento.
+    """
+    df_t13 = pd.read_csv(TABLAS_DIR / "tabla_13_validacion_temporal.csv")
+    assert len(df_t13) == 4, "tabla_13 debe contener 4 filas por perfil"
+    row13 = df_t13.iloc[0]
+
+    assert abs(row13["eta2_perfiles_2009_2021"] - 0.1386) < 0.001
+    assert abs(row13["eta2_cuartiles_linea_base"] - 0.4742) < 0.001
+    assert abs(row13["ari_2009_2021_vs_final"] - 0.6101) < 0.001
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    assert "0.139" in doc_full, "η² = 0.139 no encontrado en el Documento Técnico"
+    assert "0.474" in doc_full, "Línea base η² = 0.474 no encontrada en el Documento Técnico"
+    assert "0.610" in doc_full, "ARI = 0.610 no encontrado en el Documento Técnico"
+    assert "Validación fuera de tiempo" in doc_full, "Párrafo de validación fuera de tiempo no encontrado en el Documento"
+
+
+def test_cobertura_ampliada() -> None:
+    """
+    G1: Las cifras de secciones (12,104 asignadas, 65,748 total), % LN (91.5%) y
+    secciones sin historia (5,003) coinciden con tabla_14 y aparecen en el texto del documento.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    cob = data["cobertura_ampliada_2024"]
+
+    df_t14 = pd.read_csv(TABLAS_DIR / "tabla_14_cobertura_ampliada.csv")
+    assert len(df_t14) >= 7, "tabla_14 debe contener filas por categoría y cluster"
+
+    assert cob["secciones_asignadas"] == 12104
+    assert cob["secciones_cobertura_ampliada"] == 65748
+    assert cob["pct_ln_panel_b_mas_asignadas"] == 91.5
+    assert cob["secciones_sin_historia_suficiente"] == 5003
+
+    perfil_csv = PROJECT_ROOT / "outputs" / "perfil_por_seccion_2024.csv"
+    assert perfil_csv.exists(), "outputs/perfil_por_seccion_2024.csv debe existir en outputs/"
+    df_perfil = pd.read_csv(perfil_csv)
+    assert len(df_perfil) == 65748, f"perfil_por_seccion_2024.csv debe tener 65,748 filas; tiene {len(df_perfil)}"
+    expected_cols = {"EDOCVE", "DEF", "SECCION", "perfil", "origen", "LN_2024"}
+    assert expected_cols.issubset(set(df_perfil.columns)), f"Columnas faltantes en perfil_por_seccion_2024.csv: {set(df_perfil.columns)}"
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    assert "12,104" in doc_full, "Cifra '12,104' no encontrada en el texto de Limitaciones del Documento"
+    assert "91.5%" in doc_full, "Cifra '91.5%' no encontrada en el texto de Limitaciones del Documento"
+    assert "5,003" in doc_full, "Cifra '5,003' no encontrada en el texto de Limitaciones del Documento"
+
+

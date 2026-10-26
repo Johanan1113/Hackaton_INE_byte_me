@@ -73,7 +73,7 @@ def main() -> None:
         sys.exit(res.returncode)
 
     report = {
-        "estatus_pytest": "PASSED (15/15)",
+        "estatus_pytest": "PASSED (21/21)",
         "paginas_documento_pdf": len(pdf_reader.pages),
         "paginas_fichas_pdf": len(fichas_reader.pages),
         "numeros_auditados": {

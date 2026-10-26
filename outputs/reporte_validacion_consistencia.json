@@ -1,29 +1,29 @@
 {
-  "estatus_pytest": "PASSED (15/15)",
+  "estatus_pytest": "PASSED (21/21)",
   "paginas_documento_pdf": 12,
   "paginas_fichas_pdf": 5,
   "numeros_auditados": {
-    "pool_valores_referencia_autorizados": 1905,
+    "pool_valores_referencia_autorizados": 1999,
     "extraidos_documento_md": 1445,
     "no_encontrados_documento_md": [],
-    "extraidos_documento_pdf": 1029,
+    "extraidos_documento_pdf": 907,
     "no_encontrados_documento_pdf": [],
-    "extraidos_fichas_pdf": 266,
+    "extraidos_fichas_pdf": 289,
     "no_encontrados_fichas_pdf": []
   },
   "hashes_sha256": {
     "etiquetas_finales_parquet": "7f0db6a9b1437d9e9703480ca3bfcfe2e1f79908380ccfc967014cf1e2ac74eb",
     "perfiles_csv": "7133a028b376117028630a689760e30186eec8d3ea5298c295e9c280dac21532",
     "estrategias_csv": "9a9c2637380e60aad3d45e6c584756d3fec98630c5e6322f26f28bce414841ee",
-    "metricas_finales_json": "e523b52c94971c5812b3b7f2514a033dfe8bd78648d2dedb0f041fdf30ad7dc6",
+    "metricas_finales_json": "6281c53067a0f92297c4f03488e774083450d8be8769f840dda3eb20d28dea5c",
     "Documento_Tecnico_ByteMe_md": "f5856231d3240dac9510bc7917a0425082e174bb8f15914aa235fcbd287481a4",
-    "Documento_Tecnico_ByteMe_pdf": "a12cf6d023ce9391608fe1216e1beb63e1cca7f9e4ca80ba740e12baa7e777f3",
-    "Fichas_Perfiles_ByteMe_pdf": "32772eb066e78e7ac101b6975f8b75cd3f50939bd57a944e78dab80efeb2cb18",
-    "Fichas_Perfiles_ByteMe_png": "0c4894fc799d17785e07cc251e53f37568eee5846ee40e4b93b874b05d85cb20",
-    "Fichas_Portada_png": "f83326780731f795a77478a739d089d54673ec4cc9091dd5143f7631c51b172b",
-    "Ficha_C0_png": "83d373fc42335ff7290c0847e2c3a5cd663c7b4140da7a3766e0ddec5094a0cd",
-    "Ficha_C1_png": "929aefd322d63e40475a540356c890095d6611fbb8f6a41edff161f6bdffaf71",
-    "Ficha_C2_png": "300f7c94d9d3996b9a932195c0268d9617a527d53ae0a82db1e096bf463b82c4",
-    "Ficha_C3_png": "b92f130b945a17276152582bf66581099ff11be0de555fdfb8eb3a8e2423f0d6"
+    "Documento_Tecnico_ByteMe_pdf": "3ec504dd6ef6292972e76b6b2d8e993757eeb966f1d1cc14d678d45f43f3ed5b",
+    "Fichas_Perfiles_ByteMe_pdf": "b61ae71ecbad7eded5d80aa97f4075ae6b3abe3004ee5a1f40f28812f9e43476",
+    "Fichas_Perfiles_ByteMe_png": "6e4f847a7e1c638948e939503cfaf177634b6c3e9036e1375488628170edef71",
+    "Fichas_Portada_png": "103878deb6a729d4871531b7a61279b9c583a5843d6c3cdbf59acc7e893f3bc9",
+    "Ficha_C0_png": "09ba314e3ff37b8756c66e0abe2b9ab6516f54d1f90691290a9d690539b69aec",
+    "Ficha_C1_png": "ec969d1d0cd2139f175167d0308b6188618f6357ed26cd3efb54efd10025b450",
+    "Ficha_C2_png": "97914476bb288a05775e4db5d7efb60c89bd57d0e94ddf039057e9c700a6492e",
+    "Ficha_C3_png": "38c8fe2e94b1e8842dae8768d229b2f077adacf7c2d092358c14e28509c95e02"
   }
 }
