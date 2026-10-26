@@ -62,6 +62,19 @@ FORBIDDEN_PHRASES_INSENSITIVE = [
     "estrictamente controlados",
     "confidencial",
     "radios indígenas",
+    "100% de casillas",
+    "casillas completas",
+    "insaculadas y capacitadas",
+    "Documento Técnico Oficial",
+    "campesina",
+    "del hogar",
+    "desatención",
+    "candidaturas mediante",
+    "HIPÓTESIS DE ABSTENCIONISMO",
+    "Lema Institucional",
+    "inherente a la geografía",
+    "cuatro categorías",
+    "60,433 secciones comunes",
 ]
 
 FORBIDDEN_PHRASES_SENSITIVE = [
@@ -70,6 +83,7 @@ FORBIDDEN_PHRASES_SENSITIVE = [
     "Martinez",
     "Saul ",
     "Gonzales",
+    "a favor de M",
 ]
 
 
@@ -524,3 +538,58 @@ def test_8_extraccion_exhaustiva_de_numeros_documento_y_fichas() -> None:
         f"Se encontraron números en los entregables que no existen en metricas_finales.json ni en outputs/tablas/: "
         f"{json.dumps(unmatched_by_source, ensure_ascii=False, indent=2)}"
     )
+
+
+def test_kpis_fichas() -> None:
+    """
+    F: Cada cifra grande de las fichas (participación media, intermedia 2021,
+    presidencial 2024 y cuarta cifra) es igual al valor del JSON redondeado a 1 decimal.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    perfiles = data["perfiles"]
+    reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf"))
+
+    for cid in range(4):
+        p = perfiles[cid]
+        page_text = reader.pages[cid + 1].extract_text()
+
+        # 1. Participación media
+        part_med = round(p["participacion_media_historica_original"] * 100, 1)
+        assert f"{part_med:.1f}%" in page_text, f"Participación media {part_med:.1f}% de C{cid} no encontrada en Ficha C{cid}"
+
+        # 2. Intermedia 2021
+        p2021 = round(p["p_2021_ponderada"] * 100, 1)
+        assert f"{p2021:.1f}%" in page_text, f"Intermedia 2021 {p2021:.1f}% de C{cid} no encontrada en Ficha C{cid}"
+
+        # 3. Presidencial 2024
+        p2024 = round(p["p_2024_ponderada"] * 100, 1)
+        assert f"{p2024:.1f}%" in page_text, f"Presidencial 2024 {p2024:.1f}% de C{cid} no encontrada en Ficha C{cid}"
+
+        # 4. Cuarta cifra distintiva
+        if cid == 0:
+            c4 = round(p["brecha_presidencial_intermedia_original"] * 100, 1)
+            assert f"+{c4:.1f} pts" in page_text, f"Cuarta cifra C0 (+{c4:.1f} pts) no encontrada en Ficha C0"
+        elif cid == 1:
+            c4 = round(p["tasa_joven_18_29_original"] * 100, 1)
+            assert f"{c4:.1f}%" in page_text, f"Cuarta cifra C1 ({c4:.1f}%) no encontrada en Ficha C1"
+        elif cid == 2:
+            c4 = round(p["tendencia_participacion_beta_original"] * 100, 2)
+            assert f"+{c4:.2f} pts/año" in page_text, f"Cuarta cifra C2 (+{c4:.2f} pts/año) no encontrada en Ficha C2"
+        elif cid == 3:
+            assert "+11.2 pts" in page_text, f"Cuarta cifra C3 (+11.2 pts) no encontrada en Ficha C3"
+
+
+def test_total_tabla8() -> None:
+    """
+    A1, F: La fila total de la tabla de limitaciones / cobertura (Tabla 7 / Tabla 8)
+    contiene 70,751 y 98,330,348.
+    """
+    pdf_path = ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf"
+    doc_text = "\n".join(p.extract_text() for p in pypdf.PdfReader(str(pdf_path)).pages)
+
+    idx = doc_text.find("Total Nacional CCPC 2024")
+    assert idx != -1, "No se encontró 'Total Nacional CCPC 2024' en Documento_Tecnico_ByteMe.pdf"
+    block = doc_text[idx : idx + 200]
+    assert "70,751" in block, f"'70,751' ausente en la fila total de la tabla en Documento: {block}"
+    assert "98,330,348" in block, f"'98,330,348' ausente en la fila total de la tabla en Documento: {block}"
+
