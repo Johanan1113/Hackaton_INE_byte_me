@@ -666,35 +666,35 @@ def build_pdf(data: dict) -> Path:
     # C11: Tabla 7 de estrategias compacta (<= 110 palabras por perfil); A5: (vocalías distritales)
     t7_compact_data = [
         {
-            "perfil": "<b>C0: Baja Participación Intermitente con Rezago Juvenil</b><br/><br/>Secc: 17,622 (32.85%)<br/>Base Inter. 2021: <b>46.1%</b><br/>Base Pres. 2024: <b>56.9%</b><br/>Base Joven 2021: <b>35.2%</b>",
+            "perfil": "<b>C0: Baja Participación Intermitente con Rezago Juvenil</b><br/>Secc: 17,622 (32.85%)<br/>Base Inter. 2021: <b>46.1%</b><br/>Base Pres. 2024: <b>56.9%</b><br/>Base Joven 2021: <b>35.2%</b>",
             "diag_obj": "Mitigar el abstencionismo en elecciones intermedias y elevar la votación de jóvenes (18–29 años) escolarizados y no escolarizados en 17,622 secciones urbanas.",
-            "canales_accion": "<b>Canales:</b> Transporte metropolitano, plataforma 'Conóceles', tianguis, centros laborales y universidades.<br/><br/><b>Acción:</b> Campaña cívica y brigadas móviles de actualización registral (DERFE/DECEyEC).",
-            "meta_ind": "<b>Meta:</b> Elevar participación a 49.5% en 2027 (+3.4 pts vs. 2021) y voto juvenil a 39.1% (+3.9 pts).<br/><br/><b>Indicador:</b> Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC.",
-            "unidad_costo": "<b>Unidad:</b> DECEyEC, DERFE y Juntas Distritales.<br/><br/><b>Costo:</b> Medio (estimación indicativa; tiempos oficiales y módulos itinerantes).",
+            "canales_accion": "<b>Canales:</b> Transporte metropolitano, plataforma 'Conóceles', tianguis, centros laborales y universidades.<br/><b>Acción:</b> Campaña cívica y brigadas móviles de actualización registral (DERFE/DECEyEC).",
+            "meta_ind": "<b>Meta:</b> Elevar participación a 49.5% en 2027 (+3.4 pts vs. 2021) y voto juvenil a 39.1% (+3.9 pts).<br/><b>Indicador:</b> Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC.",
+            "unidad_costo": "<b>Unidad:</b> DECEyEC, DERFE y Juntas Distritales.<br/><b>Costo:</b> Medio (estimación indicativa; tiempos oficiales y módulos itinerantes).",
             "lema": "<i>\"Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027\"</i>",
         },
         {
-            "perfil": "<b>C1: Alta Participación Estable e Intergeneracional</b><br/><br/>Secc: 8,824 (16.45%)<br/>Base Inter. 2021: <b>62.5%</b><br/>Base Pres. 2024: <b>65.7%</b>",
+            "perfil": "<b>C1: Alta Participación Estable e Intergeneracional</b><br/>Secc: 8,824 (16.45%)<br/>Base Inter. 2021: <b>62.5%</b><br/>Base Pres. 2024: <b>65.7%</b>",
             "diag_obj": "Sostener la constancia cívica comunitaria y asegurar el relevo generacional en la integración de mesas directivas de casilla en 8,824 secciones.",
-            "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada.",
-            "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; aumentar la proporción de casillas instaladas con funcionariado propietario.<br/><br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
-            "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (vocalías distritales).<br/><br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
+            "canales_accion": "<b>Canales:</b> Redes comunitarias, planteles locales y centros culturales.<br/><b>Acción:</b> Talleres juveniles ENCÍVICA y reclutamiento temprano de CAE y sensibilización de la ciudadanía insaculada.",
+            "meta_ind": "<b>Meta:</b> Sostener participación ≥ 62.5% en 2027 y ≥ 65.7% en 2030; aumentar la proporción de casillas instaladas con funcionariado propietario.<br/><b>Indicador:</b> Tasa ponderada en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
+            "unidad_costo": "<b>Unidad:</b> DECEyEC y Juntas Distritales (vocalías distritales).<br/><b>Costo:</b> Bajo (absorbible en programas ordinarios).",
             "lema": "<i>\"Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo\"</i>",
         },
         {
-            "perfil": "<b>C2: Participación en Ascenso con Juventud Activa</b><br/><br/>Secc: 14,624 (27.26%)<br/>Base Inter. 2021: <b>60.4%</b><br/>Base Pres. 2024: <b>68.0%</b>",
+            "perfil": "<b>C2: Participación en Ascenso con Juventud Activa</b><br/>Secc: 14,624 (27.26%)<br/>Base Inter. 2021: <b>60.4%</b><br/>Base Pres. 2024: <b>68.0%</b>",
             "diag_obj": "Consolidar en 2027 el nivel alcanzado en 2021 en 14,624 secciones urbanas (68.6%) y rurales/mixtas (31.4%), evitando regresión hacia su promedio histórico (50.5%).",
-            "canales_accion": "<b>Canales:</b> Colectivos juveniles, redes vecinales y 'Conóceles'.<br/><br/><b>Acción:</b> Foros 'Diálogos por la Democracia' (DECEyEC) y monitoreo de casillas en crecimiento (DEOE).",
-            "meta_ind": "<b>Meta:</b> Consolidar participación ≥ 60.4% en 2027 y mantener razón juvenil ≥ 0.88.<br/><br/><b>Indicador:</b> Tasa ponderada 2027 y razón de participación juvenil CCPC.",
-            "unidad_costo": "<b>Unidad:</b> DECEyEC, DEOE y Juntas Distritales.<br/><br/><b>Costo:</b> Bajo-Medio (foros distritales y vinculación comunitaria).",
+            "canales_accion": "<b>Canales:</b> Colectivos juveniles, redes vecinales y 'Conóceles'.<br/><b>Acción:</b> Foros 'Diálogos por la Democracia' (DECEyEC) y monitoreo de casillas en crecimiento (DEOE).",
+            "meta_ind": "<b>Meta:</b> Consolidar participación ≥ 60.4% en 2027 y mantener razón juvenil ≥ 0.88.<br/><b>Indicador:</b> Tasa ponderada 2027 y razón de participación juvenil CCPC.",
+            "unidad_costo": "<b>Unidad:</b> DECEyEC, DEOE y Juntas Distritales.<br/><b>Costo:</b> Bajo-Medio (foros distritales y vinculación comunitaria).",
             "lema": "<i>\"Tu participación ya transforma tu comunidad: consolidemos el voto en cada elección\"</i>",
         },
         {
-            "perfil": "<b>C3: Liderazgo Femenino con Participación Estancada</b><br/><br/>Secc: 12,574 (23.44%)<br/>Base Inter. 2021: <b>49.5%</b><br/>Base Pres. 2024: <b>55.6%</b><br/>Base Hombres 2021: <b>43.9%</b>",
+            "perfil": "<b>C3: Liderazgo Femenino con Participación Estancada</b><br/>Secc: 12,574 (23.44%)<br/>Base Inter. 2021: <b>49.5%</b><br/>Base Pres. 2024: <b>55.6%</b><br/>Base Hombres 2021: <b>43.9%</b>",
             "diag_obj": "Elevar la participación masculina (43.9% vs. 48.7% del Panel B) y revertir la caída presidencial en 12,574 secciones con sobrerrepresentación rural (41.2%).",
-            "canales_accion": "<b>Canales:</b> Centros de trabajo masculinos (agropecuario, industria, transporte) y radio regional.<br/><br/><b>Acción:</b> Promoción del voto masculino y rutas móviles DEOE de accesibilidad.",
-            "meta_ind": "<b>Meta:</b> Elevar participación a 51.1% en 2027, 58.1% en 2030 y voto masculino a 46.3% en 2027.<br/><br/><b>Indicador:</b> Tasa masculina SV/(SV+NV) y participación ponderada.",
-            "unidad_costo": "<b>Unidad:</b> Juntas Distritales, DECEyEC y DEOE.<br/><br/><b>Costo:</b> Medio (tiempos oficiales de radio y rutas distritales).",
+            "canales_accion": "<b>Canales:</b> Centros de trabajo masculinos (agropecuario, industria, transporte) y radio regional.<br/><b>Acción:</b> Promoción del voto masculino y rutas móviles DEOE de accesibilidad.",
+            "meta_ind": "<b>Meta:</b> Elevar participación a 51.1% en 2027, 58.1% en 2030 y voto masculino a 46.3% en 2027.<br/><b>Indicador:</b> Tasa masculina SV/(SV+NV) y participación ponderada.",
+            "unidad_costo": "<b>Unidad:</b> Juntas Distritales, DECEyEC y DEOE.<br/><b>Costo:</b> Medio (tiempos oficiales de radio y rutas distritales).",
             "lema": "<i>\"La participación de todas y todos cuenta: sumemos la voz de hombres y jóvenes en cada comunidad\"</i>",
         },
     ]
@@ -730,7 +730,7 @@ def build_pdf(data: dict) -> Path:
     # =========================================================================
     imp_data = data.get("impacto_y_prioridad_territorial", {})
     if imp_data:
-        story.append(Paragraph("5.1 Impacto Estimado y Prioridad Territorial", h2_st))
+        h2_imp = Paragraph("5.1 Impacto Estimado y Prioridad Territorial", h2_st)
         t_imp_rows = [[
             Paragraph("Perfil", th_c),
             Paragraph("LN 2024", th_c),
@@ -740,7 +740,7 @@ def build_pdf(data: dict) -> Path:
             Paragraph("% LN en 30 juntas", th_c),
         ]]
         for row in imp_data.get("tabla_impacto", []):
-            top3_fmt = row["top3_juntas_distritales"].replace(", ", "<br/>")
+            top3_fmt = row["top3_juntas_distritales"]
             t_imp_rows.append([
                 Paragraph(f"<b>{row['codigo_cluster']}</b>", td_c),
                 Paragraph(f"{row['ln_2024_panel_b']:,}", td_c),
@@ -751,9 +751,22 @@ def build_pdf(data: dict) -> Path:
             ])
         t_imp_cap = Paragraph(f"Tabla 7. Impacto Estimado de Metas 2027 y Concentración Territorial por Perfil (k = {k_sel})", cap_st)
         t_imp_table = styled_table(t_imp_rows, [45.0, 55.0, 55.0, 85.0, 170.27, 60.0])
-        story.append(KeepTogether([t_imp_cap, t_imp_table]))
-        story.append(Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil.</i>", note_st))
+        t_imp_note = Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil.</i>", note_st)
+        story.append(KeepTogether([h2_imp, t_imp_cap, t_imp_table, t_imp_note]))
         story.append(Spacer(1, 4))
+
+    # =========================================================================
+    # SUBSECCIÓN 5.2: PILOTO EVALUABLE 2027 (Bloque E, <= 90 palabras)
+    # =========================================================================
+    story.append(Paragraph("5.2 Piloto Evaluable 2027", h2_st))
+    story.append(Paragraph(
+        "Para evaluar rigurosamente las intervenciones en C0, se propone asignar al azar 500 secciones a brigadas y módulos presenciales "
+        "y 500 como control, estratificando por entidad. Con 500 secciones por grupo se detecta un efecto mínimo de 1.72 puntos porcentuales "
+        "(80% potencia, α = 0.05, σ = 9.72 pts), inferior a la meta (+3.4 pts). El impacto se mide con el CCPC 2027 comparando el cambio "
+        "2021→2027 entre tratamiento y control; las campañas masivas se evalúan por distritos y el costo es marginal al usar el conteo censal obligatorio.",
+        body_st
+    ))
+    story.append(Spacer(1, 4))
 
     # =========================================================================
     # SECCIÓN 6: LIMITACIONES Y RECOMENDACIONES AL INE

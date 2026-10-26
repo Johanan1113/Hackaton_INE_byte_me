@@ -1117,6 +1117,55 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
     }
 
 
+def build_potencia_piloto_c0(df_b: pd.DataFrame) -> dict:
+    """
+    Bloque E: Diseño de evaluación y potencia estadística de piloto en C0.
+    Calcula para las secciones de C0 la desviación estándar sigma del cambio de participación
+    intermedia 2015 -> 2021 por sección: delta = (p_2021 - p_2015) * 100.
+    Calcula el efecto mínimo detectable (MDE = 2.80 * sigma * sqrt(2/n)) con 80% potencia y alpha=0.05
+    para n in [250, 500, 1000] secciones por grupo.
+    Exporta tabla_15_potencia_piloto.csv.
+    """
+    c0 = df_b[df_b["cluster"] == 0].copy()
+    delta = (c0["p_2021"] - c0["p_2015"]) * 100.0
+    sigma = float(delta.std(ddof=1))
+
+    filas_tabla_15 = []
+    mde_dict = {}
+    for n in [250, 500, 1000]:
+        mde = 2.80 * sigma * np.sqrt(2.0 / n)
+        mde_dict[n] = round(float(mde), 2)
+        filas_tabla_15.append({
+            "perfil_objetivo": "C0: Baja Participación Intermitente con Rezago Juvenil",
+            "secciones_por_grupo_n": n,
+            "secciones_totales_piloto": 2 * n,
+            "desviacion_estandar_cambio_2015_2021_sigma_pts": round(sigma, 4),
+            "desviacion_estandar_2d": round(sigma, 2),
+            "potencia_pct": 80.0,
+            "significancia_alpha": 0.05,
+            "constante_mde": 2.80,
+            "mde_puntos_porcentuales": round(float(mde), 2),
+            "meta_perfil_c0_pts": 3.4,
+            "detecta_efecto_menor_a_meta": bool(mde < 3.4),
+        })
+
+    # Selección de n: n=500 salvo que MDE > meta (+3.4 pts)
+    n_sel = 500 if mde_dict[500] < 3.4 else 1000
+
+    return {
+        "n_secciones_c0": len(c0),
+        "sigma_cambio_2015_2021_pts": round(sigma, 2),
+        "sigma_exacta": round(sigma, 4),
+        "n_seleccionado": n_sel,
+        "mde_n_seleccionado_pts": mde_dict[n_sel],
+        "mde_250_pts": mde_dict[250],
+        "mde_500_pts": mde_dict[500],
+        "mde_1000_pts": mde_dict[1000],
+        "meta_c0_pts": 3.4,
+        "tabla_15": filas_tabla_15,
+    }
+
+
 def export_metricas_finales_json(
     df_b: pd.DataFrame,
     df_univ: pd.DataFrame,
@@ -1205,6 +1254,7 @@ def export_metricas_finales_json(
         "validacion_fuera_de_tiempo": build_validacion_fuera_de_tiempo(df_b),
         "cobertura_ampliada_2024": build_cobertura_ampliada(df_b),
         "impacto_y_prioridad_territorial": build_impacto_y_priorizacion_territorial(df_b),
+        "potencia_piloto_c0": build_potencia_piloto_c0(df_b),
     }
 
     metricas_path.write_text(

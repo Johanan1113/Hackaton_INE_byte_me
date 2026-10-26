@@ -1621,6 +1621,58 @@
       "volatilidad_std_original": 0.07195
     }
   ],
+  "potencia_piloto_c0": {
+    "mde_1000_pts": 1.22,
+    "mde_250_pts": 2.43,
+    "mde_500_pts": 1.72,
+    "mde_n_seleccionado_pts": 1.72,
+    "meta_c0_pts": 3.4,
+    "n_secciones_c0": 17622,
+    "n_seleccionado": 500,
+    "sigma_cambio_2015_2021_pts": 9.72,
+    "sigma_exacta": 9.7191,
+    "tabla_15": [
+      {
+        "constante_mde": 2.8,
+        "desviacion_estandar_2d": 9.72,
+        "desviacion_estandar_cambio_2015_2021_sigma_pts": 9.7191,
+        "detecta_efecto_menor_a_meta": true,
+        "mde_puntos_porcentuales": 2.43,
+        "meta_perfil_c0_pts": 3.4,
+        "perfil_objetivo": "C0: Baja Participación Intermitente con Rezago Juvenil",
+        "potencia_pct": 80.0,
+        "secciones_por_grupo_n": 250,
+        "secciones_totales_piloto": 500,
+        "significancia_alpha": 0.05
+      },
+      {
+        "constante_mde": 2.8,
+        "desviacion_estandar_2d": 9.72,
+        "desviacion_estandar_cambio_2015_2021_sigma_pts": 9.7191,
+        "detecta_efecto_menor_a_meta": true,
+        "mde_puntos_porcentuales": 1.72,
+        "meta_perfil_c0_pts": 3.4,
+        "perfil_objetivo": "C0: Baja Participación Intermitente con Rezago Juvenil",
+        "potencia_pct": 80.0,
+        "secciones_por_grupo_n": 500,
+        "secciones_totales_piloto": 1000,
+        "significancia_alpha": 0.05
+      },
+      {
+        "constante_mde": 2.8,
+        "desviacion_estandar_2d": 9.72,
+        "desviacion_estandar_cambio_2015_2021_sigma_pts": 9.7191,
+        "detecta_efecto_menor_a_meta": true,
+        "mde_puntos_porcentuales": 1.22,
+        "meta_perfil_c0_pts": 3.4,
+        "perfil_objetivo": "C0: Baja Participación Intermitente con Rezago Juvenil",
+        "potencia_pct": 80.0,
+        "secciones_por_grupo_n": 1000,
+        "secciones_totales_piloto": 2000,
+        "significancia_alpha": 0.05
+      }
+    ]
+  },
   "proyecciones_pca": {
     "k_seleccionado": 4,
     "pca_var_exp_1": 36.53,
