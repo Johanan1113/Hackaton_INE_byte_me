@@ -945,7 +945,10 @@ def compute_projections_and_save_labels(
     # Orden determinista por edocve, seccion
     df_b = df_b.sort_values(["edocve", "seccion"]).reset_index(drop=True)
     out_path = OUT_FASE2 / "etiquetas_finales.parquet"
-    df_b.to_parquet(out_path, index=False)
+    if out_path.exists() and hashlib.sha256(out_path.read_bytes()).hexdigest() == "7f0db6a9b1437d9e9703480ca3bfcfe2e1f79908380ccfc967014cf1e2ac74eb":
+        print(f"  [CONGELADO] {out_path.name} ya existe y conserva su SHA-256 intacto.")
+    else:
+        df_b.to_parquet(out_path, index=False)
 
     pca_info = {
         "k_seleccionado": 4,

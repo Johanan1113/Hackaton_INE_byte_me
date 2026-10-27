@@ -38,7 +38,7 @@ CLUSTER_COLORS = {
     0: "#D95F02",  # C0: Naranja terracota (Baja Participación Intermitente con Rezago Juvenil)
     1: "#1B9E77",  # C1: Verde esmeralda (Alta Participación Estable e Intergeneracional)
     2: "#2B5C8F",  # C2: Azul profundo (Participación en Ascenso con Juventud Activa)
-    3: "#7570B3",  # C3: Púrpura índigo (Liderazgo Femenino con Participación Estancada)
+    3: "#7570B3",  # C3: Púrpura índigo (Participación a la Baja con Brecha de Género)
 }
 
 import matplotlib.font_manager as fm

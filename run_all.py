@@ -26,6 +26,7 @@ STEPS = [
     ("Fase 2: Robustez del modelo y clustering k=4", "scripts/auditoria/03_robustez_modelo.py"),
     ("Fase 3: Perfiles, estrategias y metricas_finales.json", "scripts/auditoria/04_perfiles_y_nombres.py"),
     ("Fase 4: Exportación de tablas oficiales", "scripts/auditoria/05_exportar_tablas.py"),
+    ("Fase 4.1: Análisis de auditoría externa y tablas complementarias", "scripts/auditoria/11_analisis_auditoria.py"),
     ("Fase 5: Generación de figuras a 300 DPI", "scripts/auditoria/06_generar_figuras.py"),
     ("Fase 6: Compilación del Documento Técnico PDF", "scripts/auditoria/07_compilar_documento.py"),
     ("Fase 7: Generación de Fichas de Perfiles (PDF/PNG)", "scripts/auditoria/08_generar_fichas.py"),

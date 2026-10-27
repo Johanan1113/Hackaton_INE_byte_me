@@ -236,7 +236,7 @@ CLUSTER_META = {
     },
     3: {
         "codigo": "C3",
-        "nombre": "Liderazgo Femenino con Participación Estancada",
+        "nombre": "Participación a la Baja con Brecha de Género",
         "variables_rectoras_z": (
             "tendencia anual (z=-0.83), brecha de género (mujeres menos hombres) (z=+0.78), "
             "brecha presidencial–intermedia (z=-0.69), brecha generacional (60+ menos 18–29) (z=+0.62), "
@@ -1283,7 +1283,7 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
             "pct_ln_en_top30_juntas": resumen_perfil["C2"]["top30_pct"],
         },
         {
-            "perfil": "C3: Liderazgo Femenino con Participación Estancada",
+            "perfil": "C3: Participación a la Baja con Brecha de Género",
             "codigo_cluster": "C3",
             "ln_2024_panel_b": ln_c3,
             "tipo_meta": "Aumento",
