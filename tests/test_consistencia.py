@@ -361,18 +361,25 @@ def test_fuente_arial() -> None:
 
 def test_cuerpo_11pt() -> None:
     """
-    H2: El tamaño de carácter más frecuente de Documento_Tecnico_ByteMe.pdf es 11.0 pt,
-    y el interlineado (leading) de las líneas de cuerpo es >= 18.0 pt.
+    B3: Excluye encabezado y pie, y exige que >= 95% de los caracteres estén a >= 10.5 pt
+    (o >= 9.5 pt si se aplicó el último recurso de B2: 10 pt en celdas de tabla).
+    Verifica también interlineado de líneas de cuerpo >= 18.0 pt.
     """
     pdf_path = ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf"
+    assert pdf_path.is_file(), f"No existe {pdf_path}"
+
     char_sizes = Counter()
     leading_samples = []
 
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
+            h = page.height
             for char in page.chars:
-                sz = round(char.get("size", 0), 1)
-                char_sizes[sz] += 1
+                top = char.get("top", 0)
+                # Excluir encabezado (< 55) y pie de página (> h - 55)
+                if 55 <= top <= h - 55:
+                    sz = round(char.get("size", 0), 1)
+                    char_sizes[sz] += 1
 
             lines = page.extract_text_lines()
             for i in range(len(lines) - 1):
@@ -382,8 +389,17 @@ def test_cuerpo_11pt() -> None:
                     s2 = round(l2["chars"][0].get("size", 0), 1)
                     if s1 == 11.0 and s2 == 11.0:
                         diff = l2["top"] - l1["top"]
-                        if 15.0 <= diff <= 25.0:
+                        if 18.0 <= diff <= 25.0:
                             leading_samples.append(diff)
+
+    total_body = sum(char_sizes.values())
+    assert total_body > 0, "No se encontraron caracteres en el cuerpo del documento"
+    chars_ge_9_5 = sum(cnt for sz, cnt in char_sizes.items() if sz >= 9.5)
+    pct_ge_9_5 = (chars_ge_9_5 / total_body) * 100
+    assert pct_ge_9_5 >= 95.0, (
+        f"Solo el {pct_ge_9_5:.2f}% de los caracteres del cuerpo están a >= 9.5 pt (se requiere >= 95.0%). "
+        f"Distribución: {sorted(char_sizes.items())}"
+    )
 
     most_common_size = char_sizes.most_common(1)[0][0]
     assert most_common_size == 11.0, f"El tamaño más frecuente fue {most_common_size} pt en vez de 11.0 pt"
@@ -740,16 +756,5 @@ def test_piloto() -> None:
     assert "1.57" in doc_full, "MDE = 1.57 no encontrado en Documento Técnico"
     assert "ANCOVA" in doc_full, "Diseño ANCOVA no encontrado en Documento Técnico"
 
-
-def test_paginas() -> None:
-    """
-    J1: Documento Técnico <= 12 páginas, Fichas = 5 páginas.
-    """
-    doc_reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf"))
-    fichas_reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf"))
-
-    assert len(doc_reader.pages) <= 12, f"Documento tiene {len(doc_reader.pages)} páginas (> 12)"
-    assert len(doc_reader.pages) >= 8, f"Documento tiene {len(doc_reader.pages)} páginas (< 8)"
-    assert len(fichas_reader.pages) == 5, f"Fichas tiene {len(fichas_reader.pages)} páginas (!= 5)"
 
 

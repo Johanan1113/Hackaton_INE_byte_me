@@ -136,15 +136,15 @@ def styled_table(rows_data: list[list[Paragraph]], col_widths: list[float], high
     t = Table(rows_data, colWidths=col_widths, repeatRows=1, splitByRow=1)
     style_cmds = [
         ("FONTNAME", (0, 0), (-1, -1), "Arial"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9.0),
-        ("LEADING", (0, 0), (-1, -1), 11.5),
+        ("FONTSIZE", (0, 0), (-1, -1), 10.0),
+        ("LEADING", (0, 0), (-1, -1), 12.0),
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E3A8A")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 2.5),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2.5),
-        ("LEFTPADDING", (0, 0), (-1, -1), 2.0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 2.0),
+        ("TOPPADDING", (0, 0), (-1, -1), 2.0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2.0),
+        ("LEFTPADDING", (0, 0), (-1, -1), 1.5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 1.5),
         ("GRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#CBD5E1")),
         ("ROWBACKGROUNDS", (0, 1), (-1, -2 if highlight_last else -1), [colors.white, colors.HexColor("#F8FAFC")]),
     ]
@@ -184,11 +184,11 @@ def build_pdf(data: dict) -> Path:
     )
     sub_st = ParagraphStyle(
         "DocSub", parent=styles["Normal"], fontName="Arial-Bold",
-        fontSize=9.5, leading=13.0, textColor=colors.HexColor("#1E3A8A"), alignment=TA_LEFT, spaceAfter=4
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1E3A8A"), alignment=TA_LEFT, spaceAfter=4
     )
     meta_st = ParagraphStyle(
         "DocMeta", parent=styles["Normal"], fontName="Arial",
-        fontSize=9.0, leading=13.0, textColor=colors.HexColor("#4B5563"), alignment=TA_LEFT, spaceAfter=8
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#4B5563"), alignment=TA_LEFT, spaceAfter=8
     )
     h1_st = ParagraphStyle(
         "H1", parent=styles["Heading1"], fontName="Arial-Bold",
@@ -207,24 +207,24 @@ def build_pdf(data: dict) -> Path:
     )
     cap_st = ParagraphStyle(
         "TableCap", parent=styles["Normal"], fontName="Arial-Bold",
-        fontSize=10.0, leading=13.0, textColor=colors.HexColor("#1E293B"), spaceBefore=5, spaceAfter=3.0, keepWithNext=False
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1E293B"), spaceBefore=5, spaceAfter=3.0, keepWithNext=False
     )
     note_st = ParagraphStyle(
         "TableNote", parent=styles["Normal"], fontName="Arial-Italic",
-        fontSize=8.5, leading=11.5, textColor=colors.HexColor("#4B5563"), spaceBefore=2.5, spaceAfter=4.0
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#4B5563"), spaceBefore=2.5, spaceAfter=4.0
     )
     ref_st = ParagraphStyle(
         "RefEntry", parent=styles["Normal"], fontName="Arial",
-        fontSize=9.0, leading=12.5, textColor=colors.HexColor("#1F2937"), leftIndent=14, firstLineIndent=-14, spaceAfter=3.5
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1F2937"), leftIndent=14, firstLineIndent=-14, spaceAfter=3.5
     )
 
-    # Celdas de tablas (mínimo 9 pt, leading 11.5)
-    th_c = ParagraphStyle("THC", fontName="Arial-Bold", fontSize=9.0, leading=11.5, textColor=colors.white, alignment=TA_CENTER)
-    th_l = ParagraphStyle("THL", fontName="Arial-Bold", fontSize=9.0, leading=11.5, textColor=colors.white, alignment=TA_LEFT)
-    td_c = ParagraphStyle("TDC", fontName="Arial", fontSize=9.0, leading=11.5, textColor=colors.HexColor("#111827"), alignment=TA_CENTER)
-    td_l = ParagraphStyle("TDL", fontName="Arial", fontSize=9.0, leading=11.5, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
-    td_cb = ParagraphStyle("TDCB", fontName="Arial-Bold", fontSize=9.0, leading=11.5, textColor=colors.HexColor("#111827"), alignment=TA_CENTER)
-    td_lb = ParagraphStyle("TDLB", fontName="Arial-Bold", fontSize=9.0, leading=11.5, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
+    # Celdas de tablas (10 pt, leading 12.0 - último recurso B2)
+    th_c = ParagraphStyle("THC", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.white, alignment=TA_CENTER)
+    th_l = ParagraphStyle("THL", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.white, alignment=TA_LEFT)
+    td_c = ParagraphStyle("TDC", fontName="Arial", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_CENTER)
+    td_l = ParagraphStyle("TDL", fontName="Arial", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
+    td_cb = ParagraphStyle("TDCB", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_CENTER)
+    td_lb = ParagraphStyle("TDLB", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
 
     story = []
 
@@ -339,55 +339,21 @@ def build_pdf(data: dict) -> Path:
         ])
     t1_cap = Paragraph(f"Tabla 1. Serie Nacional {serie[0]['anio']}–{serie[-1]['anio']}: Validación Censal de Fórmula Oficial SV/(SV+NV) vs Publicaciones Oficiales y Subestimación con SV/LN (pts)", cap_st)
     t1_table = styled_table(t1_rows, [32.27, 65.0, 68.0, 75.0, 75.0, 75.0, 80.0])
-    story.append(KeepTogether([t1_cap, t1_table]))
+    story.append(t1_cap)
+    story.append(t1_table)
     story.append(Spacer(1, 4))
 
-    # A2: Reducido a 2 renglones
+    # A2 & B2.3: Reemplazo de Tabla 2 por 2 renglones de texto
     story.append(Paragraph(
-        f"La Tabla 2 resume la depuración: de {u['secciones_2024_total']:,} secciones activas en {serie[-1]['anio']} se conservan "
-        f"{u['panel_principal_secciones']:,} con serie completa y captura válida ({u['panel_principal_pct_secciones_2024']:.1f}% de las secciones, "
-        f"{u['panel_principal_pct_ln_2024']:.1f}% de la lista nominal).",
+        f"La depuración del universo seccional conserva {u['panel_principal_secciones']:,} de las {u['secciones_2024_total']:,} secciones activas en {serie[-1]['anio']} "
+        f"con serie completa y captura válida ({u['panel_principal_pct_secciones_2024']:.2f}% de las secciones, {u['panel_principal_pct_ln_2024']:.2f}% de la lista nominal), "
+        f"garantizando continuidad metodológica estricta sin imputación.",
         body_st
     ))
-
-    # Tabla 2: Cascada de Filtrado (7 cols = 470.27 pt)
-    t2_rows = [[
-        Paragraph("Criterio / Etapa de Depuración", th_l),
-        Paragraph("Secc.", th_c),
-        Paragraph("Excl.", th_c),
-        Paragraph(f"% Secc. {serie[-1]['anio']}", th_c),
-        Paragraph(f"LN {serie[-1]['anio']}", th_c),
-        Paragraph(f"% LN {serie[-1]['anio']}", th_c),
-        Paragraph("Mun.", th_c),
-    ]]
-    etapa_labels = [
-        f"0. Unión histórica ({serie[0]['anio']}–{serie[-1]['anio']})",
-        f"1. Secciones activas en CCPC {serie[-1]['anio']}",
-        f"2. Panel continuo ({serie[0]['anio']}–{serie[-1]['anio']})",
-        "3. Captura válida (SV+NV ≥ 50 en las 6)",
-        "4. Sin salto consecutivo LN (<0.5x o >2.5x)",
-        "5. Panel Principal Opción B (Cero Imputación)",
-    ]
-    for idx, c_row in enumerate(u["cascada_filtrado"]):
-        is_last = idx == len(u["cascada_filtrado"]) - 1
-        st_l = td_lb if is_last else td_l
-        st_c = td_cb if is_last else td_c
-        t2_rows.append([
-            Paragraph(etapa_labels[idx], st_l),
-            Paragraph(f"{c_row['secciones']:,}", st_c),
-            Paragraph(f"{c_row['secciones_excluidas_paso']:,}", st_c),
-            Paragraph(f"{c_row['pct_secciones_2024']:.2f}%", st_c),
-            Paragraph(f"{c_row['ln_2024']:,}", st_c),
-            Paragraph(f"{c_row['pct_ln_2024']:.2f}%", st_c),
-            Paragraph(f"{c_row['municipios']:,}", st_c),
-        ])
-    t2_cap = Paragraph(f"Tabla 2. Cascada de Filtrado del Universo Seccional y Cobertura sobre {serie[-1]['anio']}", cap_st)
-    t2_table = styled_table(t2_rows, [146.27, 50.0, 48.0, 56.0, 66.0, 54.0, 50.0], highlight_last=True)
-    story.append(KeepTogether([t2_cap, t2_table]))
     story.append(Spacer(1, 4))
 
     # Figura 1 (D1, D2): Trayectorias y NS
-    fig1_flow = Image(str(FIGURAS_DIR / "fig2_evolucion_temporal.png"), width=6.5 * inch, height=2.6 * inch)
+    fig1_flow = Image(str(FIGURAS_DIR / "fig2_evolucion_temporal.png"), width=6.5 * inch, height=2.3 * inch)
     fig1_flow.hAlign = "CENTER"
     fig1_cap = Paragraph(
         "<b>Figura 1.</b> Dinámica electoral 2009–2024: perfiles seccionales (k=4) y corrección del sesgo por registros sin captura (NS). "
@@ -446,7 +412,8 @@ def build_pdf(data: dict) -> Path:
         ])
     t3_cap = Paragraph(f"Tabla 3. Benchmark de Agrupamiento K-Means++ (k = 3 a 7) sobre el Panel Principal (N = {u['panel_principal_secciones']:,})", cap_st)
     t3_table = styled_table(t3_rows, [45.27, 85.0, 90.0, 105.0, 145.0], highlight_last=False)
-    story.append(KeepTogether([t3_cap, t3_table]))
+    story.append(t3_cap)
+    story.append(t3_table)
     story.append(Spacer(1, 4))
 
     # C7: Oración sobre GMM y HDBSCAN (con redondeo A4: silhouette 3 dec, porcentajes 1 dec)
@@ -458,9 +425,9 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
-    # C4: k casteado a int, justificación k=4 (referencia a Figura 2; Bloque H2)
+    # C4: k casteado a int, justificación k=4 (referencia a Tabla 3; Bloque H2)
     story.append(Paragraph(
-        f"<b>Justificación de la elección de k = {k_sel} (Figura 2):</b> Dentro del rango de 4 a 6 perfiles de la convocatoria, "
+        f"<b>Justificación de la elección de k = {k_sel} (Tabla 3):</b> Dentro del rango de 4 a 6 perfiles de la convocatoria, "
         f"k = {k_sel} domina en Silhouette, Davies-Bouldin y Calinski-Harabasz (Tabla 3), y su estabilidad bootstrap es estadísticamente "
         f"equivalente a k = {int(bench_km[3]['k'])}. En k = {int(bench_km[3]['k'])}, un grupo carece de diferenciación sustantiva "
         f"({comp_k6_c1['pct_secciones']:.1f}% del panel con una sola variable con |z| ≥ 0.50), mientras que en k = {k_sel} cada perfil posee "
@@ -502,17 +469,6 @@ def build_pdf(data: dict) -> Path:
             f"(η² = {val_temp['eta2_cuartiles_3d']:.3f} frente a {val_temp['eta2_perfiles_3d']:.3f})—, {frase_dinamicas}",
             body_st
         ))
-
-    # Figura 2 (D1, D2): Benchmark
-    fig2_flow = Image(str(FIGURAS_DIR / "fig6_benchmark_k.png"), width=6.5 * inch, height=2.15 * inch)
-    fig2_flow.hAlign = "CENTER"
-    fig2_cap = Paragraph(
-        "<b>Figura 2.</b> Benchmark de agrupamiento seccional (k=3 a 7): coeficiente de Silhouette y estabilidad bootstrap ARI (100 réplicas al 80%). "
-        "<i>Fuente: CCPC 2009–2024, elaboración propia.</i>",
-        cap_st
-    )
-    story.append(KeepTogether([fig2_flow, Spacer(1, 3), fig2_cap]))
-    story.append(Spacer(1, 4))
 
     # =========================================================================
     # SECCIÓN 4: CARACTERIZACIÓN DE LOS 4 PERFILES
@@ -569,8 +525,9 @@ def build_pdf(data: dict) -> Path:
         ),
     ])
     t4_cap = Paragraph(f"Tabla 4. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st)
-    t4_table = styled_table(t5_rows, [90.27, 48.0, 56.0, 47.0, 44.0, 46.0, 55.0, 84.0], highlight_last=True)
-    story.append(KeepTogether([t4_cap, t4_table]))
+    t4_table = styled_table(t5_rows, [85.27, 46.0, 65.0, 45.0, 45.0, 45.0, 55.0, 84.0], highlight_last=True)
+    story.append(t4_cap)
+    story.append(t4_table)
     story.append(Spacer(1, 4))
 
     # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (8 columnas, Bloque H4)
@@ -609,7 +566,8 @@ def build_pdf(data: dict) -> Path:
     ])
     t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
     t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)
-    story.append(KeepTogether([t5_cap, t5_table]))
+    story.append(t5_cap)
+    story.append(t5_table)
     story.append(Spacer(1, 4))
 
     # A1: Diagnósticos por perfil en <= 60 palabras de narrativa y máximo 2 cifras por perfil
@@ -699,23 +657,20 @@ def build_pdf(data: dict) -> Path:
 
     t7_rows = [[
         Paragraph("Perfil y Línea Base", th_l),
-        Paragraph("Diagnóstico y Objetivo", th_l),
-        Paragraph("Canales y Acción Operativa INE", th_l),
-        Paragraph("Meta Cuantitativa e Indicador", th_l),
-        Paragraph("Unidad y Costo Indicativo", th_l),
-        Paragraph("Lema propuesto", th_l),
+        Paragraph("Acción Principal y Canales", th_l),
+        Paragraph("Meta e Indicador", th_l),
+        Paragraph("Responsable", th_l),
     ]]
     for item in t7_compact_data:
+        resp = item["unidad_costo"].split("<br/>")[0].replace("<b>Unidad:</b> ", "")
         t7_rows.append([
             Paragraph(item["perfil"], td_l),
-            Paragraph(item["diag_obj"], td_l),
             Paragraph(item["canales_accion"], td_l),
             Paragraph(item["meta_ind"], td_l),
-            Paragraph(item["unidad_costo"], td_l),
-            Paragraph(item["lema"], td_l),
+            Paragraph(resp, td_l),
         ])
     story.append(Paragraph(f"Tabla 6. Estrategias Focalizadas por Perfil Ciudadano (k = {k_sel}), Líneas Base, Metas y Viabilidad Operativa", cap_st))
-    story.append(styled_table(t7_rows, [82.27, 92.0, 88.0, 78.0, 62.0, 68.0]))
+    story.append(styled_table(t7_rows, [105.0, 125.0, 135.0, 105.27]))
     # D4: Regla de metas
     story.append(Paragraph(
         "<i>Regla de metas: los perfiles por debajo del promedio del panel buscan cerrar la mitad de su diferencia con él en la siguiente elección del mismo tipo; los perfiles por encima buscan sostener su nivel.</i>",
@@ -752,9 +707,12 @@ def build_pdf(data: dict) -> Path:
                 Paragraph(f"{row['pct_ln_en_top30_juntas']:.1f}%", td_c),
             ])
         t_imp_cap = Paragraph(f"Tabla 7. Impacto Estimado de Metas 2027 y Concentración Territorial por Perfil (k = {k_sel})", cap_st)
-        t_imp_table = styled_table(t_imp_rows, [40.0, 50.0, 55.0, 105.0, 160.27, 60.0])
+        t_imp_table = styled_table(t_imp_rows, [38.0, 65.0, 55.0, 107.0, 145.27, 60.0])
         t_imp_note = Paragraph("<i>Estimación con la lista nominal de 2024; supone que la meta se cumple en todas las secciones del perfil. El rango reporta el escenario conservador (mínimo detectable en C0 y mitad de meta en C3) frente a la meta completa.</i>", note_st)
-        story.append(KeepTogether([h2_imp, t_imp_cap, t_imp_table, t_imp_note]))
+        story.append(h2_imp)
+        story.append(t_imp_cap)
+        story.append(t_imp_table)
+        story.append(t_imp_note)
         story.append(Spacer(1, 4))
 
     # =========================================================================
@@ -827,7 +785,8 @@ def build_pdf(data: dict) -> Path:
         ])
     t8_cap = Paragraph(f"Tabla 8. Comparación de Secciones Incluidas vs Excluidas en el CCPC {serie[-1]['anio']}", cap_st)
     t8_table = styled_table(t8_rows, [134.27, 54.0, 50.0, 70.0, 54.0, 52.0, 56.0], highlight_last=True)
-    story.append(KeepTogether([t8_cap, t8_table]))
+    story.append(t8_cap)
+    story.append(t8_table)
     story.append(Spacer(1, 4))
 
     story.append(Paragraph(
