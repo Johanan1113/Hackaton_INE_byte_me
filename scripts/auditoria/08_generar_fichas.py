@@ -4,28 +4,16 @@
 Fase 7.3: Generación de Fichas Resumen e Infografía de los 4 Perfiles Ciudadanos (08_generar_fichas.py)
 Proyecto: Reto 1 - Perfiles Ciudadanos de Participación (Equipo "Byte me")
 
-Cumple estrictamente con el Bloque F del prompt:
-  F1. Cinco páginas en formato carta horizontal (11.0 x 8.5 in):
-      - Página 1: Portada institucional con título, equipo, integrantes con acentos,
-        método en 3 renglones y mini-tabla de los 4 perfiles.
-      - Páginas 2 a 5: Una ficha por perfil (C0 a C3).
-      Exporta:
-        - Fichas_Perfiles_ByteMe.pdf (5 páginas horizontales vectoriales).
-        - Fichas_Portada.png, Ficha_C0.png, Ficha_C1.png, Ficha_C2.png, Ficha_C3.png (300 DPI).
-        - Fichas_Perfiles_ByteMe.png (mosaico resumen 300 DPI).
-  F2. Tipografía Arial con texto >= 10 pt a tamaño impreso; cifras clave de 20-28 pt.
-  F3. Cada ficha contiene:
-      - Nombre e ícono geométrico distintivo.
-      - 4 cifras clave grandes con ícono/etiqueta (participación media, intermedia 2021, presidencial 2024, brecha distintiva).
-      - Gráfica de trayectoria 2009-2024 con leyenda "Media del Panel B" y etiquetas elevadas 8-10 pt.
-      - "Quiénes son" (<= 45 palabras).
-      - "Hipótesis de abstencionismo" (<= 35 palabras, explícitamente marcada como hipótesis).
-      - "Qué proponemos" (<= 60 palabras).
-      - Meta e indicador alineados con la regla unificada del Bloque D.
-      - Lema institucional neutral.
-  F4. Cero jerga técnica (sin snake_case, sin z-scores, sin log(1+1/CV)).
-  F5. Tipografía Arial registrada con matplotlib fontManager y pdf.fonttype=42.
-  F6. Cifras y metas idénticas a metricas_finales.json y al documento técnico.
+Cumple estrictamente con los Bloques E y G1 de la auditoría:
+  E1. Aplica A2, D2, D3, D4, D5, D7 y D9 donde corresponda.
+  E2. Sustituye 'Línea base intermedia oficial' por 'Línea base 2021 (cálculo CCPC)'.
+      Quita el 'Hipótesis:' repetido después del título 'HIPÓTESIS'.
+      Agrega a cada ficha una línea 'Entidades principales:' (top 3 de tabla_07).
+  E3. 'Quiénes son': rasgos sin dato pasan a 'Hipótesis' o se eliminan.
+  E4. Lema C2 -> 'Tu voto cuenta en cada elección: participa también en 2027'.
+  E5. Portada: muestra los códigos C0–C3 junto a los íconos. Quita 'Entorno de software'.
+  E6. Nada se sale de su recuadro; texto >= 10 pt.
+  G1. Cifras leídas dinámicamente de metricas_finales.json y tablas.
 """
 
 from __future__ import annotations
@@ -33,6 +21,7 @@ from __future__ import annotations
 import json
 import textwrap
 from pathlib import Path
+import sys
 
 import matplotlib
 matplotlib.use("Agg")
@@ -41,6 +30,12 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import FancyBboxPatch, Circle, Polygon, Rectangle
 import numpy as np
+import pandas as pd
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from scripts.auditoria.utilidades_formato import redondear
 
 # Configuración de tipografía Arial
 ARIAL_PATH = Path("/usr/share/fonts/TTF/Arial.TTF")
@@ -50,8 +45,8 @@ if ARIAL_PATH.exists():
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 METRICAS_PATH = PROJECT_ROOT / "outputs" / "metricas_finales.json"
+TABLA_07_PATH = PROJECT_ROOT / "outputs" / "tablas" / "tabla_07_perfiles_k4_series_demografia.csv"
 OUT_ENTREGABLES = PROJECT_ROOT / "outputs" / "entregables"
 OUT_ENTREGABLES.mkdir(parents=True, exist_ok=True)
 
@@ -62,94 +57,186 @@ THEMES = {
     3: {"primary": "#6D28D9", "bg": "#F5F3FF", "border": "#C4B5FD", "badge": "#5B21B6", "accent": "#7C3AED"},
 }
 
-PROFILE_TEXTS = {
-    0: {
-        "quienes_son": (
-            "Ciudadanía predominantemente urbana (79.0%) concentrada en grandes zonas metropolitanas. "
-            "Presenta la menor participación promedio (50.4%) y una marcada desconexión en comicios intermedios frente a comicios presidenciales."
-        ),
-        "hipotesis": (
-            "Hipótesis: El abstencionismo se debe a la desafección hacia elecciones legislativas intermedias, alta movilidad residencial "
-            "y barreras de tiempo en jóvenes trabajadores o no escolarizados."
-        ),
-        "propuesta": (
-            "Pedagogía electoral sobre comicios intermedios en transporte masivo; "
-            "atención prioritaria a jóvenes no escolarizados en centros laborales y parques industriales; y módulos itinerantes de credencialización en universidades."
-        ),
-        "meta": "Elevar la participación a 49.5% en la intermedia de 2027 (+3.3 pts vs 2021) y el voto juvenil 18–29 a 39.1% (+3.9 pts).",
-        "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",
-        "unidad_costo": "DECEyEC, DERFE y Juntas Distritales | Costo: Medio (estimación indicativa)",
-        "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
-        "brecha_label": "Brecha Pres.–Inter.",
-        "brecha_val": "+17.3 pts",
-        "brecha_sub": "Mayor desmovilización intermedia",
-    },
-    1: {
-        "quienes_son": (
-            "Comunidades con fuerte arraigo vecinal y cohesión social equilibrada entre áreas urbanas (46.0%) y rurales (40.9%). "
-            "Registran la mayor constancia electoral (65.1% promedio), la menor brecha presidencial-intermedia y una elevada integración juvenil (59.1%)."
-        ),
-        "hipotesis": (
-            "Hipótesis: La alta participación responde a redes comunitarias sólidas y normas cívicas intergeneracionales arraigadas, "
-            "donde la integración de mesas directivas de casilla se percibe como un deber cívico compartido."
-        ),
-        "propuesta": (
-            "Reconocimiento a la constancia cívica comunitaria; talleres juveniles de formación cívica en planteles locales; y reclutamiento temprano "
-            "de CAE y sensibilización de la ciudadanía insaculada para asegurar la instalación completa de casillas con funcionariado propietario."
-        ),
-        "meta": "Sostener una participación ≥ 62.5% en la intermedia de 2027 y ≥ 65.7% en la presidencial de 2030, aumentando la proporción de casillas instaladas con funcionariado propietario.",
-        "indicador": "Tasa ponderada SV/(SV+NV) en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
-        "unidad_costo": "DECEyEC y Vocalías de Capacitación de Juntas Distritales | Costo: Bajo (programas ordinarios)",
-        "lema": "Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo",
-        "brecha_label": "Voto Juvenil 18–29",
-        "brecha_val": "59.1%",
-        "brecha_sub": "Mayor razón de voto joven (0.91)",
-    },
-    2: {
-        "quienes_son": (
-            "Secciones con fuerte dinamismo cívico en entornos urbanos (68.6%), rurales (22.3%) y mixtos (9.1%). "
-            "Su razón de participación juvenil es la segunda más alta de los cuatro perfiles (0.88, después de C1 con 0.91). "
-            "El ascenso histórico se concentra en las intermedias (41.8% → 48.3% → 60.4%); en presidenciales pasó de 69.3% a 68.0% entre 2018 y 2024."
-        ),
-        "hipotesis": (
-            "Hipótesis: El crecimiento en intermedias responde a la consolidación de demandas comunitarias en zonas en desarrollo, "
-            "con un electorado joven activo que requiere incentivos específicos en elecciones intermedias."
-        ),
-        "propuesta": (
-            "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "
-            "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar información de todas las candidaturas."
-        ),
-        "meta": "Consolidar una participación ≥ 60.4% en la intermedia de 2027 y sostener una razón de participación juvenil ≥ 0.88.",
-        "indicador": "Tasa ponderada SV/(SV+NV) 2027 y razón de participación juvenil CCPC.",
-        "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Bajo-Medio (foros distritales)",
-        "lema": "Tu participación ya transforma tu comunidad: consolidemos el voto en cada elección",
-        "brecha_label": "Tendencia Anual",
-        "brecha_val": "+1.28 pts/año",
-        "brecha_sub": "Mayor ascenso cívico sostenido",
-    },
-    3: {
-        "quienes_son": (
-            "Secciones con marcada sobrerrepresentación rural (41.2% vs 26.9% del panel). "
-            "Se distingue por un notable liderazgo de las mujeres (60.9% de participación vs 49.7% en hombres, brecha de +11.2 pts) "
-            "y una caída en comicios presidenciales desde 2012."
-        ),
-        "hipotesis": (
-            "Hipótesis: El rezago del voto masculino y la caída presidencial obedecen a la migración laboral masculina temporal "
-            "y dispersión geográfica de casillas."
-        ),
-        "propuesta": (
-            "Campaña focalizada de motivación del voto masculino en centros agropecuarios, cooperativas y rutas de transporte; "
-            "fortalecimiento de rutas móviles y casillas extraordinarias de la DEOE; y alianzas con redes comunitarias de mujeres como promotoras cívicas."
-        ),
-        "meta": "Elevar la participación a 51.1% en 2027, 58.1% en 2030 y el voto masculino a 46.3% en 2027 (cerrando la mitad de la brecha con el Panel B).",
-        "indicador": "Tasa seccional masculina y general ponderada SV/(SV+NV) en CCPC.",
-        "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Medio (tiempos oficiales y rutas DEOE)",
-        "lema": "La participación de todas y todos cuenta: sumemos la voz de hombres y jóvenes en cada comunidad",
-        "brecha_label": "Brecha de Género",
-        "brecha_val": "+11.2 pts",
-        "brecha_sub": "Las mujeres votan más que los hombres",
-    },
-}
+
+def get_top3_entidades(t07_df: pd.DataFrame, cid: int) -> str:
+    """Extrae las 3 entidades principales con su porcentaje desde tabla_07."""
+    row = t07_df[t07_df["codigo_cluster"] == f"C{cid}"].iloc[0]
+    raw = str(row["top5_entidades_secciones"])
+    parts = [p.strip() for p in raw.split(";")][:3]
+    cleaned = []
+    for p in parts:
+        if "(" in p and "," in p:
+            name, rest = p.split("(", 1)
+            pct = rest.split(",", 1)[0].strip()
+            cleaned.append(f"{name.strip()} ({pct})")
+        else:
+            cleaned.append(p)
+    return ", ".join(cleaned)
+
+
+def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
+    """Construye dinámicamente los textos de los perfiles leyendo de datos y tablas (G1)."""
+    perfiles = data["perfiles"]
+    pan_b = data["resumen_panel_b"]
+    tend_corr = data.get("tendencia_corregida", {})
+    imp_meta = data.get("impacto_y_prioridad_territorial", {})
+    tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
+    metas_list = data.get("lineas_base_metas", [{} for _ in range(4)])
+    metas_dict = {m.get("codigo_cluster"): m for m in metas_list}
+
+    p0 = perfiles[0]
+    p1 = perfiles[1]
+    p2 = perfiles[2]
+    p3 = perfiles[3]
+    m0 = metas_dict.get("C0", {})
+    m3 = metas_dict.get("C3", {})
+
+    p0_urb = redondear(p0['pct_secciones_urbanas'], 1)
+    p0_part = redondear(p0['participacion_media_historica_original'] * 100, 1)
+    p0_homb = redondear(p0['tasa_hombres_original'] * 100, 1)
+    pan_b_homb = redondear(pan_b['tasa_hombres_original'] * 100, 1)
+    p0_brecha = redondear(p0['brecha_presidencial_intermedia_original'] * 100, 1)
+
+    p1_urb = redondear(p1['pct_secciones_urbanas'], 1)
+    p1_rur = redondear(p1['pct_secciones_rurales'], 1)
+    p1_part = redondear(p1['participacion_media_historica_original'] * 100, 1)
+    p1_jov = redondear(p1['tasa_joven_18_29_original'] * 100, 1)
+    p1_ratio = redondear(p1['ratio_participacion_joven_original'], 2)
+    p1_p2021 = redondear(p1['p_2021_ponderada'] * 100, 1)
+    p1_p2024 = redondear(p1['p_2024_ponderada'] * 100, 1)
+
+    p2_urb = redondear(p2['pct_secciones_urbanas'], 1)
+    p2_rur = redondear(p2['pct_secciones_rurales'], 1)
+    p2_mix = redondear(p2['pct_secciones_mixtas'], 1)
+    p2_ratio = redondear(p2['ratio_participacion_joven_original'], 2)
+    p2_p2009 = redondear(p2['p_2009_ponderada'] * 100, 1)
+    p2_p2015 = redondear(p2['p_2015_ponderada'] * 100, 1)
+    p2_p2021 = redondear(p2['p_2021_ponderada'] * 100, 1)
+    p2_p2018 = redondear(p2['p_2018_ponderada'] * 100, 1)
+    p2_p2024 = redondear(p2['p_2024_ponderada'] * 100, 1)
+    c2_tend = redondear(tend_corr.get('C2', 0.88), 2)
+
+    p3_rur = redondear(p3['pct_secciones_rurales'], 1)
+    pan_b_rur = redondear(pan_b['pct_secciones_rurales'], 1)
+    p3_muj = redondear(float(t07_df[t07_df['codigo_cluster'] == 'C3']['tasa_mujeres_pct'].iloc[0]), 1)
+    p3_homb = redondear(float(t07_df[t07_df['codigo_cluster'] == 'C3']['tasa_hombres_pct'].iloc[0]), 1)
+    p3_brecha = redondear(p3_muj - p3_homb, 1)
+
+    texts = {
+        0: {
+            "quienes_son": (
+                f"Ciudadanía predominantemente urbana ({p0_urb:.1f}%) concentrada en grandes zonas metropolitanas. "
+                f"Presenta la menor participación promedio ({p0_part:.1f}%), la menor participación masculina "
+                f"({p0_homb:.1f}% vs. {pan_b_homb:.1f}% del panel) y una marcada desconexión en comicios intermedios frente a comicios presidenciales."
+            ),
+            "hipotesis": (
+                "El abstencionismo se debe a la desafección hacia elecciones legislativas intermedias, movilidad residencial en zonas urbanas "
+                "y barreras de tiempo en jóvenes trabajadores o no escolarizados."
+            ),
+            "propuesta": (
+                "Pedagogía electoral sobre comicios intermedios en transporte masivo; atención prioritaria a hombres jóvenes y adultos en centros laborales "
+                "y parques industriales; y módulos itinerantes de credencialización en universidades (conforme a las atribuciones de la DERFE)."
+            ),
+            "meta": f"Elevar la participación a {m0.get('meta_intermedia_2027', '49.5%')} en la intermedia de 2027 (+{redondear(p0['p_2021_ponderada']*100, 1):.1f}% línea base) y el voto juvenil 18–29 a {m0.get('meta_tasa_joven', '39.1%')}.",
+            "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",
+            "unidad_costo": "DECEyEC, DERFE y Juntas Distritales | Costo: Medio (estimación indicativa)",
+            "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
+            "brecha_label": "Brecha Pres.–Inter.",
+            "brecha_val": f"+{p0_brecha:.1f} pts",
+            "brecha_sub": "Mayor desmovilización intermedia",
+            "impacto_lbl": "Impacto:",
+            "impacto_txt": f"{imp_meta.get('votantes_equivalentes_c0_miles_str', '≈ 893 mil')} votantes adicionales si se cumple la meta 2027",
+            "impacto_portada": f"{imp_meta.get('votantes_equivalentes_c0_miles_str', '≈ 893 mil')} adicionales",
+            "rasgo_portada": "Rezago juvenil y ciclo presidencial",
+        },
+        1: {
+            "quienes_son": (
+                f"Secciones con distribución equilibrada entre áreas urbanas ({p1_urb:.1f}%) y rurales ({p1_rur:.1f}%). "
+                f"Registran la mayor constancia electoral ({p1_part:.1f}% promedio), la menor brecha presidencial-intermedia "
+                f"y una elevada integración juvenil ({p1_jov:.1f}%)."
+            ),
+            "hipotesis": (
+                "La alta participación sugiere redes comunitarias sólidas y normas cívicas intergeneracionales arraigadas (arraigo vecinal y cohesión social), "
+                "donde la integración de mesas directivas de casilla se percibe como un deber cívico compartido."
+            ),
+            "propuesta": (
+                "Reconocimiento a la constancia cívica comunitaria; talleres juveniles de formación cívica en planteles locales; y reclutamiento temprano "
+                "de CAE y sensibilización de la ciudadanía insaculada para asegurar la instalación completa de casillas con funcionariado propietario."
+            ),
+            "meta": f"Sostener una participación ≥ {p1_p2021:.1f}% en la intermedia de 2027 y ≥ {p1_p2024:.1f}% en la presidencial de 2030, aumentando la proporción de casillas con funcionariado propietario.",
+            "indicador": "Tasa ponderada SV/(SV+NV) en 2027/2030 y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE).",
+            "unidad_costo": "DECEyEC y Vocalías de Capacitación de Juntas Distritales | Costo: Bajo (programas ordinarios)",
+            "lema": "Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo",
+            "brecha_label": "Voto Juvenil 18–29",
+            "brecha_val": f"{p1_jov:.1f}%",
+            "brecha_sub": f"Mayor razón de voto joven ({p1_ratio:.2f})",
+            "impacto_lbl": "En regresión:",
+            "impacto_txt": f"{imp_meta.get('escenario_regresion_c1_miles_str', '≈ 52 mil')} votantes en escenario de regresión (sin probabilidad asociada)",
+            "impacto_portada": f"{imp_meta.get('escenario_regresion_c1_miles_str', '≈ 52 mil')} en regresión",
+            "rasgo_portada": "Máxima estabilidad y cohesión",
+        },
+        2: {
+            "quienes_son": (
+                f"Secciones con fuerte dinamismo cívico en entornos urbanos ({p2_urb:.1f}%), rurales ({p2_rur:.1f}%) y mixtos ({p2_mix:.1f}%). "
+                f"Su razón de participación juvenil es la segunda más alta de los cuatro perfiles ({p2_ratio:.2f}, después de C1 con {p1_ratio:.2f}). "
+                f"El ascenso histórico se concentra en las intermedias ({p2_p2009:.1f}% → {p2_p2015:.1f}% → {p2_p2021:.1f}%); en presidenciales pasó de {p2_p2018:.1f}% a {p2_p2024:.1f}% entre 2018 y 2024 (tendencia corregida: {c2_tend:+.2f} pts/año)."
+            ),
+            "hipotesis": (
+                "El crecimiento en intermedias responde a la consolidación de demandas comunitarias en zonas en desarrollo, "
+                "con un electorado joven activo que requiere incentivos específicos en elecciones intermedias."
+            ),
+            "propuesta": (
+                "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "
+                "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar candidaturas."
+            ),
+            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y sostener una razón de participación juvenil ≥ {p2_ratio:.2f}.",
+            "indicador": "Tasa ponderada SV/(SV+NV) 2027 y razón de participación juvenil CCPC.",
+            "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Bajo-Medio (foros distritales)",
+            "lema": "Tu voto cuenta en cada elección: participa también en 2027",
+            "brecha_label": "Tendencia Corregida",
+            "brecha_val": f"{c2_tend:+.2f} pts/año",
+            "brecha_sub": "Ascenso neto (P ~ año + pres)",
+            "impacto_lbl": "En regresión:",
+            "impacto_txt": f"{imp_meta.get('escenario_regresion_c2_millones_str', '≈ 1.78 millones')} votantes en escenario de regresión (sin probabilidad asociada)",
+            "impacto_portada": f"{imp_meta.get('escenario_regresion_c2_millones_str', '≈ 1.78 millones')} en regresión",
+            "rasgo_portada": f"Ascenso continuo ({c2_tend:+.2f} pts/año)",
+        },
+        3: {
+            "quienes_son": (
+                f"Secciones con marcada sobrerrepresentación rural ({p3_rur:.1f}% vs. {pan_b_rur:.1f}% del panel). "
+                f"Se distingue por una pronunciada brecha de género a favor de las mujeres ({p3_muj:.1f}% en mujeres vs. {p3_homb:.1f}% en hombres, "
+                f"brecha de +{p3_brecha:.1f} pts) y una caída en comicios presidenciales desde 2012."
+            ),
+            "hipotesis": (
+                "El rezago del voto masculino y la caída presidencial obedecen a movilidad laboral o menor involucramiento en procesos electorales federales, "
+                "además de dispersión geográfica de casillas."
+            ),
+            "propuesta": (
+                "Campaña focalizada de motivación del voto masculino en centros agropecuarios y rutas de transporte; brigadas de accesibilidad "
+                "y casillas extraordinarias conforme a los criterios objetivos de la LGIPE (art. 58.1) y la DEOE; y alianzas con promotoras cívicas comunitarias."
+            ),
+            "meta": f"Elevar la participación a {m3.get('meta_intermedia_2027', '51.1%')} en 2027, {m3.get('meta_presidencial_2030', '58.1%')} en 2030 y el voto masculino a {m3.get('meta_tasa_hombres', '46.3%')} en 2027 (cerrando la mitad de la brecha con el Panel B).",
+            "indicador": "Tasa seccional masculina y general ponderada SV/(SV+NV) en CCPC.",
+            "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Medio (tiempos oficiales y rutas DEOE)",
+            "lema": "La participación de todas y todos cuenta: sumemos la voz de hombres y jóvenes en cada comunidad",
+            "brecha_label": "Brecha de Género",
+            "brecha_val": f"+{p3_brecha:.1f} pts",
+            "brecha_sub": "Las mujeres votan más que los hombres",
+            "impacto_lbl": "Impacto:",
+            "impacto_txt": f"{imp_meta.get('votantes_equivalentes_c3_miles_str', '≈ 316 mil')} votantes adicionales si se cumple la meta 2027",
+            "impacto_portada": f"{imp_meta.get('votantes_equivalentes_c3_miles_str', '≈ 316 mil')} adicionales",
+            "rasgo_portada": f"Brecha de género (+{p3_brecha:.1f} pts) y caída presidencial",
+        },
+    }
+
+    for cid in range(4):
+        texts[cid]["top3_entidades"] = get_top3_entidades(t07_df, cid)
+        if cid < len(tabla_imp):
+            texts[cid]["top3_juntas"] = str(tabla_imp[cid].get("top3_juntas_distritales", ""))
+        else:
+            texts[cid]["top3_juntas"] = ""
+
+    return texts
 
 
 def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038, color: str = "#1E3A8A") -> None:
@@ -158,15 +245,21 @@ def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038,
     ax.add_patch(circ)
     scale = radius / 0.038
     if cid == 0:
-        # Barras intermitentes (alta-baja-alta-baja)
-        for idx, h in enumerate([0.014, 0.032, 0.016, 0.030]):
-            bx = cx + (-0.020 + idx * 0.011) * scale
-            by = cy - 0.016 * scale
-            ax.add_patch(Rectangle((bx, by), 0.007 * scale, h * scale, facecolor="white", transform=ax.transAxes, zorder=7))
-    elif cid == 1:
-        # Escudo de constancia cívica
+        # Reloj de arena / ciclo intermitente
         pts = np.array([
-            [cx, cy + 0.022 * scale],
+            [cx - 0.016 * scale, cy + 0.018 * scale],
+            [cx + 0.016 * scale, cy + 0.018 * scale],
+            [cx, cy],
+            [cx + 0.016 * scale, cy - 0.018 * scale],
+            [cx - 0.016 * scale, cy - 0.018 * scale],
+            [cx, cy],
+        ])
+        ax.add_patch(Polygon(pts, closed=True, facecolor="white", transform=ax.transAxes, zorder=7))
+    elif cid == 1:
+        # Escudo de estabilidad cívica
+        pts = np.array([
+            [cx - 0.018 * scale, cy + 0.018 * scale],
+            [cx + 0.018 * scale, cy + 0.018 * scale],
             [cx + 0.018 * scale, cy + 0.010 * scale],
             [cx + 0.014 * scale, cy - 0.016 * scale],
             [cx, cy - 0.024 * scale],
@@ -183,14 +276,14 @@ def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038,
                 [cy + 0.016 * scale, cy + 0.016 * scale, cy + 0.005 * scale],
                 color="white", linewidth=max(1.0, 2.8 * scale), transform=ax.transAxes, zorder=7)
     elif cid == 3:
-        # Símbolo de liderazgo femenino
+        # Símbolo distintivo de brecha de género
         c_inner = Circle((cx, cy + 0.008 * scale), 0.011 * scale, fill=False, edgecolor="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
         ax.add_patch(c_inner)
         ax.plot([cx, cx], [cy - 0.003 * scale, cy - 0.020 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
         ax.plot([cx - 0.010 * scale, cx + 0.010 * scale], [cy - 0.012 * scale, cy - 0.012 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
 
 
-def render_cover_page(data: dict) -> plt.Figure:
+def render_cover_page(data: dict, texts: dict) -> plt.Figure:
     """Página 1: Portada ejecutiva en formato carta horizontal."""
     fig = plt.figure(figsize=(11.0, 8.5), facecolor="white")
     ax = fig.add_axes([0, 0, 1, 1])
@@ -221,113 +314,108 @@ def render_cover_page(data: dict) -> plt.Figure:
     )
     ax.text(
         0.50, 0.825, "Concurso INE: 'Hackea la participación: Datos que construyen democracia' · Reto 1: Perfiles ciudadanos de participación",
-        fontsize=9.5, color="#CBD5E1", style="italic", ha="center", va="center", transform=ax.transAxes
+        fontsize=10.0, color="#CBD5E1", style="italic", ha="center", va="center", transform=ax.transAxes
     )
 
-    # Bloque de datos del equipo y repositorio
+    # Bloque de datos del equipo y repositorio (E5: eliminado entorno de software)
     team_box = FancyBboxPatch(
-        (0.04, 0.655), 0.92, 0.135,
+        (0.04, 0.675), 0.92, 0.115,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(team_box)
-    ax.text(0.06, 0.765, "Equipo:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
-    ax.text(0.13, 0.765, "Byte me", fontsize=10.5, color="#111827", transform=ax.transAxes)
+    ax.text(0.06, 0.755, "Equipo:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.13, 0.755, "Byte me", fontsize=10.5, color="#111827", transform=ax.transAxes)
 
-    ax.text(0.06, 0.730, "Integrantes:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.06, 0.720, "Integrantes:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
     members_str = "1. Johanan Olivares Gutiérrez (representante)   ·   2. Oscar Ariel Cuevas Martínez   ·   3. Saúl Alexis Arias González"
-    ax.text(0.16, 0.730, members_str, fontsize=10.2, color="#111827", transform=ax.transAxes)
+    ax.text(0.16, 0.720, members_str, fontsize=10.2, color="#111827", transform=ax.transAxes)
 
-    ax.text(0.06, 0.695, "Repositorio público:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
-    ax.text(0.21, 0.695, "https://github.com/Johanan1113/Hackaton_INE_byte_me", fontsize=10.2, color="#1D4ED8", transform=ax.transAxes)
-
-    ax.text(0.06, 0.670, "Entorno de software:", fontsize=9.5, fontweight="bold", color="#4B5563", transform=ax.transAxes)
-    ax.text(0.21, 0.670, "Python 3.14.6 · DuckDB 2.0.0 · scikit-learn 1.9.0 · scipy 1.18.0 · umap-learn 0.5.12 · pandas 3.0.3 · numpy 2.4.6",
-            fontsize=9.0, color="#4B5563", transform=ax.transAxes)
+    ax.text(0.06, 0.685, "Repositorio público:", fontsize=10.5, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.21, 0.685, "https://github.com/Johanan1113/Hackaton_INE_byte_me", fontsize=10.2, color="#1D4ED8", transform=ax.transAxes)
 
     # Bloque metodológico en exactamente 3 renglones
     meth_box = FancyBboxPatch(
-        (0.04, 0.445), 0.92, 0.190,
+        (0.04, 0.455), 0.92, 0.200,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="#F1F5F9", edgecolor="#94A3B8", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(meth_box)
-    ax.text(0.06, 0.608, "SÍNTESIS METODOLÓGICA (TRES PILARES ANALÍTICOS):", fontsize=10.5, fontweight="bold", color="#0F172A", transform=ax.transAxes)
-    p1_text = textwrap.fill("1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.", width=118)
-    p2_text = textwrap.fill("2. Panel Principal continuo (Opción B, cero imputación): 53,644 secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento (75.82% secciones y 79.53% LN 2024 en 2,393 municipios).", width=118)
-    p3_text = textwrap.fill("3. Segmentación K-Means++ con k=4: Domina dentro del rango 4–6 de la convocatoria (Silhouette = 0.1789, ARI bootstrap = 0.9572 y clasificador Random Forest con 96.29% de exactitud).", width=118)
-    ax.text(0.06, 0.578, p1_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
-    ax.text(0.06, 0.532, p2_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
-    ax.text(0.06, 0.486, p3_text, fontsize=9.2, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.625, "SÍNTESIS METODOLÓGICA (TRES PILARES ANALÍTICOS):", fontsize=11.0, fontweight="bold", color="#0F172A", transform=ax.transAxes)
+    univ = data.get("universo_y_cobertura", {})
+    pan_b_secc = univ.get("panel_principal_secciones", 53644)
+    pan_b_pct_secc = redondear(univ.get("panel_principal_pct_secciones_2024", 75.82), 1)
+    pan_b_pct_ln = redondear(univ.get("panel_principal_pct_ln_2024", 79.53), 1)
+    pan_b_mun = univ.get("panel_principal_municipios", 2393)
+
+    p1_text = textwrap.fill("1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.", width=108)
+    p2_text = textwrap.fill(f"2. Panel Principal continuo (Opción B, cero imputación): {pan_b_secc:,} secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento ({pan_b_pct_secc:.1f}% secciones y {pan_b_pct_ln:.1f}% LN 2024 en {pan_b_mun:,} municipios).", width=108)
+    p3_text = textwrap.fill("3. Segmentación K-Means++ con k=4: Domina dentro del rango 4–6 de la convocatoria (Silhouette = 0.1789, ARI bootstrap = 0.9572 y clasificador Random Forest con 96.29% de exactitud).", width=108)
+    ax.text(0.06, 0.588, p1_text, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.540, p2_text, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.06, 0.492, p3_text, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
 
     # Mini-tabla de resumen de los 4 perfiles
-    ax.text(0.04, 0.410, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.0, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
+    ax.text(0.04, 0.418, "MATRIZ EJECUTIVA DE LOS 4 PERFILES CIUDADANOS (k = 4):", fontsize=11.2, fontweight="bold", color="#1E3A8A", transform=ax.transAxes)
 
-    col_x = [0.04, 0.09, 0.36, 0.47, 0.57, 0.67, 0.80, 0.96]
-    y_tbl = 0.365
+    y_tbl = 0.370
     # Encabezado tabla
     ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.034, facecolor="#1E3A8A", transform=ax.transAxes))
-    ax.text(0.065, y_tbl + 0.009, "Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.205, y_tbl + 0.009, "Nombre Oficial del Perfil", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.380, y_tbl + 0.009, "Secciones (% Panel)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.490, y_tbl + 0.009, "LN 2024 (% LN)", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.585, y_tbl + 0.009, "Part. Media", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.685, y_tbl + 0.009, "Impacto 2027", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.835, y_tbl + 0.009, "Rasgo Distintivo Clave", fontsize=9.8, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.070, y_tbl + 0.009, "Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.220, y_tbl + 0.009, "Nombre Oficial del Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.405, y_tbl + 0.009, "Secciones (% Panel)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.530, y_tbl + 0.009, "LN 2024 (% LN)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.640, y_tbl + 0.009, "Part. Media", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.745, y_tbl + 0.009, "Impacto 2027", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.865, y_tbl + 0.009, "Rasgo Distintivo Clave", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
 
     perfiles = data["perfiles"]
-    imp_meta = data.get("impacto_y_prioridad_territorial", {})
-    tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
-    impactos_portada = [
-        "≈ 938 mil adicionales",
-        "≈ 58 mil en riesgo",
-        "≈ 1.92 millones en riesgo",
-        "≈ 333 mil adicionales",
-    ]
-
-    rows_data = [
-        ("C0", perfiles[0]["nombre_propuesto"], f"{perfiles[0]['n_secciones']:,} ({perfiles[0]['pct_secciones_panel']:.1f}%)",
-         f"{perfiles[0]['ln_2024']/1e6:.2f}M ({perfiles[0]['pct_ln_panel']:.1f}%)", f"{perfiles[0]['participacion_media_historica_original']*100:.1f}%",
-         impactos_portada[0], "Rezago juvenil y ciclo presidencial"),
-        ("C1", perfiles[1]["nombre_propuesto"], f"{perfiles[1]['n_secciones']:,} ({perfiles[1]['pct_secciones_panel']:.1f}%)",
-         f"{perfiles[1]['ln_2024']/1e6:.2f}M ({perfiles[1]['pct_ln_panel']:.1f}%)", f"{perfiles[1]['participacion_media_historica_original']*100:.1f}%",
-         impactos_portada[1], "Máxima estabilidad y cohesión"),
-        ("C2", perfiles[2]["nombre_propuesto"], f"{perfiles[2]['n_secciones']:,} ({perfiles[2]['pct_secciones_panel']:.1f}%)",
-         f"{perfiles[2]['ln_2024']/1e6:.2f}M ({perfiles[2]['pct_ln_panel']:.1f}%)", f"{perfiles[2]['participacion_media_historica_original']*100:.1f}%",
-         impactos_portada[2], "Ascenso continuo (+1.28 pts/año)"),
-        ("C3", perfiles[3]["nombre_propuesto"], f"{perfiles[3]['n_secciones']:,} ({perfiles[3]['pct_secciones_panel']:.1f}%)",
-         f"{perfiles[3]['ln_2024']/1e6:.2f}M ({perfiles[3]['pct_ln_panel']:.1f}%)", f"{perfiles[3]['participacion_media_historica_original']*100:.1f}%",
-         impactos_portada[3], "Liderazgo femenino (+11.2 pts)"),
-    ]
+    rows_data = []
+    for idx in range(4):
+        cid_str = f"C{idx}"
+        p = perfiles[idx]
+        t = texts[idx]
+        rows_data.append((
+            cid_str,
+            p["nombre_propuesto"],
+            f"{p['n_secciones']:,} ({redondear(p['pct_secciones_panel'], 1):.1f}%)",
+            f"{p['ln_2024']/1e6:.2f}M ({redondear(p['pct_ln_panel'], 1):.1f}%)",
+            f"{redondear(p['participacion_media_historica_original']*100, 1):.1f}%",
+            t["impacto_portada"],
+            t["rasgo_portada"],
+        ))
 
     for idx, (cid, name, secc, ln, part, imp_txt, rasgo) in enumerate(rows_data):
         y_r = y_tbl - 0.042 - idx * 0.058
         bg_c = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
         ax.add_patch(Rectangle((0.04, y_r - 0.014), 0.92, 0.054, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
         theme_p = THEMES[idx]
-        draw_profile_icon(ax, idx, 0.065, y_r + 0.013, radius=0.015, color=theme_p["primary"])
-        ax.text(0.088, y_r + 0.013, name, fontsize=7.4, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
-        ax.text(0.380, y_r + 0.013, secc, fontsize=8.4, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.490, y_r + 0.013, ln, fontsize=8.4, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.585, y_r + 0.013, part, fontsize=9.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.685, y_r + 0.013, imp_txt, fontsize=8.6, fontweight="bold", color="#1E3A8A", ha="center", va="center", transform=ax.transAxes)
-        wrapped_rasgo = textwrap.fill(rasgo, width=22)
-        ax.text(0.760, y_r + 0.013, wrapped_rasgo, fontsize=7.8, color="#374151", va="center", transform=ax.transAxes)
+        # E5: ícono y código C0-C3 juntos
+        draw_profile_icon(ax, idx, 0.058, y_r + 0.013, radius=0.013, color=theme_p["primary"])
+        ax.text(0.078, y_r + 0.013, f"C{idx}", fontsize=10.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        wrapped_name = textwrap.fill(name, width=24)
+        ax.text(0.100, y_r + 0.013, wrapped_name, fontsize=10.0, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
+        ax.text(0.405, y_r + 0.013, secc, fontsize=10.0, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.530, y_r + 0.013, ln, fontsize=10.0, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.640, y_r + 0.013, part, fontsize=10.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.745, y_r + 0.013, imp_txt, fontsize=10.0, fontweight="bold", color="#1E3A8A", ha="center", va="center", transform=ax.transAxes)
+        wrapped_rasgo = textwrap.fill(rasgo, width=18)
+        ax.text(0.865, y_r + 0.013, wrapped_rasgo, fontsize=10.0, color="#374151", ha="center", va="center", transform=ax.transAxes)
 
     # Pie de página institucional
     ax.text(
         0.50, 0.065,
         "Fuentes: Microdatos Conteos Censales de Participación Ciudadana (CCPC 2009–2024), INE México. Consulta las fichas individuales en las páginas 2 a 5.",
-        fontsize=9.2, color="#64748B", ha="center", va="center", style="italic", transform=ax.transAxes
+        fontsize=10.0, color="#64748B", ha="center", va="center", style="italic", transform=ax.transAxes
     )
 
     return fig
 
 
-def render_profile_page(cid: int, data: dict) -> plt.Figure:
+def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     """Páginas 2 a 5: Ficha individual completa de perfil en formato carta horizontal."""
     p = data["perfiles"][cid]
-    texts = PROFILE_TEXTS[cid]
+    texts = texts_dict[cid]
     theme = THEMES[cid]
     pan_b = data["resumen_panel_b"]
     serie_nac = data["serie_nacional_2009_2024"]
@@ -360,24 +448,25 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
         fontsize=14.5, fontweight="bold", color="white", va="center", transform=ax.transAxes
     )
     cov_str = (
-        f"Cobertura: {p['n_secciones']:,} secc. ({p['pct_secciones_panel']:.1f}%)   •   "
-        f"LN: {p['ln_2024']/1e6:.2f}M ({p['pct_ln_panel']:.1f}%) en {p['n_municipios_con_presencia']:,} mun.   •   "
-        f"Composición: {p['pct_secciones_urbanas']:.1f}% Urb., {p['pct_secciones_rurales']:.1f}% Rur., {p['pct_secciones_mixtas']:.1f}% Mix."
+        f"Cobertura: {p['n_secciones']:,} secc. ({redondear(p['pct_secciones_panel'], 1):.1f}%)   •   "
+        f"LN: {p['ln_2024']/1e6:.2f}M ({redondear(p['pct_ln_panel'], 1):.1f}%) en {p['n_municipios_con_presencia']:,} mun.   •   "
+        f"Composición: {redondear(p['pct_secciones_urbanas'], 1):.1f}% Urb., {redondear(p['pct_secciones_rurales'], 1):.1f}% Rur., {redondear(p['pct_secciones_mixtas'], 1):.1f}% Mix."
     )
     ax.text(
         0.12, 0.885, cov_str,
-        fontsize=8.8, color="#F3F4F6", va="center", transform=ax.transAxes
+        fontsize=10.0, color="#F3F4F6", va="center", transform=ax.transAxes
     )
 
-    # 4 Cifras Grandes (Callout Cards) (y=0.745..0.850)
+    # 4 Cifras Grandes (Callout Cards) (y=0.740..0.845)
     card_w = 0.218
     gap = 0.019
     x_starts = [0.035 + i * (card_w + gap) for i in range(4)]
 
+    # E2: Línea base 2021 (cálculo CCPC)
     cards_info = [
-        ("PARTICIPACIÓN MEDIA", f"{p['participacion_media_historica_original']*100:.1f}%", "Promedio 6 elecciones (2009–24)"),
-        ("INTERMEDIA 2021", f"{p['p_2021_ponderada']*100:.1f}%", "Línea base intermedia oficial"),
-        ("PRESIDENCIAL 2024", f"{p['p_2024_ponderada']*100:.1f}%", "Última elección presidencial"),
+        ("PARTICIPACIÓN MEDIA", f"{redondear(p['participacion_media_historica_original']*100, 1):.1f}%", "Promedio 6 elecciones (2009–24)"),
+        ("INTERMEDIA 2021", f"{redondear(p['p_2021_ponderada']*100, 1):.1f}%", "Línea base 2021 (cálculo CCPC)"),
+        ("PRESIDENCIAL 2024", f"{redondear(p['p_2024_ponderada']*100, 1):.1f}%", "Última elección presidencial"),
         (texts["brecha_label"].upper(), texts["brecha_val"], texts["brecha_sub"]),
     ]
 
@@ -388,11 +477,11 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
             facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes
         )
         ax.add_patch(box_c)
-        ax.text(x_starts[i] + card_w / 2, 0.825, title_c, fontsize=9.2, fontweight="bold", color="#4B5563", ha="center", va="center", transform=ax.transAxes)
+        ax.text(x_starts[i] + card_w / 2, 0.825, title_c, fontsize=10.0, fontweight="bold", color="#4B5563", ha="center", va="center", transform=ax.transAxes)
         ax.text(x_starts[i] + card_w / 2, 0.782, val_c, fontsize=23.0, fontweight="bold", color=theme["primary"], ha="center", va="center", transform=ax.transAxes)
-        ax.text(x_starts[i] + card_w / 2, 0.752, sub_c, fontsize=8.2, color="#6B7280", ha="center", va="center", transform=ax.transAxes)
+        ax.text(x_starts[i] + card_w / 2, 0.752, sub_c, fontsize=10.0, color="#6B7280", ha="center", va="center", transform=ax.transAxes)
 
-    # Columna Izquierda: Gráfica de la serie histórica ponderada (0.035..0.505, y=0.340..0.720)
+    # Columna Izquierda: Gráfica de la serie histórica ponderada (0.055..0.495, y=0.380..0.695)
     ax_plot = fig.add_axes([0.055, 0.380, 0.440, 0.315])
     p_vals = [p[f"p_{y}_ponderada"] * 100 for y in years]
     b_vals = [pan_b[f"p_{y}_ponderada"] * 100 for y in years]
@@ -404,7 +493,6 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
     # Línea del cluster
     ax_plot.plot(years, p_vals, marker="o", linewidth=2.8, markersize=7.5, color=theme["primary"], label=f"Perfil {p['codigo_cluster']}", zorder=4)
     for i_x, (x_v, y_v) in enumerate(zip(years, p_vals)):
-        # E5: Dips (mínimos locales) por debajo con offset negativo; resto por encima con fondo blanco
         is_dip = False
         if i_x == 0 and len(p_vals) > 1 and y_v < p_vals[1]:
             is_dip = True
@@ -413,120 +501,107 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
         elif 0 < i_x < len(p_vals) - 1 and y_v < p_vals[i_x - 1] and y_v < p_vals[i_x + 1]:
             is_dip = True
 
-        dy = -13 if is_dip else 10
+        dy = -14 if is_dip else 11
         va_align = "top" if is_dip else "bottom"
         ax_plot.annotate(
-            f"{y_v:.1f}%", (x_v, y_v), textcoords="offset points", xytext=(0, dy),
-            ha="center", va=va_align, fontsize=8.8, fontweight="bold", color=theme["primary"],
+            f"{redondear(y_v, 1):.1f}%", (x_v, y_v), textcoords="offset points", xytext=(0, dy),
+            ha="center", va=va_align, fontsize=10.0, fontweight="bold", color=theme["primary"],
             bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none", alpha=0.85),
             zorder=5
         )
 
-    # C15: Línea gris punteada Media del Panel B
+    # Línea gris punteada Media del Panel B
     ax_plot.plot(years, b_vals, linestyle=":", marker="^", linewidth=2.0, markersize=6.0, color="#64748B", label="Media del Panel B", zorder=3)
     ax_plot.set_xticks(years)
-    ax_plot.set_xticklabels([f"{y}\n({'Inter.' if y in (2009,2015,2021) else 'Pres.'})" for y in years], fontsize=9.0)
+    ax_plot.set_xticklabels([f"{y}\n({'Inter.' if y in (2009,2015,2021) else 'Pres.'})" for y in years], fontsize=10.0)
     ax_plot.set_ylim(min(min(p_vals), min(b_vals)) - 6, max(max(p_vals), max(b_vals)) + 7)
-    ax_plot.set_ylabel("Participación SV/(SV+NV) (%)", fontsize=9.5, fontweight="bold")
-    ax_plot.set_title("Trayectoria Electoral Ponderada (2009–2024)", fontsize=10.5, fontweight="bold", pad=6)
+    ax_plot.tick_params(axis="y", labelsize=10.0)
+    # ax_plot.set_ylabel
+    ax_plot.set_title("Trayectoria Ponderada: Participación SV/(SV+NV) (%)", fontsize=10.5, fontweight="bold", pad=6)
     ax_plot.grid(True, alpha=0.5)
-    ax_plot.legend(loc="lower right", fontsize=9.0, frameon=True)
+    ax_plot.legend(loc="lower right", fontsize=10.0, frameon=True)
 
-    # Columna Derecha: Bloques de Diagnóstico e Intervención (0.520..0.965, y=0.340..0.720)
-    # Bloque 1: Quiénes son (<= 45 palabras)
+    # Columna Derecha: Bloques de Diagnóstico e Intervención (0.520..0.965, y=0.345..0.723)
+    # Bloque 1: Quiénes son (E3: sin rasgos sin dato)
     b1_box = FancyBboxPatch(
-        (0.520, 0.605), 0.445, 0.118,
+        (0.520, 0.582), 0.445, 0.142,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b1_box)
-    ax.text(0.535, 0.706, "QUIÉNES SON:", fontsize=10.0, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
-    wrapped_qs = textwrap.fill(texts["quienes_son"], width=62)
-    ax.text(0.535, 0.686, wrapped_qs, fontsize=9.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.710, "QUIÉNES SON:", fontsize=10.5, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
+    wrapped_qs = textwrap.fill(texts["quienes_son"], width=58)
+    ax.text(0.535, 0.691, wrapped_qs, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
 
-    # Bloque 2: Hipótesis (E1: Renombrado de HIPÓTESIS DE ABSTENCIONISMO a HIPÓTESIS)
+    # Bloque 2: Hipótesis (E2: sin prefijo 'Hipótesis:' repetido)
     b2_box = FancyBboxPatch(
-        (0.520, 0.475), 0.445, 0.118,
+        (0.520, 0.460), 0.445, 0.112,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b2_box)
-    ax.text(0.535, 0.575, "HIPÓTESIS:", fontsize=10.0, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
-    wrapped_hip = textwrap.fill(texts["hipotesis"], width=62)
-    ax.text(0.535, 0.555, wrapped_hip, fontsize=9.0, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.576, "HIPÓTESIS:", fontsize=10.5, fontweight="bold", color="#B91C1C", transform=ax.transAxes)
+    wrapped_hip = textwrap.fill(texts["hipotesis"], width=58)
+    ax.text(0.535, 0.557, wrapped_hip, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
 
-    # Bloque 3: Qué proponemos (<= 60 palabras)
+    # Bloque 3: Qué proponemos (D9: marco legal y neutralidad)
     b3_box = FancyBboxPatch(
-        (0.520, 0.345), 0.445, 0.118,
+        (0.520, 0.334), 0.445, 0.116,
         boxstyle="round,pad=0.008,rounding_size=0.01",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(b3_box)
-    ax.text(0.535, 0.445, "QUÉ PROPONEMOS (ENCÍVICA / INE):", fontsize=10.0, fontweight="bold", color="#047857", transform=ax.transAxes)
-    wrapped_prop = textwrap.fill(texts["propuesta"], width=62)
-    ax.text(0.535, 0.425, wrapped_prop, fontsize=8.8, color="#1F2937", va="top", transform=ax.transAxes)
+    ax.text(0.535, 0.444, "QUÉ PROPONEMOS (ENCÍVICA / INE):", fontsize=10.5, fontweight="bold", color="#047857", transform=ax.transAxes)
+    wrapped_prop = textwrap.fill(texts["propuesta"], width=58)
+    ax.text(0.535, 0.425, wrapped_prop, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
 
-    # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.122..0.315)
-    # Bloque Inferior: Meta Cuantitativa e Indicador (y=0.116..0.325)
+    # Bloque Inferior: Metas Cuantitativas e Indicadores de Impacto (y=0.116..0.330)
     meta_box = FancyBboxPatch(
-        (0.035, 0.116), 0.930, 0.209,
+        (0.035, 0.116), 0.930, 0.208,
         boxstyle="round,pad=0.01,rounding_size=0.015",
         facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes
     )
     ax.add_patch(meta_box)
 
-    ax.text(0.055, 0.302, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
+    ax.text(0.055, 0.306, "METAS CUANTITATIVAS E INDICADORES DE IMPACTO:", fontsize=10.8, fontweight="bold", color=theme["primary"], transform=ax.transAxes)
 
-    imp_meta = data.get("impacto_y_prioridad_territorial", {})
-    tabla_imp = imp_meta.get("tabla_impacto", [{} for _ in range(4)])
-    res_p = imp_meta.get("resumen_por_perfil", {}).get(f"C{cid}", {})
-    n_elec = tabla_imp[cid].get("electores_impacto_n", 0)
-    top3_str = res_p.get("top3_juntas_str", "")
+    y_curr = 0.282
 
-    if cid == 0:
-        txt_impacto = "≈ 938 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 441 mil)"
-        lbl_impacto = "Impacto:"
-    elif cid == 3:
-        txt_impacto = "≈ 333 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 167 mil)"
-        lbl_impacto = "Impacto:"
-    elif cid == 1:
-        txt_impacto = "≈ 58 mil votantes en riesgo si regresa a su promedio intermedio"
-        lbl_impacto = "En riesgo:"
-    elif cid == 2:
-        txt_impacto = "≈ 1.92 millones de votantes en riesgo si regresa a su promedio intermedio"
-        lbl_impacto = "En riesgo:"
-
-    y_curr = 0.276
-    # Meta (E6: alineación superior de etiquetas con el primer renglón del texto)
-    wrapped_meta = textwrap.fill(texts["meta"], width=105)
+    # 1. Meta
+    wrapped_meta = textwrap.fill(texts["meta"], width=96)
     n_lines_meta = wrapped_meta.count("\n") + 1
     ax.text(0.055, y_curr, "Meta:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.160, y_curr, wrapped_meta, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
-    y_curr -= (0.017 + n_lines_meta * 0.015)
+    ax.text(0.200, y_curr, wrapped_meta, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.015 + n_lines_meta * 0.013)
 
-    # Impacto / En riesgo
-    ax.text(0.055, y_curr, lbl_impacto, fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.160, y_curr, txt_impacto, fontsize=10.0, fontweight="bold", color=theme["primary"], va="top", transform=ax.transAxes)
-    y_curr -= 0.026
+    # 2. Impacto / En regresión (D7)
+    ax.text(0.055, y_curr, texts["impacto_lbl"], fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.200, y_curr, texts["impacto_txt"], fontsize=10.0, fontweight="bold", color=theme["primary"], va="top", transform=ax.transAxes)
+    y_curr -= 0.023
 
-    # Dónde empezar
+    # 3. Entidades principales (E2: top 3 de tabla_07)
+    ax.text(0.055, y_curr, "Entidades principales:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
+    ax.text(0.200, y_curr, texts["top3_entidades"], fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= 0.023
+
+    # 4. Dónde empezar (Juntas distritales)
     ax.text(0.055, y_curr, "Dónde empezar:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.160, y_curr, top3_str, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
-    y_curr -= 0.026
+    ax.text(0.200, y_curr, f"Juntas prioritarias: {texts['top3_juntas']}", fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= 0.023
 
-    # Indicador
-    wrapped_ind = textwrap.fill(texts["indicador"], width=105)
+    # 5. Indicador
+    wrapped_ind = textwrap.fill(texts["indicador"], width=96)
     n_lines_ind = wrapped_ind.count("\n") + 1
     ax.text(0.055, y_curr, "Indicador:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.160, y_curr, wrapped_ind, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
-    y_curr -= (0.017 + n_lines_ind * 0.015)
+    ax.text(0.200, y_curr, wrapped_ind, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
+    y_curr -= (0.015 + n_lines_ind * 0.013)
 
-    # Operación
-    wrapped_op = textwrap.fill(texts["unidad_costo"], width=105)
+    # 6. Operación
+    wrapped_op = textwrap.fill(texts["unidad_costo"], width=96)
     ax.text(0.055, y_curr, "Operación:", fontsize=10.0, fontweight="bold", color="#111827", va="top", transform=ax.transAxes)
-    ax.text(0.160, y_curr, wrapped_op, fontsize=10.0, color="#374151", va="top", transform=ax.transAxes)
+    ax.text(0.200, y_curr, wrapped_op, fontsize=10.0, color="#374151", va="top", transform=ax.transAxes)
 
-    # Lema al Pie (y=0.045..0.105) (E1: Renombrado a Lema propuesto)
+    # Lema al Pie (y=0.045..0.105) (E4: Lema C2 actualizado)
     lema_box = FancyBboxPatch(
         (0.035, 0.045), 0.930, 0.065,
         boxstyle="round,pad=0.008,rounding_size=0.012",
@@ -543,18 +618,22 @@ def render_profile_page(cid: int, data: dict) -> plt.Figure:
 
 def main() -> None:
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    t07_df = pd.read_csv(TABLA_07_PATH)
 
     pdf_multi_path = OUT_ENTREGABLES / "Fichas_Perfiles_ByteMe.pdf"
     png_portada_path = OUT_ENTREGABLES / "Fichas_Portada.png"
     png_cards = [OUT_ENTREGABLES / f"Ficha_C{cid}.png" for cid in range(4)]
     png_combined_path = OUT_ENTREGABLES / "Fichas_Perfiles_ByteMe.png"
 
+    print("[Fase 7.3] Construyendo textos dinámicos desde JSON y tablas...")
+    texts_dict = build_profile_texts(data, t07_df)
+
     print("[Fase 7.3] Generando Fichas en 5 páginas horizontales (Carta)...")
 
     # Guardar PDF de 5 páginas y los PNGs individuales a 300 DPI
     with PdfPages(pdf_multi_path) as pdf:
         # Página 1: Portada
-        fig_cover = render_cover_page(data)
+        fig_cover = render_cover_page(data, texts_dict)
         fig_cover.savefig(png_portada_path, dpi=300)
         pdf.savefig(fig_cover)
         plt.close(fig_cover)
@@ -562,7 +641,7 @@ def main() -> None:
 
         # Páginas 2 a 5: Fichas C0 a C3
         for cid in range(4):
-            fig_card = render_profile_page(cid, data)
+            fig_card = render_profile_page(cid, data, texts_dict)
             fig_card.savefig(png_cards[cid], dpi=300)
             pdf.savefig(fig_card)
             plt.close(fig_card)
@@ -575,7 +654,7 @@ def main() -> None:
     gs = fig_mosaic.add_gridspec(2, 2, hspace=0.04, wspace=0.03, left=0.02, right=0.98, top=0.98, bottom=0.02)
     positions = [(0, 0), (0, 1), (1, 0), (1, 1)]
     for cid, (r_idx, c_idx) in enumerate(positions):
-        sub_fig = render_profile_page(cid, data)
+        sub_fig = render_profile_page(cid, data, texts_dict)
         sub_png = OUT_ENTREGABLES / f"temp_c{cid}.png"
         sub_fig.savefig(sub_png, dpi=150)
         plt.close(sub_fig)
