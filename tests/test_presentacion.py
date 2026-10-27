@@ -34,12 +34,15 @@ REQUIRED_TOKENS = [
     "79.5%",
     "0.957",
     "1.57",
-    "1.27 millones",
-    "607 mil",
+    "1.21 millones",
+    "893 mil",
+    "316 mil",
+    "1.83 millones",
+    "+0.88 pts/año",
     "Baja Participación Intermitente con Rezago Juvenil",
     "Alta Participación Estable e Intergeneracional",
     "Participación en Ascenso con Juventud Activa",
-    "Liderazgo Femenino con Participación Estancada",
+    "Participación a la Baja con Brecha de Género",
 ]
 
 FORBIDDEN_TERMS = ["Oficial", ">=", "<=", "PENDIENTE"]
@@ -215,7 +218,7 @@ def test_nombres_oficiales_portada():
         "Baja Participación Intermitente con Rezago Juvenil",
         "Alta Participación Estable e Intergeneracional",
         "Participación en Ascenso con Juventud Activa",
-        "Liderazgo Femenino con Participación Estancada",
+        "Participación a la Baja con Brecha de Género",
     ]
     for nom in oficiales:
         assert nom in s1_text, f"Nombre oficial no encontrado en portada (diapositiva 1): '{nom}'"
@@ -252,4 +255,85 @@ def test_grafica_perfiles():
             assert round(abs(cv - ev), 4) <= 0.05 or abs(cv - ev) <= 0.0501, (
                 f"Discrepancia en {s_name} año {years[y_idx]}: chart={cv}, tabla={ev}"
             )
+
+
+def test_diapositiva_08_impacto():
+    """F: Verifica impacto en diapositiva 8: título 1.21M, cards 893k, 316k, 1.83M y base (SV+NV)."""
+    prs = pptx.Presentation(PPTX_PATH)
+    slide8 = prs.slides[7]
+    text8 = ""
+    for s in slide8.shapes:
+        if s.has_text_frame:
+            text8 += s.text_frame.text + "\n"
+        if s.has_table:
+            for row in s.table.rows:
+                for cell in row.cells:
+                    text8 += cell.text + " "
+                text8 += "\n"
+
+    assert "1.21 millones" in text8, "Falta '1.21 millones' en diapositiva 8"
+    assert "893 mil" in text8, "Falta '893 mil' en diapositiva 8"
+    assert "316 mil" in text8, "Falta '316 mil' en diapositiva 8"
+    assert "1.83 millones" in text8, "Falta '1.83 millones' en diapositiva 8"
+    assert "52 mil" in text8, "Falta '52 mil' en diapositiva 8"
+    assert "(SV + NV) 2024" in text8, "Falta referencia a base (SV + NV) 2024 en diapositiva 8"
+
+
+def test_diapositiva_09_mde_icc():
+    """F: Verifica que la diapositiva 9 mencione MDE 1.57 pts, ICC=0.5428, m=5 (2.80 pts) y m=10 (3.81 pts)."""
+    prs = pptx.Presentation(PPTX_PATH)
+    slide9 = prs.slides[8]
+    text9 = ""
+    for s in slide9.shapes:
+        if s.has_text_frame:
+            text9 += s.text_frame.text + "\n"
+
+    assert "1.57 pts" in text9, "Falta MDE seccional '1.57 pts' en diapositiva 9"
+    assert "ICC=0.5428" in text9, "Falta 'ICC=0.5428' en nota de diapositiva 9"
+    assert "2.80 pts" in text9, "Falta '2.80 pts' en nota de diapositiva 9"
+    assert "3.81 pts" in text9, "Falta '3.81 pts' en nota de diapositiva 9"
+
+
+def test_diapositiva_10_cuatro_recomendaciones():
+    """F: Verifica que la diapositiva 10 tenga el encabezado 'Cuatro recomendaciones al INE' y la 4ª recomendación."""
+    prs = pptx.Presentation(PPTX_PATH)
+    slide10 = prs.slides[9]
+    text10 = ""
+    for s in slide10.shapes:
+        if s.has_text_frame:
+            text10 += s.text_frame.text + "\n"
+
+    assert "Cuatro recomendaciones al INE" in text10, "Falta encabezado 'Cuatro recomendaciones al INE'"
+    assert "4. Usar la priorización por junta distrital y el piloto aleatorizado 2027 para evaluar qué funciona." in text10, (
+        "Falta la 4ª recomendación en diapositiva 10"
+    )
+
+
+def test_notas_orador_sin_prohibidos():
+    """F: Verifica que las notas de orador no contengan 'liderazgo', 'migración', '1.5 millones', y que d9 mencione asignables e ICC."""
+    prs = pptx.Presentation(PPTX_PATH)
+    for idx, slide in enumerate(prs.slides, 1):
+        notes = slide.notes_slide.notes_text_frame.text if slide.has_notes_slide else ""
+        for forbidden in ["liderazgo", "Liderazgo", "migración", "migracion", "Migración", "1.5 millones"]:
+            assert forbidden not in notes, f"Término prohibido '{forbidden}' encontrado en notas de diapositiva {idx}"
+
+    notes9 = prs.slides[8].notes_slide.notes_text_frame.text
+    assert "asignables" in notes9, "Notas de diapositiva 9 deben mencionar acciones asignables"
+    assert "0.5428" in notes9 or "conglomerados" in notes9 or "efecto de diseño" in notes9, (
+        "Notas de diapositiva 9 deben mencionar efecto de conglomerados/diseño"
+    )
+
+
+def test_diapositiva_07_tendencia_corregida():
+    """F: Verifica que la diapositiva 7 muestre '+0.88 pts/año' y 'tendencia corregida'."""
+    prs = pptx.Presentation(PPTX_PATH)
+    slide7 = prs.slides[6]
+    text7 = ""
+    for s in slide7.shapes:
+        if s.has_text_frame:
+            text7 += s.text_frame.text + "\n"
+
+    assert "+0.88 pts/año" in text7, "Falta '+0.88 pts/año' en diapositiva 7"
+    assert "tendencia corregida" in text7, "Falta 'tendencia corregida' en diapositiva 7"
+
 
