@@ -292,7 +292,7 @@
       "C3": {
         "ln_2024": 2985065,
         "n_secciones": 2802,
-        "nombre": "Liderazgo Femenino con Participación Estancada",
+        "nombre": "Participación a la Baja con Brecha de Género",
         "pct_de_asignadas": 23.15,
         "pct_ln_de_asignadas": 25.36
       }
@@ -353,7 +353,7 @@
         "ln_2024": 2985065,
         "pct_ln_2024": 3.04,
         "pct_secciones": 3.96,
-        "perfil": "C3: Liderazgo Femenino con Participación Estancada",
+        "perfil": "C3: Participación a la Baja con Brecha de Género",
         "secciones": 2802
       },
       {
@@ -960,7 +960,7 @@
       "meta_cuantitativa": "Elevar la participación ponderada en la elección intermedia de 2027 a 51.1% (línea base 2021: 49.5%, cerrando la mitad de la brecha frente al 52.8% del panel), recuperar en la presidencial de 2030 a 58.1% (línea base 2024: 55.6%, cerrando la mitad frente al 60.6% del panel), y elevar la participación masculina a 46.3% en 2027 (línea base 2021: 43.9%, cerrando la mitad frente al 48.7% del panel).",
       "n_secciones": 12574,
       "narrativa_mensaje_neutral": "Corresponsabilidad de hombres y jóvenes en la vida comunitaria y en el ejercicio del sufragio tanto en comicios intermedios como presidenciales, complementada con información oportuna sobre ubicación y horarios de casilla.",
-      "nombre_perfil": "Liderazgo Femenino con Participación Estancada",
+      "nombre_perfil": "Participación a la Baja con Brecha de Género",
       "objetivo_especifico": "Elevar la participación masculina (línea base 2021 de 43.94% frente a 48.66% nacional) y revertir la caída en elecciones presidenciales (de 61.2% en 2012 a 55.6% en 2024) y el estancamiento en intermedias (49.5% en 2021) en las 12,574 secciones del perfil, atendiendo como acción secundaria la accesibilidad en sus localidades con sobrerrepresentación rural.",
       "pct_ln_panel": 25.37,
       "pct_secciones_panel": 23.44,
@@ -1294,7 +1294,7 @@
       "meta_presidencial_2030": "58.1%",
       "meta_tasa_hombres": "46.3%",
       "meta_tasa_joven": "N/A",
-      "nombre_perfil": "Liderazgo Femenino con Participación Estancada",
+      "nombre_perfil": "Participación a la Baja con Brecha de Género",
       "participacion_2021_pond_pct": 49.45,
       "participacion_2024_pond_pct": 55.57,
       "tasa_hombres_2021_pond_pct": 43.94,
@@ -1562,7 +1562,7 @@
       "media_presidencial_original": 0.595141,
       "n_municipios_con_presencia": 1287,
       "n_secciones": 12574,
-      "nombre_propuesto": "Liderazgo Femenino con Participación Estancada",
+      "nombre_propuesto": "Participación a la Baja con Brecha de Género",
       "p_2009_ponderada": 0.496183,
       "p_2009_simple": 0.502203,
       "p_2012_ponderada": 0.612374,
@@ -2338,7 +2338,7 @@
         "f_stat_p2024_perfil_final_circular": 9703.99,
         "n_secciones_2009_2021": 13515,
         "n_secciones_final_2009_2024": 12574,
-        "nombre_perfil": "Liderazgo Femenino con Participación Estancada",
+        "nombre_perfil": "Participación a la Baja con Brecha de Género",
         "orden_grupos_2009_2021_en_2024": "C3 < C0 < C1 < C2",
         "orden_perfiles_finales_en_2024": "C3 < C0 < C1 < C2",
         "p_2024_pond_grupo_2009_2021_pct": 56.18,

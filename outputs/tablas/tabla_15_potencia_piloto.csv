@@ -1,4 +1,4 @@
-agrupacion_bloque,tamano_bloque_m,icc_municipal,deff,secciones_tratamiento,secciones_control,secciones_totales,mde_ancova_pts,detecta_mitad_meta_c0
-Por sección (m = 1),1,0.5428,1.0,500,500,1000,1.57,True
-Bloques de 5 secciones (m = 5),5,0.5428,3.171,500,500,1000,2.8,False
-Bloques de 10 secciones (m = 10),10,0.5428,5.885,500,500,1000,3.81,False
+﻿constante_mde,correlacion_rho,detecta_menor_mitad_meta,mde_ancova_pts,mde_did_pts,meta_perfil_c0_pts,perfil_objetivo,potencia_pct,secciones_por_grupo_n,secciones_totales_piloto,sigma_delta_pts,sigma_p2021_pts,significancia_alpha
+2.8,0.4814,False,2.22,2.43,3.3,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,250,500,9.7191,10.0982,0.05
+2.8,0.4814,True,1.57,1.72,3.3,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,500,1000,9.7191,10.0982,0.05
+2.8,0.4814,True,1.11,1.22,3.3,C0: Baja Participación Intermitente con Rezago Juvenil,80.0,1000,2000,9.7191,10.0982,0.05
