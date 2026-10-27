@@ -136,3 +136,86 @@ def test_margenes_presentacion():
                     )
 
     assert not violations, f"Se encontraron {len(violations)} caracteres violando márgenes de 0.25 in: {violations[:5]}"
+
+
+def test_grafica_ns():
+    """A8: Verifica que los valores de la gráfica de diapositiva 2 coincidan con tabla_02 (±0.05)."""
+    import pandas as pd
+    tabla_02_path = PROJECT_ROOT / "outputs" / "tablas" / "tabla_02_serie_nacional_2009_2024.csv"
+    assert tabla_02_path.is_file(), f"No existe {tabla_02_path}"
+    df_t2 = pd.read_csv(tabla_02_path).sort_values("anio").reset_index(drop=True)
+
+    prs = pptx.Presentation(PPTX_PATH)
+    slide2 = prs.slides[1]
+
+    chart = None
+    for shape in slide2.shapes:
+        if shape.has_chart:
+            chart = shape.chart
+            break
+    assert chart is not None, "No se encontró gráfica en la diapositiva 2"
+
+    series_names = [s.name for s in chart.series]
+    assert "SV/LN" in series_names, f"Falta serie 'SV/LN' en la gráfica: {series_names}"
+    assert "SV/(SV+NV)" in series_names, f"Falta serie 'SV/(SV+NV)' en la gráfica: {series_names}"
+
+    idx_sv_ln = series_names.index("SV/LN")
+    idx_sv_svnv = series_names.index("SV/(SV+NV)")
+
+    chart_vals_sv_ln = list(chart.series[idx_sv_ln].values)
+    chart_vals_sv_svnv = list(chart.series[idx_sv_svnv].values)
+
+    expected_sv_ln = list(df_t2["total_ponderada_erronea_sv_ln_pct"])
+    expected_sv_svnv = list(df_t2["total_ponderada_sv_svnv_pct"])
+
+    assert len(chart_vals_sv_ln) == len(expected_sv_ln), "Longitud de serie SV/LN no coincide"
+    for c_val, e_val in zip(chart_vals_sv_ln, expected_sv_ln):
+        assert abs(c_val - e_val) <= 0.051, f"Valor SV/LN {c_val} difiere de {e_val} en > 0.05"
+
+    assert len(chart_vals_sv_svnv) == len(expected_sv_svnv), "Longitud de serie SV/(SV+NV) no coincide"
+    for c_val, e_val in zip(chart_vals_sv_svnv, expected_sv_svnv):
+        assert abs(c_val - e_val) <= 0.051, f"Valor SV/(SV+NV) {c_val} difiere de {e_val} en > 0.05"
+
+
+def test_texto_visible():
+    """A8: Verifica que 'subestimación de la participación' esté presente en el PDF y no sea blanco en PPTX."""
+    assert PDF_PATH.is_file(), f"No existe el archivo PDF: {PDF_PATH}"
+
+    # Verificación en PDF (usando pdftotext con flujo continuo de columnas)
+    cmd = ["pdftotext", "-f", "2", "-l", "2", str(PDF_PATH), "-"]
+    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    pdf_text = re.sub(r"\s+", " ", res.stdout)
+    assert "subestimación de la participación" in pdf_text, "Texto no encontrado en la página 2 del PDF"
+
+    # Verificación en PPTX (color no blanco)
+    prs = pptx.Presentation(PPTX_PATH)
+    slide2 = prs.slides[1]
+    found = False
+    for shape in slide2.shapes:
+        if shape.has_text_frame and "subestimación de la participación" in shape.text_frame.text:
+            found = True
+            for p in shape.text_frame.paragraphs:
+                if "subestimación de la participación" in p.text:
+                    rgb = p.font.color.rgb
+                    assert (rgb[0], rgb[1], rgb[2]) != (255, 255, 255), "El color del texto es blanco (invisible)"
+    assert found, "Texto 'subestimación de la participación' no encontrado en formas de la diapositiva 2 del PPTX"
+
+
+def test_nombres_oficiales_portada():
+    """A8: Verifica que los 4 nombres oficiales de perfiles aparezcan en la diapositiva 1."""
+    prs = pptx.Presentation(PPTX_PATH)
+    slide1 = prs.slides[0]
+    s1_text = ""
+    for shape in slide1.shapes:
+        if shape.has_text_frame:
+            s1_text += shape.text_frame.text + "\n"
+
+    oficiales = [
+        "Baja Participación Intermitente con Rezago Juvenil",
+        "Alta Participación Estable e Intergeneracional",
+        "Participación en Ascenso con Juventud Activa",
+        "Liderazgo Femenino con Participación Estancada",
+    ]
+    for nom in oficiales:
+        assert nom in s1_text, f"Nombre oficial no encontrado en portada (diapositiva 1): '{nom}'"
+

@@ -31,6 +31,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Polygon, Rectangle
 import numpy as np
+import pandas as pd
 
 import pptx
 from pptx.util import Inches, Pt
@@ -329,27 +330,31 @@ def build_presentation(data: dict) -> Path:
     p_int.font.size = Pt(16)
     p_int.font.color.rgb = DARK_GRAY
 
-    # Fila de los 4 íconos con sus nombres
+    # Fila de los 4 íconos con sus nombres oficiales
     icon_w = Inches(1.1)
-    gap_x = Inches(2.9)
-    start_x = Inches(1.0)
-    y_icons = Inches(4.85)
-    names_short = [
-        "C0: Rezago juvenil",
-        "C1: Alta constancia",
-        "C2: Ascenso cívico",
-        "C3: Liderazgo femenino",
+    col_w = Inches(2.7)
+    start_x = Inches(0.6)
+    step_x = Inches(3.033)
+    y_icons = Inches(4.75)
+    names_official = [
+        "C0 · Baja Participación Intermitente con Rezago Juvenil",
+        "C1 · Alta Participación Estable e Intergeneracional",
+        "C2 · Participación en Ascenso con Juventud Activa",
+        "C3 · Liderazgo Femenino con Participación Estancada",
     ]
     for cid in range(4):
-        x_c = start_x + cid * gap_x
-        slide1.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), x_c, y_icons, icon_w, icon_w)
-        lbl_box = slide1.shapes.add_textbox(x_c - Inches(0.4), y_icons + Inches(1.15), Inches(1.9), Inches(0.4))
+        x_center = start_x + (cid + 0.5) * step_x
+        x_icon = x_center - icon_w / 2
+        slide1.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), x_icon, y_icons, icon_w, icon_w)
+        lbl_box = slide1.shapes.add_textbox(x_center - col_w / 2, y_icons + Inches(1.15), col_w, Inches(0.60))
         tf_lbl = lbl_box.text_frame
+        tf_lbl.word_wrap = True
+        tf_lbl.margin_left = tf_lbl.margin_right = tf_lbl.margin_top = tf_lbl.margin_bottom = 0
         p_l = tf_lbl.paragraphs[0]
         p_l.alignment = PP_ALIGN.CENTER
-        p_l.text = names_short[cid]
+        p_l.text = names_official[cid]
         p_l.font.name = "Arial"
-        p_l.font.size = Pt(14)
+        p_l.font.size = Pt(12)
         p_l.font.bold = True
         p_l.font.color.rgb = PROFILE_COLORS[cid]
 
@@ -393,8 +398,8 @@ def build_presentation(data: dict) -> Path:
     p_txt = tf_kc.add_paragraph()
     p_txt.text = "\nsubestimación de la participación nacional en 2018 al dividir entre la lista nominal (−3.84 pts en 2024)."
     p_txt.font.name = "Arial"
-    p_txt.font.size = Pt(16)
-    p_txt.font.color.rgb = DARK_GRAY
+    p_txt.font.size = Pt(14)
+    p_txt.font.color.rgb = RGBColor(0x1F, 0x29, 0x37)
 
     # Centro: Comparativa de Fórmulas y Explicación
     # Caja Gris: Incorrecta
@@ -415,13 +420,24 @@ def build_presentation(data: dict) -> Path:
     box_cor.fill.solid()
     box_cor.fill.fore_color.rgb = RGBColor(239, 246, 255)
     box_cor.line.color.rgb = RGBColor(147, 197, 253)
-    p_bc = box_cor.text_frame.paragraphs[0]
-    p_bc.alignment = PP_ALIGN.CENTER
-    p_bc.text = "Correcta (Manual CCPC): SV / (SV + NV)"
-    p_bc.font.name = "Arial"
-    p_bc.font.size = Pt(16)
-    p_bc.font.bold = True
-    p_bc.font.color.rgb = NAVY
+    tf_bc = box_cor.text_frame
+    tf_bc.word_wrap = False
+    tf_bc.margin_top = Inches(0.08)
+    tf_bc.margin_bottom = Inches(0.08)
+    p_bc1 = tf_bc.paragraphs[0]
+    p_bc1.alignment = PP_ALIGN.CENTER
+    p_bc1.text = "Correcta (Manual CCPC):"
+    p_bc1.font.name = "Arial"
+    p_bc1.font.size = Pt(15)
+    p_bc1.font.bold = True
+    p_bc1.font.color.rgb = NAVY
+    p_bc2 = tf_bc.add_paragraph()
+    p_bc2.alignment = PP_ALIGN.CENTER
+    p_bc2.text = "SV / (SV + NV)"
+    p_bc2.font.name = "Arial"
+    p_bc2.font.size = Pt(15)
+    p_bc2.font.bold = True
+    p_bc2.font.color.rgb = NAVY
 
     # Explicación
     exp_box = slide2.shapes.add_textbox(Inches(3.8), Inches(3.7), Inches(3.5), Inches(3.1))
@@ -439,10 +455,22 @@ def build_presentation(data: dict) -> Path:
     p_e.font.color.rgb = DARK_GRAY
 
     # Derecha: Gráfica de Columnas Agrupadas
+    df_t2 = pd.read_csv(TABLAS_DIR / "tabla_02_serie_nacional_2009_2024.csv")
+    df_t2 = df_t2.sort_values("anio").reset_index(drop=True)
+    cats_t2 = [str(int(a)) for a in df_t2["anio"]]
+    vals_sv_ln = [round(float(v), 1) for v in df_t2["total_ponderada_erronea_sv_ln_pct"]]
+    vals_sv_svnv = [round(float(v), 1) for v in df_t2["total_ponderada_sv_svnv_pct"]]
+
+    # Verificación esperada del Bloque A1
+    expected_sv_ln = [43.0, 62.0, 44.2, 58.1, 49.6, 55.8]
+    expected_sv_svnv = [44.1, 62.1, 47.1, 62.4, 51.8, 59.7]
+    assert vals_sv_ln == expected_sv_ln or vals_sv_ln == [43.0, 61.9, 44.2, 58.1, 49.6, 55.8], f"SV/LN no coincide: {vals_sv_ln}"
+    assert vals_sv_svnv == expected_sv_svnv, f"SV/(SV+NV) no coincide: {vals_sv_svnv}"
+
     cd2 = CategoryChartData()
-    cd2.categories = ["2009", "2012", "2015", "2018", "2021", "2024"]
-    cd2.add_series("SV/LN", (44.1, 62.0, 46.5, 58.1, 51.5, 55.8))
-    cd2.add_series("SV/(SV+NV)", (44.1, 62.1, 47.1, 62.4, 51.8, 59.7))
+    cd2.categories = cats_t2
+    cd2.add_series("SV/LN", tuple(vals_sv_ln))
+    cd2.add_series("SV/(SV+NV)", tuple(vals_sv_svnv))
     gf2 = slide2.shapes.add_chart(
         XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(7.5), Inches(1.7), Inches(5.2), Inches(5.1), cd2
     )
@@ -458,6 +486,7 @@ def build_presentation(data: dict) -> Path:
     ch2.value_axis.tick_labels.font.size = Pt(11)
     p_cl = ch2.plots[0]
     p_cl.has_data_labels = True
+    p_cl.data_labels.number_format = "0.0"
     p_cl.gap_width = 120
     p_cl.overlap = -10
     p_cl.data_labels.font.name = "Arial"
@@ -525,8 +554,39 @@ def build_presentation(data: dict) -> Path:
             p.font.size = Pt(14)
             p.font.color.rgb = DARK_GRAY
 
-    # Nota debajo de tabla
-    note_box = slide3.shapes.add_textbox(Inches(0.6), Inches(6.15), Inches(6.5), Inches(0.5))
+    # Derecha: 3 KPIs apilados
+    kpis_data = [
+        ("53,644", "secciones con serie completa 2009–2024", NAVY),
+        ("79.5%", "de la lista nominal 2024 en el modelo", NAVY),
+        ("91.5%", "de la lista nominal con perfil asignado para operar", C1_COLOR),
+    ]
+    card_h3 = Inches(1.30)
+    gap3 = Inches(0.18)
+    for idx, (num_str, desc_str, col_rgb) in enumerate(kpis_data):
+        y_pos = Inches(1.70) + idx * (card_h3 + gap3)
+        card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.5), y_pos, Inches(5.2), card_h3)
+        card.fill.solid()
+        card.fill.fore_color.rgb = BG_LIGHT
+        card.line.color.rgb = LIGHT_GRAY
+        tf_c = card.text_frame
+        tf_c.word_wrap = True
+        tf_c.vertical_anchor = MSO_ANCHOR.MIDDLE
+        tf_c.margin_left = tf_c.margin_right = Inches(0.3)
+        tf_c.margin_top = tf_c.margin_bottom = Inches(0.06)
+        p_n = tf_c.paragraphs[0]
+        p_n.text = num_str
+        p_n.font.name = "Arial"
+        p_n.font.size = Pt(36)
+        p_n.font.bold = True
+        p_n.font.color.rgb = col_rgb
+        p_d = tf_c.add_paragraph()
+        p_d.text = desc_str
+        p_d.font.name = "Arial"
+        p_d.font.size = Pt(14)
+        p_d.font.color.rgb = DARK_GRAY
+
+    # Nota de fuentes en todo el ancho debajo de la tabla y de las tarjetas (A3)
+    note_box = slide3.shapes.add_textbox(Inches(0.6), Inches(6.40), Inches(12.133), Inches(0.40))
     tf_nb = note_box.text_frame
     p_nb = tf_nb.paragraphs[0]
     p_nb.text = "Fuentes: DECEyEC, estudio comparativo 2009–2015; Manual de Conteos Censales 2009–2024 (p. 21)."
@@ -534,33 +594,6 @@ def build_presentation(data: dict) -> Path:
     p_nb.font.size = Pt(11)
     p_nb.font.italic = True
     p_nb.font.color.rgb = MID_GRAY
-
-    # Derecha: 3 KPIs apilados
-    kpis_data = [
-        ("53,644", "secciones con serie completa 2009–2024", NAVY),
-        ("79.5%", "de la lista nominal 2024 en el modelo", NAVY),
-        ("91.5%", "de la lista nominal con perfil asignado para operar", C1_COLOR),
-    ]
-    for idx, (num_str, desc_str, col_rgb) in enumerate(kpis_data):
-        y_pos = Inches(1.7 + idx * 1.65)
-        card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.5), y_pos, Inches(5.2), Inches(1.45))
-        card.fill.solid()
-        card.fill.fore_color.rgb = BG_LIGHT
-        card.line.color.rgb = LIGHT_GRAY
-        tf_c = card.text_frame
-        tf_c.word_wrap = True
-        tf_c.margin_left = tf_c.margin_right = Inches(0.3)
-        p_n = tf_c.paragraphs[0]
-        p_n.text = num_str
-        p_n.font.name = "Arial"
-        p_n.font.size = Pt(40)
-        p_n.font.bold = True
-        p_n.font.color.rgb = col_rgb
-        p_d = tf_c.add_paragraph()
-        p_d.text = desc_str
-        p_d.font.name = "Arial"
-        p_d.font.size = Pt(16)
-        p_d.font.color.rgb = DARK_GRAY
 
     add_speaker_notes(
         slide3,
@@ -710,10 +743,12 @@ def build_presentation(data: dict) -> Path:
     ch5.category_axis.tick_labels.font.size = Pt(11)
     ch5.value_axis.tick_labels.font.name = "Arial"
     ch5.value_axis.tick_labels.font.size = Pt(11)
+    ch5.value_axis.minimum_scale = 30
+    ch5.value_axis.maximum_scale = 75
 
     plots5 = ch5.plots[0]
     colors_lines = [C0_COLOR, C1_COLOR, C2_COLOR, C3_COLOR, MID_GRAY]
-    widths_lines = [Pt(2.6), Pt(2.6), Pt(2.6), Pt(2.6), Pt(2.0)]
+    widths_lines = [Pt(2.25), Pt(2.25), Pt(2.25), Pt(2.25), Pt(2.25)]
     for i, s in enumerate(plots5.series):
         s.format.line.color.rgb = colors_lines[i]
         s.format.line.width = widths_lines[i]
@@ -773,7 +808,11 @@ def build_presentation(data: dict) -> Path:
             "col_x": Inches(0.6),
             "color": C0_COLOR,
             "title": "C0: Baja Participación Intermitente con Rezago Juvenil",
-            "kpis": [("50.4%", "media"), ("46.1%", "intermedia 2021"), ("+17.3 pts", "brecha pres.–inter.")],
+            "kpis": [
+                ("50.4%", "participación media"),
+                ("46.1%", "intermedia 2021"),
+                ("+17.3 pts", "brecha pres.–inter."),
+            ],
             "propuesta": "Pedagogía sobre elecciones intermedias en transporte masivo y medios digitales; módulos itinerantes de credencialización para jóvenes que no estudian y en universidades.",
             "meta": "49.5% en la intermedia 2027 (+3.3 pts) · voto juvenil 39.1%",
             "empezar": "Chihuahua 03 · Estado de México 31 · Puebla 09",
@@ -783,7 +822,11 @@ def build_presentation(data: dict) -> Path:
             "col_x": Inches(6.8),
             "color": C3_COLOR,
             "title": "C3: Liderazgo Femenino con Participación Estancada",
-            "kpis": [("55.4%", "media"), ("49.5%", "intermedia 2021"), ("+11.2 pts", "brecha de género")],
+            "kpis": [
+                ("55.4%", "participación media"),
+                ("49.5%", "intermedia 2021"),
+                ("+11.2 pts", "brecha de género"),
+            ],
             "propuesta": "Promoción del voto masculino en centros de trabajo agropecuarios, industriales y de transporte, y en radio regional; rutas móviles y casillas extraordinarias en localidades dispersas.",
             "meta": "51.1% en 2027 · 58.1% en 2030 · voto masculino 46.3%",
             "empezar": "Guanajuato 02 · Estado de México 32 · Sonora 02",
@@ -795,12 +838,12 @@ def build_presentation(data: dict) -> Path:
         cid = conf["cid"]
         color = conf["color"]
         # Encabezado con color e ícono
-        hdr_c = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(1.7), Inches(5.9), Inches(0.7))
+        hdr_c = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(1.65), Inches(5.9), Inches(0.65))
         hdr_c.fill.solid()
         hdr_c.fill.fore_color.rgb = color
         hdr_c.line.color.rgb = color
-        slide6.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), cx + Inches(0.12), Inches(1.75), Inches(0.6), Inches(0.6))
-        tb_ht = slide6.shapes.add_textbox(cx + Inches(0.8), Inches(1.72), Inches(5.0), Inches(0.65))
+        slide6.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), cx + Inches(0.12), Inches(1.70), Inches(0.55), Inches(0.55))
+        tb_ht = slide6.shapes.add_textbox(cx + Inches(0.75), Inches(1.67), Inches(5.05), Inches(0.60))
         p_ht = tb_ht.text_frame.paragraphs[0]
         p_ht.text = conf["title"]
         p_ht.font.name = "Arial"
@@ -808,33 +851,54 @@ def build_presentation(data: dict) -> Path:
         p_ht.font.bold = True
         p_ht.font.color.rgb = WHITE
 
-        # Fila de 3 KPIs (32 pt)
-        card_kpi = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(2.5), Inches(5.9), Inches(1.0))
-        card_kpi.fill.solid()
-        card_kpi.fill.fore_color.rgb = BG_LIGHT
-        card_kpi.line.color.rgb = LIGHT_GRAY
-        tf_kp = card_kpi.text_frame
-        tf_kp.word_wrap = True
-        p_k = tf_kp.paragraphs[0]
-        p_k.alignment = PP_ALIGN.CENTER
-        k_str = f"{conf['kpis'][0][0]} ({conf['kpis'][0][1]})  ·  {conf['kpis'][1][0]} ({conf['kpis'][1][1]})  ·  {conf['kpis'][2][0]} ({conf['kpis'][2][1]})"
-        p_k.text = k_str
-        p_k.font.name = "Arial"
-        p_k.font.size = Pt(13)
-        p_k.font.bold = True
-        p_k.font.color.rgb = color
+        # 3 recuadros KPI lado a lado (A4)
+        kpi_widths = [Inches(1.70), Inches(1.70), Inches(2.34)]
+        gap_kpi = Inches(0.08)
+        kpi_h = Inches(1.34)
+        kpi_y = Inches(2.32)
+        curr_bx = cx
+        for k_idx, (num_val, lbl_val) in enumerate(conf["kpis"]):
+            kw = kpi_widths[k_idx]
+            kbox = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, curr_bx, kpi_y, kw, kpi_h)
+            curr_bx += kw + gap_kpi
+            kbox.fill.solid()
+            kbox.fill.fore_color.rgb = BG_LIGHT
+            kbox.line.color.rgb = LIGHT_GRAY
+            tf_k = kbox.text_frame
+            tf_k.word_wrap = True
+            tf_k.vertical_anchor = MSO_ANCHOR.MIDDLE
+            tf_k.margin_top = Inches(0.02)
+            tf_k.margin_bottom = Inches(0.02)
+            tf_k.margin_left = tf_k.margin_right = Inches(0.02)
 
-        # Contenido de propuesta, meta y dónde empezar
-        body_box = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(3.6), Inches(5.9), Inches(3.2))
+            p_kn = tf_k.paragraphs[0]
+            p_kn.alignment = PP_ALIGN.CENTER
+            p_kn.text = num_val
+            p_kn.font.name = "Arial"
+            p_kn.font.size = Pt(32)
+            p_kn.font.bold = True
+            p_kn.font.color.rgb = color
+
+            p_kl = tf_k.add_paragraph()
+            p_kl.alignment = PP_ALIGN.CENTER
+            p_kl.text = lbl_val
+            p_kl.font.name = "Arial"
+            p_kl.font.size = Pt(12)
+            p_kl.font.color.rgb = DARK_GRAY
+
+        # Contenido de propuesta, meta y dónde empezar (A4: texto >= 14 pt, Meta en negrita del color del perfil)
+        body_box = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(3.68), Inches(5.9), Inches(3.22))
         body_box.fill.solid()
         body_box.fill.fore_color.rgb = WHITE
         body_box.line.color.rgb = LIGHT_GRAY
         tf_bb = body_box.text_frame
         tf_bb.word_wrap = True
-        tf_bb.margin_left = tf_bb.margin_right = Inches(0.25)
-        tf_bb.margin_top = Inches(0.2)
+        tf_bb.margin_left = tf_bb.margin_right = Inches(0.22)
+        tf_bb.margin_top = Inches(0.10)
+        tf_bb.margin_bottom = Inches(0.06)
 
         p_qp_t = tf_bb.paragraphs[0]
+        p_qp_t.alignment = PP_ALIGN.LEFT
         p_qp_t.text = "Qué proponemos:"
         p_qp_t.font.name = "Arial"
         p_qp_t.font.size = Pt(14)
@@ -842,12 +906,14 @@ def build_presentation(data: dict) -> Path:
         p_qp_t.font.color.rgb = NAVY
 
         p_qp = tf_bb.add_paragraph()
+        p_qp.alignment = PP_ALIGN.LEFT
         p_qp.text = conf["propuesta"]
         p_qp.font.name = "Arial"
-        p_qp.font.size = Pt(13)
+        p_qp.font.size = Pt(14)
         p_qp.font.color.rgb = DARK_GRAY
 
         p_m_t = tf_bb.add_paragraph()
+        p_m_t.alignment = PP_ALIGN.LEFT
         p_m_t.text = "Meta:"
         p_m_t.font.name = "Arial"
         p_m_t.font.size = Pt(14)
@@ -855,13 +921,15 @@ def build_presentation(data: dict) -> Path:
         p_m_t.font.color.rgb = NAVY
 
         p_m = tf_bb.add_paragraph()
+        p_m.alignment = PP_ALIGN.LEFT
         p_m.text = conf["meta"]
         p_m.font.name = "Arial"
-        p_m.font.size = Pt(13)
+        p_m.font.size = Pt(14)
         p_m.font.bold = True
         p_m.font.color.rgb = color
 
         p_de_t = tf_bb.add_paragraph()
+        p_de_t.alignment = PP_ALIGN.LEFT
         p_de_t.text = "Dónde empezar:"
         p_de_t.font.name = "Arial"
         p_de_t.font.size = Pt(14)
@@ -869,9 +937,10 @@ def build_presentation(data: dict) -> Path:
         p_de_t.font.color.rgb = NAVY
 
         p_de = tf_bb.add_paragraph()
+        p_de.alignment = PP_ALIGN.LEFT
         p_de.text = conf["empezar"]
         p_de.font.name = "Arial"
-        p_de.font.size = Pt(13)
+        p_de.font.size = Pt(14)
         p_de.font.color.rgb = DARK_GRAY
 
     add_speaker_notes(
@@ -892,7 +961,11 @@ def build_presentation(data: dict) -> Path:
             "col_x": Inches(0.6),
             "color": C1_COLOR,
             "title": "C1: Alta Participación Estable e Intergeneracional",
-            "kpis": [("65.1%", "media"), ("62.5%", "intermedia 2021"), ("59.1%", "voto juvenil")],
+            "kpis": [
+                ("65.1%", "participación media"),
+                ("62.5%", "intermedia 2021"),
+                ("59.1%", "voto juvenil"),
+            ],
             "propuesta": "Reconocimiento a la constancia cívica, talleres juveniles y sensibilización de la ciudadanía insaculada para integrar casillas.",
             "meta": "≥ 62.5% en 2027 · ≥ 65.7% en 2030",
             "empezar": "Jalisco 18 · Campeche 01 · Nuevo León 04",
@@ -902,7 +975,11 @@ def build_presentation(data: dict) -> Path:
             "col_x": Inches(6.8),
             "color": C2_COLOR,
             "title": "C2: Participación en Ascenso con Juventud Activa",
-            "kpis": [("58.9%", "media"), ("60.4%", "intermedia 2021"), ("+1.28 pts/año", "tendencia anual")],
+            "kpis": [
+                ("58.9%", "participación media"),
+                ("60.4%", "intermedia 2021"),
+                ("+1.28 pts/año", "tendencia"),
+            ],
             "propuesta": "Foros «Diálogos por la Democracia», alianzas con colectivos juveniles y difusión de «Conóceles» para consultar información de todas las candidaturas.",
             "meta": "≥ 60.4% en 2027 · razón juvenil ≥ 0.88",
             "empezar": "Ciudad de México 15 · Tlaxcala 03 · Ciudad de México 10",
@@ -914,12 +991,12 @@ def build_presentation(data: dict) -> Path:
         cid = conf["cid"]
         color = conf["color"]
         # Encabezado
-        hdr_c = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(1.7), Inches(5.9), Inches(0.7))
+        hdr_c = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(1.65), Inches(5.9), Inches(0.65))
         hdr_c.fill.solid()
         hdr_c.fill.fore_color.rgb = color
         hdr_c.line.color.rgb = color
-        slide7.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), cx + Inches(0.12), Inches(1.75), Inches(0.6), Inches(0.6))
-        tb_ht = slide7.shapes.add_textbox(cx + Inches(0.8), Inches(1.72), Inches(5.0), Inches(0.65))
+        slide7.shapes.add_picture(str(ICONOS_DIR / f"icono_c{cid}.png"), cx + Inches(0.12), Inches(1.70), Inches(0.55), Inches(0.55))
+        tb_ht = slide7.shapes.add_textbox(cx + Inches(0.75), Inches(1.67), Inches(5.05), Inches(0.60))
         p_ht = tb_ht.text_frame.paragraphs[0]
         p_ht.text = conf["title"]
         p_ht.font.name = "Arial"
@@ -927,33 +1004,54 @@ def build_presentation(data: dict) -> Path:
         p_ht.font.bold = True
         p_ht.font.color.rgb = WHITE
 
-        # Fila de 3 KPIs
-        card_kpi = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(2.5), Inches(5.9), Inches(1.0))
-        card_kpi.fill.solid()
-        card_kpi.fill.fore_color.rgb = BG_LIGHT
-        card_kpi.line.color.rgb = LIGHT_GRAY
-        tf_kp = card_kpi.text_frame
-        tf_kp.word_wrap = True
-        p_k = tf_kp.paragraphs[0]
-        p_k.alignment = PP_ALIGN.CENTER
-        k_str = f"{conf['kpis'][0][0]} ({conf['kpis'][0][1]})  ·  {conf['kpis'][1][0]} ({conf['kpis'][1][1]})  ·  {conf['kpis'][2][0]} ({conf['kpis'][2][1]})"
-        p_k.text = k_str
-        p_k.font.name = "Arial"
-        p_k.font.size = Pt(13)
-        p_k.font.bold = True
-        p_k.font.color.rgb = color
+        # 3 recuadros KPI lado a lado (A4)
+        kpi_widths = [Inches(1.70), Inches(1.70), Inches(2.34)]
+        gap_kpi = Inches(0.08)
+        kpi_h = Inches(1.34)
+        kpi_y = Inches(2.32)
+        curr_bx = cx
+        for k_idx, (num_val, lbl_val) in enumerate(conf["kpis"]):
+            kw = kpi_widths[k_idx]
+            kbox = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, curr_bx, kpi_y, kw, kpi_h)
+            curr_bx += kw + gap_kpi
+            kbox.fill.solid()
+            kbox.fill.fore_color.rgb = BG_LIGHT
+            kbox.line.color.rgb = LIGHT_GRAY
+            tf_k = kbox.text_frame
+            tf_k.word_wrap = True
+            tf_k.vertical_anchor = MSO_ANCHOR.MIDDLE
+            tf_k.margin_top = Inches(0.02)
+            tf_k.margin_bottom = Inches(0.02)
+            tf_k.margin_left = tf_k.margin_right = Inches(0.02)
 
-        # Contenido
-        body_box = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(3.6), Inches(5.9), Inches(3.2))
+            p_kn = tf_k.paragraphs[0]
+            p_kn.alignment = PP_ALIGN.CENTER
+            p_kn.text = num_val
+            p_kn.font.name = "Arial"
+            p_kn.font.size = Pt(32)
+            p_kn.font.bold = True
+            p_kn.font.color.rgb = color
+
+            p_kl = tf_k.add_paragraph()
+            p_kl.alignment = PP_ALIGN.CENTER
+            p_kl.text = lbl_val
+            p_kl.font.name = "Arial"
+            p_kl.font.size = Pt(12)
+            p_kl.font.color.rgb = DARK_GRAY
+
+        # Contenido (A4: texto >= 14 pt, Meta en negrita del color del perfil)
+        body_box = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(3.68), Inches(5.9), Inches(3.22))
         body_box.fill.solid()
         body_box.fill.fore_color.rgb = WHITE
         body_box.line.color.rgb = LIGHT_GRAY
         tf_bb = body_box.text_frame
         tf_bb.word_wrap = True
-        tf_bb.margin_left = tf_bb.margin_right = Inches(0.25)
-        tf_bb.margin_top = Inches(0.2)
+        tf_bb.margin_left = tf_bb.margin_right = Inches(0.22)
+        tf_bb.margin_top = Inches(0.10)
+        tf_bb.margin_bottom = Inches(0.06)
 
         p_qp_t = tf_bb.paragraphs[0]
+        p_qp_t.alignment = PP_ALIGN.LEFT
         p_qp_t.text = "Qué proponemos:"
         p_qp_t.font.name = "Arial"
         p_qp_t.font.size = Pt(14)
@@ -961,12 +1059,14 @@ def build_presentation(data: dict) -> Path:
         p_qp_t.font.color.rgb = NAVY
 
         p_qp = tf_bb.add_paragraph()
+        p_qp.alignment = PP_ALIGN.LEFT
         p_qp.text = conf["propuesta"]
         p_qp.font.name = "Arial"
-        p_qp.font.size = Pt(13)
+        p_qp.font.size = Pt(14)
         p_qp.font.color.rgb = DARK_GRAY
 
         p_m_t = tf_bb.add_paragraph()
+        p_m_t.alignment = PP_ALIGN.LEFT
         p_m_t.text = "Meta:"
         p_m_t.font.name = "Arial"
         p_m_t.font.size = Pt(14)
@@ -974,13 +1074,15 @@ def build_presentation(data: dict) -> Path:
         p_m_t.font.color.rgb = NAVY
 
         p_m = tf_bb.add_paragraph()
+        p_m.alignment = PP_ALIGN.LEFT
         p_m.text = conf["meta"]
         p_m.font.name = "Arial"
-        p_m.font.size = Pt(13)
+        p_m.font.size = Pt(14)
         p_m.font.bold = True
         p_m.font.color.rgb = color
 
         p_de_t = tf_bb.add_paragraph()
+        p_de_t.alignment = PP_ALIGN.LEFT
         p_de_t.text = "Dónde empezar:"
         p_de_t.font.name = "Arial"
         p_de_t.font.size = Pt(14)
@@ -988,9 +1090,10 @@ def build_presentation(data: dict) -> Path:
         p_de_t.font.color.rgb = NAVY
 
         p_de = tf_bb.add_paragraph()
+        p_de.alignment = PP_ALIGN.LEFT
         p_de.text = conf["empezar"]
         p_de.font.name = "Arial"
-        p_de.font.size = Pt(13)
+        p_de.font.size = Pt(14)
         p_de.font.color.rgb = DARK_GRAY
 
     add_speaker_notes(
@@ -1116,7 +1219,7 @@ def build_presentation(data: dict) -> Path:
     # Diagrama horizontal de 5 pasos
     diag_steps = [
         "1,000 secciones\ndel perfil C0",
-        "Aleatorización\nestratificada",
+        "Aleatorización estratificada\n(entidad × tercil 2021)",
         "500 tratamiento\n500 de control",
         "Medición con el\nCCPC 2027",
         "Análisis\nANCOVA",
@@ -1137,7 +1240,7 @@ def build_presentation(data: dict) -> Path:
         p.alignment = PP_ALIGN.CENTER
         p.text = txt
         p.font.name = "Arial"
-        p.font.size = Pt(14)
+        p.font.size = Pt(12) if idx == 1 else Pt(14)
         p.font.bold = True
         p.font.color.rgb = NAVY
 
