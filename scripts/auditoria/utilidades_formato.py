@@ -43,6 +43,13 @@ def redondear(x: Any, nd: int = 1) -> Union[float, int, None]:
         return float(d.quantize(Decimal(fmt), rounding=ROUND_HALF_UP))
 
 
+def redondear_pub(valor: Any, decimales: int = 1) -> Union[float, int, None]:
+    """Convención del proyecto: las cifras a 1 decimal se obtienen redondeando
+    (ROUND_HALF_UP) el valor publicado a 2 decimales en outputs/tablas, para que
+    cualquier lector las reproduzca desde las tablas publicadas."""
+    return redondear(redondear(valor, 2), decimales)
+
+
 def formatear(x: Any, nd: int = 1, coma_miles: bool = False) -> str:
     """
     Redondea x con ROUND_HALF_UP y formatea como cadena con exactamente nd decimales.

@@ -970,11 +970,11 @@
   ],
   "impacto_y_prioridad_territorial": {
     "base_calculo": "sv_nv_2024",
-    "votantes_equivalentes_c0": 892922,
+    "votantes_equivalentes_c0": 893479,
     "votantes_equivalentes_c0_miles_str": "≈ 893 mil",
-    "votantes_equivalentes_c3": 316246,
+    "votantes_equivalentes_c3": 316357,
     "votantes_equivalentes_c3_miles_str": "≈ 316 mil",
-    "total_votantes_adicionales_c0_c3": 1209168,
+    "total_votantes_adicionales_c0_c3": 1209836,
     "total_adicionales_millones_str": "≈ 1.21 millones",
     "escenario_regresion_c1": 52210,
     "escenario_regresion_c1_miles_str": "≈ 52 mil",
@@ -991,12 +991,14 @@
         "tipo_meta": "Aumento",
         "meta_delta_pts": "+3.3 pts",
         "meta_delta_real_pts": 3.34,
-        "votantes_equivalentes_meta_n": 892922,
+        "votantes_equivalentes_meta_n": 893479,
         "votantes_equivalentes_str": "≈ 893 mil más",
         "escenario_regresion_votos_n": 0,
         "escenario_regresion_str": "-",
         "top3_juntas_distritales": "Chihuahua – Distrito 03, Estado de México – Distrito 31, Puebla – Distrito 09",
-        "pct_ln_en_top30_juntas": 23.7
+        "pct_ln_en_top30_juntas": 23.7,
+        "participacion_2021_pond_pct": 46.13,
+        "promedio_intermedias_2009_2021_pond_pct": 40.85
       },
       {
         "codigo_cluster": "C1",
@@ -1011,7 +1013,9 @@
         "escenario_regresion_votos_n": 52210,
         "escenario_regresion_str": "≈ 52 mil",
         "top3_juntas_distritales": "Jalisco – Distrito 18, Campeche – Distrito 01, Nuevo León – Distrito 04",
-        "pct_ln_en_top30_juntas": 49.2
+        "pct_ln_en_top30_juntas": 49.2,
+        "participacion_2021_pond_pct": 62.45,
+        "promedio_intermedias_2009_2021_pond_pct": 61.97
       },
       {
         "codigo_cluster": "C2",
@@ -1026,7 +1030,9 @@
         "escenario_regresion_votos_n": 1778008,
         "escenario_regresion_str": "≈ 1.78 millones",
         "top3_juntas_distritales": "Ciudad de México – Distrito 15, Tlaxcala – Distrito 03, Ciudad de México – Distrito 10",
-        "pct_ln_en_top30_juntas": 31.2
+        "pct_ln_en_top30_juntas": 31.2,
+        "participacion_2021_pond_pct": 60.37,
+        "promedio_intermedias_2009_2021_pond_pct": 50.45
       },
       {
         "codigo_cluster": "C3",
@@ -1036,12 +1042,14 @@
         "tipo_meta": "Aumento",
         "meta_delta_pts": "+1.7 pts",
         "meta_delta_real_pts": 1.68,
-        "votantes_equivalentes_meta_n": 316246,
+        "votantes_equivalentes_meta_n": 316357,
         "votantes_equivalentes_str": "≈ 316 mil más",
         "escenario_regresion_votos_n": 0,
         "escenario_regresion_str": "-",
         "top3_juntas_distritales": "Guanajuato – Distrito 02, Estado de México – Distrito 32, Sonora – Distrito 02",
-        "pct_ln_en_top30_juntas": 28.5
+        "pct_ln_en_top30_juntas": 28.5,
+        "participacion_2021_pond_pct": 49.45,
+        "promedio_intermedias_2009_2021_pond_pct": 49.8
       }
     ]
   },
@@ -2658,6 +2666,22 @@
         "pct_en_c3": 23.44,
         "brecha_pres_inter_media_pts": 13.07
       }
+    ],
+    "entidades_las_tres": [
+      "Campeche",
+      "Colima",
+      "Nuevo León",
+      "Querétaro",
+      "San Luis Potosí",
+      "Sonora"
+    ],
+    "pct_c1_en_las_tres": 33.48,
+    "pct_c2_en_ninguna": 70.43,
+    "definicion_cambio_anadieron": "6 entidades que sumaron elección de gubernatura exclusivamente en 2021 (Baja California, Chihuahua, Nayarit, Sinaloa, Tlaxcala y Zacatecas) frente a las 17 entidades sin gubernatura en ninguna de las tres intermedias (Aguascalientes, Chiapas, Ciudad de México, Coahuila, Durango, Estado de México, Guanajuato, Hidalgo, Jalisco, Morelos, Oaxaca, Puebla, Quintana Roo, Tabasco, Tamaulipas, Veracruz y Yucatán).",
+    "variables_desestatificadas": [
+      "part_media",
+      "brecha_pres",
+      "tendencia"
     ]
   },
   "nombre_publico": {
@@ -2668,7 +2692,7 @@
   },
   "tendencia_corregida": {
     "C0": 0.4,
-    "C1": -0.0,
+    "C1": 0.0,
     "C2": 0.88,
     "C3": -0.17,
     "Panel_B": 0.33

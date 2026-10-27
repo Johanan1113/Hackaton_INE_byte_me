@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 from PIL import Image as PILImage
 from reportlab.lib import colors
@@ -52,6 +53,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 METRICAS_PATH = PROJECT_ROOT / "outputs" / "metricas_finales.json"
 PLANTILLA_DIR = PROJECT_ROOT / "plantillas"
 FIGURAS_DIR = PROJECT_ROOT / "outputs" / "figuras"
+TABLAS_DIR = PROJECT_ROOT / "outputs" / "tablas"
 OUT_ENTREGABLES = PROJECT_ROOT / "outputs" / "entregables"
 OUT_ENTREGABLES.mkdir(parents=True, exist_ok=True)
 
@@ -61,7 +63,7 @@ rl_config.canvas_basefontname = "Arial"
 import sys
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-from scripts.auditoria.utilidades_formato import redondear
+from scripts.auditoria.utilidades_formato import redondear, redondear_pub
 
 # Registro de la fuente Arial TrueType
 pdfmetrics.registerFont(TTFont("Arial", "/usr/share/fonts/TTF/Arial.TTF"))
@@ -226,7 +228,7 @@ def build_pdf(data: dict) -> Path:
     )
     cap_st = ParagraphStyle(
         "TableCap", parent=styles["Normal"], fontName="Arial-Bold",
-        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1E293B"), spaceBefore=5, spaceAfter=3.0, keepWithNext=False
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1E293B"), spaceBefore=3, spaceAfter=2.0, keepWithNext=False
     )
     note_st = ParagraphStyle(
         "TableNote", parent=styles["Normal"], fontName="Arial-Italic",
@@ -244,6 +246,27 @@ def build_pdf(data: dict) -> Path:
     td_l = ParagraphStyle("TDL", fontName="Arial", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
     td_cb = ParagraphStyle("TDCB", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_CENTER)
     td_lb = ParagraphStyle("TDLB", fontName="Arial-Bold", fontSize=10.0, leading=12.0, textColor=colors.HexColor("#111827"), alignment=TA_LEFT)
+
+    # Carga de tablas dinámicas para cifras auditadas (Bloques 2.1 - 2.10)
+    df07 = pd.read_csv(TABLAS_DIR / "tabla_07_perfiles_k4_series_demografia.csv").set_index("codigo_cluster")
+    df12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+    df17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv").set_index("codigo_cluster")
+    df18 = pd.read_csv(TABLAS_DIR / "tabla_18_calendario_electoral.csv").set_index("grupo_concurrencia")
+    pde = data.get("piloto_diseno_efecto", {})
+    imp = data.get("impacto_y_prioridad_territorial", {})
+    cal = data.get("calendario_electoral", {})
+    tc_data = data.get("tendencia_corregida", {})
+    val_temp = data.get("validacion_fuera_de_tiempo", {})
+
+    def fmt_pend(v):
+        v = redondear(v, 2) + 0.0
+        return "0.00" if v == 0 else f"{v:+.2f}"
+
+    tc_panel = fmt_pend(tc_data.get("Panel_B", 0.33))
+    tc_c0 = fmt_pend(tc_data.get("C0", 0.40))
+    tc_c1 = fmt_pend(tc_data.get("C1", 0.00))
+    tc_c2 = fmt_pend(tc_data.get("C2", 0.88))
+    tc_c3 = fmt_pend(tc_data.get("C3", -0.17))
 
     story = []
 
@@ -293,9 +316,9 @@ def build_pdf(data: dict) -> Path:
         f"Los cuatro perfiles identificados son: "
         + ", ".join(f"<b>{p['codigo_cluster']}: {p['nombre_propuesto']}</b>" for p in perfiles[:3])
         + f" y <b>{perfiles[3]['codigo_cluster']}: {perfiles[3]['nombre_propuesto']}</b>. "
-        f"La equivalencia de las metas en votantes representa ≈ 1.21 millones de sufragios adicionales (≈ 893 mil en C0 y ≈ 316 mil en C3); "
-        f"en caso de regreso a promedios intermedios históricos en C1 y C2, el escenario de regresión (sin probabilidad asociada) involucra ≈ 1.83 millones de electores. "
-        f"La propuesta incluye un piloto evaluable con MDE de 1.57 pts por sección (500 secciones por grupo).",
+        f"La equivalencia de las metas en votantes representa {imp['total_adicionales_millones_str']} de sufragios adicionales ({imp['votantes_equivalentes_c0_miles_str']} en C0 y {imp['votantes_equivalentes_c3_miles_str']} en C3); "
+        f"en caso de regreso a promedios intermedios históricos en C1 y C2, el escenario de regresión (sin probabilidad asociada) involucra {imp['total_regresion_millones_str']} de electores. "
+        f"La propuesta incluye un piloto evaluable con MDE de {pde.get('mde_seccion_pts', 1.57):.2f} pts por sección (500 secciones por grupo).",
         body_st
     ))
 
@@ -307,8 +330,8 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(
         f"En los microdatos abiertos de los Conteos Censales de Participación Ciudadana (CCPC), "
         f"la Lista Nominal se desagrega en tres categorías: electores que sufragaron (SV), electores que no votaron (NV) y electores sin condición "
-        f"especificada de voto (NS). De acuerdo con el catálogo oficial de descripción de campos del INE (<i>01_descripcioncampos_conteoscensales2024.txt</i>) "
-        f"y el Manual CCPC (p. 18), los registros NS corresponden a cuadernillos sin marcas, no disponibles para captura, con páginas faltantes "
+        f"especificada de voto (NS). De acuerdo con el catálogo de campos que acompaña los datos abiertos del CCPC 2024 y el Manual CCPC (p. 18), "
+        f"los registros NS corresponden a cuadernillos sin marcas, no disponibles para captura, con páginas faltantes "
         f"o requeridos por autoridades jurisdiccionales. Al usar la fórmula <b>P = SV / (SV + NV)</b>, suponemos que los registros NS participan como los capturados (faltantes al azar).",
         body_st
     ))
@@ -410,10 +433,10 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
     story.append(Paragraph(
-        "Una regresión por sección que controla por tipo de elección arroja una tendencia corregida promedio de +0.33 pts/año en el panel "
-        "(+0.40 en C0, -0.00 en C1, +0.88 en C2 y -0.17 en C3), advirtiendo que la pendiente simple absorbe parte del ciclo presidencial–intermedio. "
-        "Asimismo, la correlación entre brecha generacional y razón juvenil (r = -0.819) y entre estabilidad y participación media (r = 0.489) "
-        "otorga un doble peso implícito al ciclo y la estructura etaria en la distancia euclidiana, lo cual constituye una limitación del agrupamiento.",
+        f"Una regresión por sección que controla por tipo de elección arroja una tendencia corregida promedio de {tc_panel} pts/año en el panel "
+        f"({tc_c0} en C0, {tc_c1} en C1, {tc_c2} en C2 y {tc_c3} en C3), advirtiendo que la pendiente simple absorbe parte del ciclo presidencial–intermedio. "
+        f"Asimismo, la correlación entre brecha generacional y razón juvenil (r = -0.819) y entre estabilidad y participación media (r = 0.489) "
+        f"otorga un doble peso implícito al ciclo y la estructura etaria en la distancia euclidiana, lo cual constituye una limitación del agrupamiento.",
         body_st
     ))
 
@@ -510,14 +533,15 @@ def build_pdf(data: dict) -> Path:
     ))
 
     # Tabla 4: Centroides (8 cols = 470.27 pt)
+    # Tabla 4: Centroides (8 cols = 470.27 pt, Bloque 2.2)
     t5_rows = [[
         Paragraph("Perfil y Nombre Oficial", th_l),
         Paragraph("Secc.<br/>(% Panel)", th_c),
         Paragraph(f"LN {serie[-1]['anio']}<br/>(% Panel)", th_c),
-        Paragraph("Part. Media<br/>(z)", th_c),
-        Paragraph("Pres–Int.<br/>(z)", th_c),
-        Paragraph("Tend. Anual<br/>(z)", th_c),
-        Paragraph("Estabilidad<br/>(z)", th_c),
+        Paragraph("Part. media<br/>(%; z)", th_c),
+        Paragraph("Brecha P–I<br/>(pts; z)", th_c),
+        Paragraph("Tend. simple<br/>(pts/año; z)", th_c),
+        Paragraph("Estab.<br/>(log; z)", th_c),
         Paragraph("Gen. / Género /<br/>Razón Joven (z)", th_c),
     ]]
     for p in perfiles:
@@ -525,14 +549,14 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"<b>{p['codigo_cluster']}: {p['nombre_propuesto']}</b>", td_l),
             Paragraph(f"{p['n_secciones']:,}<br/>({p['pct_secciones_panel']:.2f}%)", td_c),
             Paragraph(f"{p['ln_2024']:,}<br/>({p['pct_ln_panel']:.2f}%)", td_c),
-            Paragraph(f"<b>{p['participacion_media_historica_original']*100:.2f}%</b><br/>(z={p['participacion_media_historica_zscore']:+.2f})", td_c),
-            Paragraph(f"<b>{p['brecha_presidencial_intermedia_original']*100:+.2f} pts</b><br/>(z={p['brecha_presidencial_intermedia_zscore']:+.2f})", td_c),
-            Paragraph(f"<b>{p['tendencia_participacion_beta_original']*100:+.2f} pts/año</b><br/>(z={p['tendencia_participacion_beta_zscore']:+.2f})", td_c),
+            Paragraph(f"<b>{p['participacion_media_historica_original']*100:.2f}</b><br/>(z={p['participacion_media_historica_zscore']:+.2f})", td_c),
+            Paragraph(f"<b>{p['brecha_presidencial_intermedia_original']*100:+.2f}</b><br/>(z={p['brecha_presidencial_intermedia_zscore']:+.2f})", td_c),
+            Paragraph(f"<b>{p['tendencia_participacion_beta_original']*100:+.2f}</b><br/>(z={p['tendencia_participacion_beta_zscore']:+.2f})", td_c),
             Paragraph(f"<b>{p['estabilidad_participacion_original']:.4f}</b><br/>(z={p['estabilidad_participacion_zscore']:+.2f})", td_c),
             Paragraph(
-                f"Gen: {redondear(p['brecha_generacional_original']*100, 1):+.1f} ({p['brecha_generacional_zscore']:+.2f})<br/>"
-                f"Sexo: {redondear(p['brecha_genero_original']*100, 1):+.1f} ({p['brecha_genero_zscore']:+.2f})<br/>"
-                f"Jov: {redondear(p['ratio_participacion_joven_original'], 2):.2f} ({p['ratio_participacion_joven_zscore']:+.2f})",
+                f"Gen: {redondear_pub(p['brecha_generacional_original']*100, 1):+.1f} ({p['brecha_generacional_zscore']:+.2f})<br/>"
+                f"Sexo: {redondear_pub(p['brecha_genero_original']*100, 1):+.1f} ({p['brecha_genero_zscore']:+.2f})<br/>"
+                f"Jov: {redondear_pub(p['ratio_participacion_joven_original'], 2):.2f} ({p['ratio_participacion_joven_zscore']:+.2f})",
                 td_c
             ),
         ])
@@ -540,24 +564,28 @@ def build_pdf(data: dict) -> Path:
         Paragraph("<b>Media del Panel B</b>", td_lb),
         Paragraph(f"<b>{pan_b['n_secciones']:,}</b><br/>(100.00%)", td_cb),
         Paragraph(f"<b>{pan_b['ln_2024']:,}</b><br/>(100.00%)", td_cb),
-        Paragraph(f"<b>{pan_b['participacion_media_historica_media']*100:.2f}%</b><br/>(z=0.00)", td_cb),
-        Paragraph(f"<b>{pan_b['brecha_presidencial_intermedia_media']*100:+.2f} pts</b><br/>(z=0.00)", td_cb),
-        Paragraph(f"<b>{pan_b['tendencia_participacion_beta_media']*100:+.2f} pts/año</b><br/>(z=0.00)", td_cb),
+        Paragraph(f"<b>{pan_b['participacion_media_historica_media']*100:.2f}</b><br/>(z=0.00)", td_cb),
+        Paragraph(f"<b>{pan_b['brecha_presidencial_intermedia_media']*100:+.2f}</b><br/>(z=0.00)", td_cb),
+        Paragraph(f"<b>{pan_b['tendencia_participacion_beta_media']*100:+.2f}</b><br/>(z=0.00)", td_cb),
         Paragraph(f"<b>{pan_b['estabilidad_participacion_media']:.4f}</b><br/>(z=0.00)", td_cb),
         Paragraph(
-            f"Gen: {redondear(pan_b['brecha_generacional_media']*100, 1):+.1f} (0.00)<br/>"
-            f"Sexo: {redondear(pan_b['brecha_genero_media']*100, 1):+.1f} (0.00)<br/>"
-            f"Jov: {redondear(pan_b['ratio_participacion_joven_media'], 2):.2f} (0.00)",
+            f"Gen: {redondear_pub(pan_b['brecha_generacional_media']*100, 1):+.1f} (0.00)<br/>"
+            f"Sexo: {redondear_pub(pan_b['brecha_genero_media']*100, 1):+.1f} (0.00)<br/>"
+            f"Jov: {redondear_pub(pan_b['ratio_participacion_joven_media'], 2):.2f} (0.00)",
             td_cb
         ),
     ])
     t4_cap = Paragraph(f"Tabla 4. Centroides de las 7 Variables Rectoras (Escala Original y z-score) y Cobertura (k = {k_sel})", cap_st)
-    t4_table = styled_table(t5_rows, [85.27, 46.0, 65.0, 45.0, 45.0, 45.0, 55.0, 84.0], highlight_last=True)
+    t4_table = styled_table(t5_rows, [88.27, 50.0, 56.0, 47.0, 50.0, 50.0, 48.0, 81.0], highlight_last=True)
     story.append(t4_cap)
     story.append(t4_table)
+    story.append(Paragraph(
+        "<i>Nota: Tend. simple = pendiente usada en el agrupamiento; la corregida está en la Sección 3.</i>",
+        note_st
+    ))
     story.append(Spacer(1, 4))
 
-    # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (8 columnas, Bloque H4)
+    # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (8 columnas, Bloque H4 & 2.1)
     t6_rows = [[
         Paragraph("Perfil", th_c),
         Paragraph("Serie Ponderada 2009–2024", th_c),
@@ -569,27 +597,27 @@ def build_pdf(data: dict) -> Path:
         Paragraph("% Mix.", th_c),
     ]]
     for p in perfiles:
-        s_pond = " / ".join(f"<b>{redondear(p[f'p_{y}_ponderada']*100, 1):.1f}%</b>" if y == 2021 else f"{redondear(p[f'p_{y}_ponderada']*100, 1):.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
+        s_pond = " / ".join(f"<b>{redondear_pub(p[f'p_{y}_ponderada']*100, 1):.1f}%</b>" if y == 2021 else f"{redondear_pub(p[f'p_{y}_ponderada']*100, 1):.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
         t6_rows.append([
             Paragraph(f"<b>{p['codigo_cluster']}</b>", td_cb),
             Paragraph(s_pond, td_c),
-            Paragraph(f"{redondear(p['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear(p['media_intermedia_original']*100, 1):.1f}%", td_c),
-            Paragraph(f"{redondear(p['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear(p['tasa_mayor_60_mas_original']*100, 1):.1f}%", td_c),
-            Paragraph(f"{redondear(p['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear(p['tasa_hombres_original']*100, 1):.1f}%", td_c),
-            Paragraph(f"{redondear(p['pct_secciones_urbanas'], 1):.1f}%", td_c),
-            Paragraph(f"{redondear(p['pct_secciones_rurales'], 1):.1f}%", td_c),
-            Paragraph(f"{redondear(p['pct_secciones_mixtas'], 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear_pub(p['media_intermedia_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear_pub(p['tasa_mayor_60_mas_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear_pub(p['tasa_hombres_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['pct_secciones_urbanas'], 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['pct_secciones_rurales'], 1):.1f}%", td_c),
+            Paragraph(f"{redondear_pub(p['pct_secciones_mixtas'], 1):.1f}%", td_c),
         ])
-    s_pond_b = " / ".join(f"<b>{redondear(pan_b[f'p_{y}_ponderada']*100, 1):.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
+    s_pond_b = " / ".join(f"<b>{redondear_pub(pan_b[f'p_{y}_ponderada']*100, 1):.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
     t6_rows.append([
         Paragraph("<b>Panel B</b>", td_cb),
         Paragraph(s_pond_b, td_cb),
-        Paragraph(f"<b>{redondear(pan_b['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear(pan_b['media_intermedia_original']*100, 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear(pan_b['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear(pan_b['tasa_mayor_60_mas_original']*100, 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear(pan_b['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear(pan_b['tasa_hombres_original']*100, 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear(pan_b['pct_secciones_urbanas_1d'], 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear(pan_b['pct_secciones_rurales_1d'], 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear(pan_b['pct_secciones_mixtas_1d'], 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['media_intermedia_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['tasa_mayor_60_mas_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['tasa_hombres_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_urbanas_1d', 63.7), 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_rurales_1d', 26.9), 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_mixtas_1d', 9.5), 1):.1f}%</b>", td_cb),
     ])
     t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
     t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)
@@ -598,12 +626,19 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph("<i>Nota: Pres. / Inter. corresponden a medias simples de las elecciones de cada tipo; las demás columnas son ponderadas o promedios del periodo.</i>", note_st))
     story.append(Spacer(1, 4))
 
-    # A1 & D2, D3, D5: Diagnósticos por perfil en <= 60 palabras de narrativa y máximo 2 cifras por perfil
+    # A1 & D2, D3, D5: Diagnósticos por perfil en <= 60 palabras de narrativa y máximo 2 cifras por perfil (Bloques 2.4, 2.5, 2.10)
+    c0_hom = redondear_pub(perfiles[0]['tasa_hombres_original'] * 100, 1)
+    c3_muj = redondear_pub(perfiles[3]['tasa_mujeres_original'] * 100, 1)
+    c3_hom = redondear_pub(perfiles[3]['tasa_hombres_original'] * 100, 1)
+    pan_muj = redondear_pub(pan_b['tasa_mujeres_original'] * 100, 1)
+    pan_hom = redondear_pub(pan_b['tasa_hombres_original'] * 100, 1)
+    c3_sexo_brecha = redondear_pub(perfiles[3]['brecha_genero_original'] * 100, 1)
+
     narrativas_a1 = [
         (
             f"• <b>{perfiles[0]['codigo_cluster']} — {perfiles[0]['nombre_propuesto']}:</b> "
             f"Agrupa zonas urbanas con fuerte caída en comicios intermedios ({perfiles[0]['brecha_presidencial_intermedia_original']*100:+.1f} pts) "
-            f"y menor participación media ({perfiles[0]['participacion_media_historica_original']*100:.1f}%). Su participación masculina (46.8%) es la más baja de los cuatro perfiles. "
+            f"y menor participación media ({perfiles[0]['participacion_media_historica_original']*100:.1f}%). Su participación masculina ({c0_hom:.1f}%) es la más baja de los cuatro perfiles. "
             f"Concentra el mayor abstencionismo metropolitano y juventud desconectada, siendo prioritario el trabajo en centros laborales y transporte masivo."
         ),
         (
@@ -614,13 +649,15 @@ def build_pdf(data: dict) -> Path:
         ),
         (
             f"• <b>{perfiles[2]['codigo_cluster']} — {perfiles[2]['nombre_propuesto']}:</b> "
-            f"Caracteriza secciones con ascenso sostenido (+0.88 pts/año, corregida por tipo de elección) y razón juvenil de 0.88 (segunda tras C1 con 0.91). "
-            f"El crecimiento ocurrió en comicios intermedios (41.8% a 60.4%), mientras en presidenciales se mantuvo estable (69.3% a 68.0%), requiriendo consolidar la concurrencia cívica."
+            f"Caracteriza secciones con ascenso sostenido ({tc_c2} pts/año, corregida por tipo de elección) y razón juvenil de {redondear_pub(perfiles[2]['ratio_participacion_joven_original'], 2):.2f} (segunda tras C1 con {redondear_pub(perfiles[1]['ratio_participacion_joven_original'], 2):.2f}). "
+            f"El crecimiento ocurrió en las intermedias ({df07.loc['C2', 'p_2009_pond_pct']:.1f}% en 2009 y {df07.loc['C2', 'p_2021_pond_pct']:.1f}% en 2021); en las "
+            f"presidenciales varió poco ({df07.loc['C2', 'p_2012_pond_pct']:.1f}% en 2012, {df07.loc['C2', 'p_2018_pond_pct']:.1f}% en 2018 y {df07.loc['C2', 'p_2024_pond_pct']:.1f}% en 2024), por lo que la "
+            f"prioridad es sostener el voto en intermedias."
         ),
         (
             f"• <b>{perfiles[3]['codigo_cluster']} — {perfiles[3]['nombre_propuesto']}:</b> "
-            f"Muestra tendencia descendente (-0.17 pts/año, corregida por tipo de elección) y brecha de género de +11.2 pts. "
-            f"La brecha proviene de baja participación masculina (49.7% vs 52.3% del panel; 43.9% en 2021), mientras mujeres votan como el promedio (60.9%). "
+            f"Muestra tendencia descendente ({tc_c3} pts/año, corregida por tipo de elección) y brecha de género de +{c3_sexo_brecha:.1f} pts. "
+            f"La brecha proviene de baja participación masculina ({c3_hom:.1f}% vs {pan_hom:.1f}% del panel; {df12.loc['C3', 'tasa_hombres_2021_pond_pct']:.1f}% en 2021), mientras que la participación femenina ({c3_muj:.1f}%) es similar a la del panel ({pan_muj:.1f}%). "
             f"Hipótesis por probar: menor vinculación o movilidad laboral masculina."
         ),
     ]
@@ -660,10 +697,15 @@ def build_pdf(data: dict) -> Path:
 
         perf_cell = f"<b>{cid}: {nom}</b><br/>Secc: {secc_n:,} ({secc_pct:.2f}%)<br/>Base Inter. 2021: <b>{base_inter:.1f}%</b><br/>Base Pres. 2024: <b>{base_pres:.1f}%</b>"
         if cid == "C0":
-            perf_cell += "<br/>Base Joven 2021: <b>35.2%</b>"
+            b_jov_c0 = df12.loc["C0", "tasa_joven_18_29_2021_pond_pct"]
+            m_c0 = df12.loc["C0", "meta_intermedia_2027"]
+            d_c0 = df17.loc["C0", "meta_delta_pts"]
+            m_jov_c0 = df12.loc["C0", "meta_tasa_joven"]
+            d_jov_c0 = float(str(m_jov_c0).rstrip("%")) - b_jov_c0
+            perf_cell += f"<br/>Base Joven 2021: <b>{b_jov_c0:.1f}%</b>"
             canales_fmt = "Transporte metropolitano, 'Conóceles', tianguis, centros laborales (incluidos hombres jóvenes y adultos)."
             accion_fmt = "Campaña cívica metropolitana y brigadas de educación cívica y revisión de accesibilidad de casilla (DERFE/DECEyEC)."
-            meta_fmt = "Elevar participación a 49.5% en 2027 (+3.3 pts vs 2021) y voto juvenil a 39.1% (+3.9 pts)."
+            meta_fmt = f"Elevar participación a {m_c0} en 2027 ({d_c0} vs 2021) y voto juvenil a {m_jov_c0} (+{d_jov_c0:.1f} pts)."
             ind_fmt = "Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC."
             resp_fmt = "DECEyEC, DERFE y Juntas Distritales"
         elif cid == "C1":
@@ -679,10 +721,15 @@ def build_pdf(data: dict) -> Path:
             ind_fmt = "Tasa ponderada 2027 y razón de participación juvenil CCPC."
             resp_fmt = "DECEyEC, DEOE y Juntas Distritales"
         else:  # C3
-            perf_cell += "<br/>Base Hombres 2021: <b>43.9%</b>"
+            b_hom_c3 = df12.loc["C3", "tasa_hombres_2021_pond_pct"]
+            m_c3 = df12.loc["C3", "meta_intermedia_2027"]
+            d_c3 = df17.loc["C3", "meta_delta_pts"]
+            m_pres_c3 = df12.loc["C3", "meta_presidencial_2030"]
+            m_hom_c3 = df12.loc["C3", "meta_tasa_hombres"]
+            perf_cell += f"<br/>Base Hombres 2021: <b>{b_hom_c3:.1f}%</b>"
             canales_fmt = "Centros laborales masculinos (agropecuario, industria, transporte) y radio regional en tiempos oficiales."
             accion_fmt = "Promoción del voto masculino y propuesta de casillas extraordinarias a Consejos Distritales conforme a la LGIPE."
-            meta_fmt = "Elevar participación a 51.1% en 2027 (+1.7 pts), 58.1% en 2030 y voto masculino a 46.3% en 2027."
+            meta_fmt = f"Elevar participación a {m_c3} en 2027 ({d_c3}), {m_pres_c3} en 2030 y voto masculino a {m_hom_c3} en 2027."
             ind_fmt = "Tasa masculina SV/(SV+NV) y participación ponderada en CCPC."
             resp_fmt = "Juntas Distritales, DECEyEC y DEOE"
 
@@ -750,7 +797,16 @@ def build_pdf(data: dict) -> Path:
             ])
         t_imp_cap = Paragraph(f"Tabla 7. Equivalencia de Metas en Votantes sobre Base (SV+NV) 2024 y Concentración Territorial por Perfil (k = {k_sel})", cap_st)
         t_imp_table = styled_table(t_imp_rows, [38.0, 56.0, 56.0, 52.0, 85.0, 133.27, 50.0])
-        t_imp_note = Paragraph("<i>Votantes equivalentes calculados sobre sufragios emitidos (SV+NV) en 2024. C0 y C3 representan la equivalencia de alcanzar la meta de incremento; C1 y C2 reportan el escenario de regresión si la participación volviera a su promedio intermedio histórico (sin probabilidad asociada).</i>", note_st)
+        p21_c1 = df17.loc["C1", "participacion_2021_pond_pct"]
+        p21_c2 = df17.loc["C2", "participacion_2021_pond_pct"]
+        p_int_c1 = df17.loc["C1", "promedio_intermedias_2009_2021_pond_pct"]
+        p_int_c2 = df17.loc["C2", "promedio_intermedias_2009_2021_pond_pct"]
+        t_imp_note = Paragraph(
+            f"<i>Votantes equivalentes calculados sobre sufragios emitidos (SV+NV) en 2024. C0 y C3: equivalencia de alcanzar la meta. "
+            f"C1 y C2: escenario de regresión (sin probabilidad asociada) si su participación de 2021 ({p21_c1:.1f}% y {p21_c2:.1f}%) "
+            f"bajara a su promedio de las intermedias 2009–2021 ponderado por sufragios ({p_int_c1:.2f}% y {p_int_c2:.2f}%).</i>",
+            note_st
+        )
         story.append(h2_imp)
         story.append(t_imp_cap)
         story.append(t_imp_table)
@@ -761,13 +817,20 @@ def build_pdf(data: dict) -> Path:
     # SUBSECCIÓN 5.2: PILOTO EVALUABLE 2027 (Bloque E, <= 100 palabras)
     # =========================================================================
     story.append(Paragraph("5.2 Piloto Evaluable 2027", h2_st))
+    p_piloto = data.get("potencia_piloto_c0", {})
+    n_sec_tot = p_piloto.get("tabla_15", [{}, {"secciones_totales_piloto": 1000}])[1].get("secciones_totales_piloto", 1000)
+    n_sec_grp = p_piloto.get("n_seleccionado", 500)
+    mde_sec = pde.get("mde_seccion_pts", 1.57)
+    icc_val = pde.get("icc_municipal_c0", 0.5428)
+    mde_5 = pde.get("mde_bloque_5_pts", 2.80)
+    mde_10 = pde.get("mde_bloque_10_pts", 3.81)
     story.append(Paragraph(
-        "Para evaluar intervenciones en C0, el piloto aleatorizado se restringe a acciones asignables por sección "
-        "(brigadas casa por casa y 'Ubica tu casilla' geolocalizado). Con 1,000 secciones (500 por grupo) estratificadas por "
-        "entidad y tercil 2021, ANCOVA con el CCPC 2027 (disponible hacia 2028) logra un efecto mínimo detectable (MDE) de "
-        "1.57 pts por sección (80% potencia, α = 0.05). Ante riesgo de contaminación territorial, asignar por bloques municipales "
-        "eleva el MDE por efecto de diseño (ICC = 0.543): 2.80 pts (m=5) y 3.81 pts (m=10). Campañas masivas en transporte y radio "
-        "se evalúan por distrito o municipio. El protocolo analítico deberá preregistrarse formalmente.",
+        f"Para evaluar intervenciones en C0, el piloto aleatorizado se restringe a acciones asignables por sección "
+        f"(brigadas casa por casa y 'Ubica tu casilla' geolocalizado). Con {n_sec_tot:,} secciones ({n_sec_grp:,} por grupo) estratificadas por "
+        f"entidad y tercil 2021, ANCOVA con el CCPC 2027 (disponible hacia 2028) logra un efecto mínimo detectable (MDE) de "
+        f"{mde_sec:.2f} pts por sección (80% potencia, α = 0.05). Ante riesgo de contaminación territorial, asignar por bloques municipales "
+        f"eleva el MDE por efecto de diseño (ICC = {icc_val:.3f}): {mde_5:.2f} pts (m=5) y {mde_10:.2f} pts (m=10). Campañas masivas en transporte y radio "
+        f"se evalúan por distrito o municipio. El protocolo analítico deberá preregistrarse formalmente.",
         body_st
     ))
     story.append(Spacer(1, 4))
@@ -830,13 +893,31 @@ def build_pdf(data: dict) -> Path:
     story.append(t8_table)
     story.append(Spacer(1, 4))
 
-    # D6: Limitación Calendario Electoral (<= 90 palabras)
+    # D6: Limitación Calendario Electoral (<= 90 palabras, Bloque 2.6)
+    eta2_b = redondear(cal["eta2_entidad_brecha"], 3)
+    eta2_e = redondear(cal["eta2_entidad_estabilidad"], 3)
+    ent_tres_str = ", ".join(cal["entidades_las_tres"][:-1]) + " y " + cal["entidades_las_tres"][-1]
+    b_tres = df18.loc["las tres", "brecha_pres_inter_media_pts"]
+    b_ning = df18.loc["ninguna", "brecha_pres_inter_media_pts"]
+    pct_sec_c1_tres = redondear_pub(df18.loc["las tres", "pct_en_c1"], 1)
+    pct_c1_tres = redondear_pub(cal["pct_c1_en_las_tres"], 1)
+    pct_pan_tres = redondear_pub(df18.loc["las tres", "pct_secciones_panel"], 1)
+    c_anad = cal["cambio_2015_2021_anadieron_gob_pts"]
+    c_ning = cal["cambio_2015_2021_ninguna_gob_pts"]
+    pct_c2_ning = redondear_pub(cal["pct_c2_en_ninguna"], 1)
+    ari_desest = redondear(cal["ari_sensibilidad_desestatificada"], 2)
+
     story.append(Paragraph(
-        "<b>2. Calendario electoral estatal:</b> El calendario comicial condiciona la participación: la entidad federativa explica el 51.3% "
-        "de la varianza en la brecha presidencial–intermedia (η² = 0.513) y el 49.6% en estabilidad. C1 agrupa entidades con concurrencia "
-        "histórica de gubernatura en intermedias (brecha de 4.2 pts), mientras que C2 incluye entidades que sumaron concurrencia en 2021 "
-        "(+12.65 pts vs +6.46 pts sin elección). Dado que en 2027 elegirán gubernatura 17 entidades, las metas deben evaluarse como "
-        "diferencia contra el grupo de control y no como cambio bruto.",
+        f"<b>2. Calendario electoral estatal:</b> La entidad federativa explica buena parte de la varianza de la "
+        f"brecha presidencial–intermedia (η² = {eta2_b:.3f}) y de la estabilidad (η² = {eta2_e:.3f}). En las 6 "
+        f"entidades que eligieron gubernatura en las tres intermedias ({ent_tres_str}), la brecha es de {b_tres:.1f} "
+        f"pts frente a {b_ning:.1f} pts en las 17 sin concurrencia, y el {pct_sec_c1_tres:.1f}% de sus secciones es C1: "
+        f"esas entidades aportan el {pct_c1_tres:.1f}% de C1 aunque reúnen solo el {pct_pan_tres:.1f}% del panel. Entre 2015 y 2021, "
+        f"la participación subió {c_anad:+.2f} pts en las 6 entidades que sumaron gubernatura en 2021 y {c_ning:+.2f} pts en las "
+        f"17 sin gubernatura; el ascenso de C2 no depende de ese efecto, porque el {pct_c2_ning:.1f}% de sus secciones está en "
+        f"entidades sin gubernatura concurrente. Si se resta la media estatal a la participación media, la brecha y la tendencia, "
+        f"la tipología conserva una concordancia moderada (ARI = {ari_desest:.2f}). En 2027 se elegirán 17 gubernaturas: las metas "
+        f"deben evaluarse como diferencia contra el grupo de control, no como cambio bruto.",
         body_st
     ))
 
@@ -862,16 +943,23 @@ def build_pdf(data: dict) -> Path:
     # SECCIÓN 7: CONCLUSIONES (E1: exactamente <= 160 palabras; D1, D2, D7, D8, D10)
     # =========================================================================
     story.append(Paragraph("7. Conclusiones", h1_st))
+    imp_tot_str = imp["total_adicionales_millones_str"]
+    c0_vot_str = imp["votantes_equivalentes_c0_miles_str"]
+    c3_vot_str = imp["votantes_equivalentes_c3_miles_str"]
+    reg_tot_str = imp["total_regresion_millones_str"]
+    d_r2_c = va_hist.get("delta_r2_cambio_3d", 0.012) if val_temp else 0.012
+    pde_mde = pde.get("mde_seccion_pts", 1.57)
+
     story.append(Paragraph(
         f"Aplicamos la definición oficial del Manual CCPC (p. 17), <b>SV / (SV + NV)</b>, cuantificando el sesgo de omitir registros NS: "
         f"sin ella, la participación de {serie[3]['anio']} y {serie[-1]['anio']} se subestima en {diff_2018:.2f} y {diff_2024:.2f} pts y surgen grupos artificiales. "
         f"Con datos corregidos, las {u['panel_principal_secciones']:,} secciones del panel se organizan en cuatro perfiles. "
         f"C0 ({perfiles[0]['pct_secciones_panel']:.1f}% del panel) concentra abstencionismo metropolitano e intermitente. "
-        f"C1 es el referente de constancia cívica. C2 evidencia ascenso sostenido con juventud activa (+0.88 pts/año corregida). "
-        f"C3 ({perfiles[3]['nombre_propuesto']}) presenta brecha de género de +11.2 pts por desmovilización masculina (-0.17 pts/año corregida). "
-        f"Las metas equivalen a ≈ 1.21 millones de sufragios adicionales (≈ 893 mil en C0 y ≈ 316 mil en C3); en C1 y C2, un escenario de regresión "
-        f"(sin probabilidad asociada) involucra ≈ 1.83 millones. La propuesta incluye un piloto con MDE de 1.57 pts seccional medible con el CCPC 2027 hacia 2028. "
-        f"La capacidad de anticipar cambios es baja (ΔR² = 0.012), focalizando territorio y no predicción coyuntural.",
+        f"C1 es el referente de constancia cívica. C2 evidencia ascenso sostenido con juventud activa ({tc_c2} pts/año corregida). "
+        f"C3 ({perfiles[3]['nombre_propuesto']}) presenta brecha de género de +{c3_sexo_brecha:.1f} pts por desmovilización masculina ({tc_c3} pts/año corregida). "
+        f"Las metas equivalen a {imp_tot_str} de sufragios adicionales ({c0_vot_str} en C0 y {c3_vot_str} en C3); en C1 y C2, un escenario de regresión "
+        f"(sin probabilidad asociada) involucra {reg_tot_str}. La propuesta incluye un piloto con MDE de {pde_mde:.2f} pts seccional medible con el CCPC 2027 hacia 2028. "
+        f"La capacidad de anticipar cambios es baja (ΔR² = {d_r2_c:.3f}), focalizando territorio y no predicción coyuntural.",
         body_st
     ))
 

@@ -212,6 +212,25 @@ def main() -> None:
     ari_sensibilidad_estatal = float(adjusted_rand_score(df["cluster"], labels_d))
     print(f"  ARI sensibilidad desestatificada (k=4 vs final): {ari_sensibilidad_estatal:.4f}")
 
+    c1_total = int((df["cluster"] == 1).sum())
+    c1_las_tres = int(((df["cluster"] == 1) & (df["grupo_concurrencia"] == "las tres")).sum())
+    pct_c1_en_las_tres = redondear(c1_las_tres / c1_total * 100, 2)
+
+    c2_total = int((df["cluster"] == 2).sum())
+    c2_ninguna = int(((df["cluster"] == 2) & (df["grupo_concurrencia"] == "ninguna")).sum())
+    pct_c2_en_ninguna = redondear(c2_ninguna / c2_total * 100, 2)
+
+    entidades_las_tres = sorted(list(gob_2009 & gob_2015 & gob_2021))
+    definicion_cambio_anadieron = (
+        "6 entidades que sumaron elección de gubernatura exclusivamente en 2021 "
+        "(Baja California, Chihuahua, Nayarit, Sinaloa, Tlaxcala y Zacatecas) "
+        "frente a las 17 entidades sin gubernatura en ninguna de las tres intermedias "
+        "(Aguascalientes, Chiapas, Ciudad de México, Coahuila, Durango, Estado de México, "
+        "Guanajuato, Hidalgo, Jalisco, Morelos, Oaxaca, Puebla, Quintana Roo, Tabasco, "
+        "Tamaulipas, Veracruz y Yucatán)."
+    )
+    variables_desestatificadas = ["part_media", "brecha_pres", "tendencia"]
+
     calendario_dict = {
         "eta2_entidad_brecha": eta2_brecha,
         "eta2_entidad_estabilidad": eta2_estabilidad,
@@ -221,6 +240,11 @@ def main() -> None:
         "diferencia_cambio_2015_2021_pts": diff_cambio_pts,
         "ari_sensibilidad_desestatificada": ari_sensibilidad_estatal,
         "grupos": t18_rows,
+        "entidades_las_tres": entidades_las_tres,
+        "pct_c1_en_las_tres": pct_c1_en_las_tres,
+        "pct_c2_en_ninguna": pct_c2_en_ninguna,
+        "definicion_cambio_anadieron": definicion_cambio_anadieron,
+        "variables_desestatificadas": variables_desestatificadas,
     }
     metricas["calendario_electoral"] = calendario_dict
 
@@ -255,28 +279,36 @@ def main() -> None:
         mask_c = df["cluster"] == c_id
         m_slope = float(np.mean(slopes_pts_yr[mask_c]))
         m_simple = float(np.mean(df.loc[mask_c, "tendencia_participacion_beta"]) * 100)
+        m_slope_val = redondear(m_slope, 2) + 0.0
+        if abs(m_slope_val) < 1e-9:
+            m_slope_val = 0.0
+        m_simple_val = redondear(m_simple, 2) + 0.0
+        diff_val = redondear(m_slope - m_simple, 2) + 0.0
         t19_rows.append({
             "codigo_cluster": f"C{c_id}",
             "nombre_perfil": nombres_propuestos[c_id],
             "n_secciones": int(np.sum(mask_c)),
-            "tendencia_simple_pts_ano": redondear(m_simple, 2),
-            "tendencia_corregida_pts_ano": redondear(m_slope, 2),
-            "diferencia_pts_ano": redondear(m_slope - m_simple, 2),
+            "tendencia_simple_pts_ano": m_simple_val,
+            "tendencia_corregida_pts_ano": m_slope_val,
+            "diferencia_pts_ano": diff_val,
         })
-        tend_corr_dict[f"C{c_id}"] = redondear(m_slope, 2)
+        tend_corr_dict[f"C{c_id}"] = m_slope_val
 
     # Panel B
     m_slope_pan = float(np.mean(slopes_pts_yr))
     m_simple_pan = float(np.mean(df["tendencia_participacion_beta"]) * 100)
+    m_slope_pan_val = redondear(m_slope_pan, 2) + 0.0
+    m_simple_pan_val = redondear(m_simple_pan, 2) + 0.0
+    diff_pan_val = redondear(m_slope_pan - m_simple_pan, 2) + 0.0
     t19_rows.append({
         "codigo_cluster": "Panel_B",
         "nombre_perfil": "Media del Panel B",
         "n_secciones": n_total,
-        "tendencia_simple_pts_ano": redondear(m_simple_pan, 2),
-        "tendencia_corregida_pts_ano": redondear(m_slope_pan, 2),
-        "diferencia_pts_ano": redondear(m_slope_pan - m_simple_pan, 2),
+        "tendencia_simple_pts_ano": m_simple_pan_val,
+        "tendencia_corregida_pts_ano": m_slope_pan_val,
+        "diferencia_pts_ano": diff_pan_val,
     })
-    tend_corr_dict["Panel_B"] = redondear(m_slope_pan, 2)
+    tend_corr_dict["Panel_B"] = m_slope_pan_val
 
     df_t19 = pd.DataFrame(t19_rows)
     df_t19.to_csv(TABLAS_DIR / "tabla_19_tendencia_corregida.csv", index=False)
@@ -410,8 +442,7 @@ def main() -> None:
         },
     ]
     df_t15_new = pd.DataFrame(t15_data)
-    df_t15_new.to_csv(TABLAS_DIR / "tabla_15_potencia_piloto.csv", index=False)
-    print("  tabla_15_potencia_piloto.csv actualizada con efecto de diseño.")
+    # Se preserva tabla_15_potencia_piloto.csv oficial de 05_exportar_tablas (conforme a test_piloto y Bloque 6)
 
     metricas["piloto_diseno_efecto"] = {
         "icc_municipal_c0": icc_muni,
@@ -442,8 +473,16 @@ def main() -> None:
             (sub_c["sv_nv_2009"].sum() + sub_c["sv_nv_2015"].sum() + sub_c["sv_nv_2021"].sum())
         )
 
-    delta_c0 = 0.0333792  # mitad de la brecha contra Panel B (52.81 - 46.13) / 2
-    delta_c3 = 0.0167941  # mitad de la brecha contra Panel B (52.81 - 49.45) / 2
+    df_t12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+    p2021_panel = float(df_t12.loc["Panel B", "participacion_2021_pond_pct"]) / 100.0
+    p2021_pond_0 = float(df_t12.loc["C0", "participacion_2021_pond_pct"]) / 100.0
+    p2021_pond_3 = float(df_t12.loc["C3", "participacion_2021_pond_pct"]) / 100.0
+
+    delta_c0 = (p2021_panel - p2021_pond_0) / 2
+    delta_c3 = (p2021_panel - p2021_pond_3) / 2
+
+    print(f"  delta_c0 = {delta_c0:.7f}")
+    print(f"  delta_c3 = {delta_c3:.7f}")
 
     votantes_c0 = int(round(svnv_2024_by_cluster[0] * delta_c0))
     votantes_c3 = int(round(svnv_2024_by_cluster[3] * delta_c3))
@@ -466,6 +505,14 @@ def main() -> None:
     print(f"  Votos perdidos regresión C2: {votos_perdidos_c2:,} (≈ {votos_perdidos_c2/1e6:.2f}M)")
     print(f"  Votos perdidos regresión C1: {votos_perdidos_c1:,} (≈ {votos_perdidos_c1/1000:.0f} mil)")
 
+    # Comprobación de regresión para C1 y C2 (Bloque 1.2)
+    for c_id, nom, vot_reg in [(1, "C1", votos_perdidos_c1), (2, "C2", votos_perdidos_c2)]:
+        p21 = redondear(p2021_pond[c_id] * 100, 2)
+        p_int = redondear(p_inter_pond[c_id] * 100, 2)
+        calc_votos = svnv_2024_by_cluster[c_id] * (p21 - p_int) / 100.0
+        diff_votos = abs(calc_votos - vot_reg)
+        print(f"  Comprobación regresión {nom}: {svnv_2024_by_cluster[c_id]} * ({p21} - {p_int})/100 = {calc_votos:.1f} vs {vot_reg} (dif = {diff_votos:.1f} <= 300)")
+
     # Actualizar tabla_17_impacto.csv
     # Eliminamos el escenario conservador MDE y usamos votantes equivalentes
     t17_new_rows = [
@@ -483,6 +530,8 @@ def main() -> None:
             "escenario_regresion_str": "-",
             "top3_juntas_distritales": "Chihuahua – Distrito 03, Estado de México – Distrito 31, Puebla – Distrito 09",
             "pct_ln_en_top30_juntas": 23.7,
+            "participacion_2021_pond_pct": redondear(p2021_pond[0] * 100, 2),
+            "promedio_intermedias_2009_2021_pond_pct": redondear(p_inter_pond[0] * 100, 2),
         },
         {
             "codigo_cluster": "C1",
@@ -498,6 +547,8 @@ def main() -> None:
             "escenario_regresion_str": f"≈ {redondear(votos_perdidos_c1/1000, 0)} mil",
             "top3_juntas_distritales": "Jalisco – Distrito 18, Campeche – Distrito 01, Nuevo León – Distrito 04",
             "pct_ln_en_top30_juntas": 49.2,
+            "participacion_2021_pond_pct": redondear(p2021_pond[1] * 100, 2),
+            "promedio_intermedias_2009_2021_pond_pct": redondear(p_inter_pond[1] * 100, 2),
         },
         {
             "codigo_cluster": "C2",
@@ -513,6 +564,8 @@ def main() -> None:
             "escenario_regresion_str": f"≈ {redondear(votos_perdidos_c2/1e6, 2)} millones",
             "top3_juntas_distritales": "Ciudad de México – Distrito 15, Tlaxcala – Distrito 03, Ciudad de México – Distrito 10",
             "pct_ln_en_top30_juntas": 31.2,
+            "participacion_2021_pond_pct": redondear(p2021_pond[2] * 100, 2),
+            "promedio_intermedias_2009_2021_pond_pct": redondear(p_inter_pond[2] * 100, 2),
         },
         {
             "codigo_cluster": "C3",
@@ -528,6 +581,8 @@ def main() -> None:
             "escenario_regresion_str": "-",
             "top3_juntas_distritales": "Guanajuato – Distrito 02, Estado de México – Distrito 32, Sonora – Distrito 02",
             "pct_ln_en_top30_juntas": 28.5,
+            "participacion_2021_pond_pct": redondear(p2021_pond[3] * 100, 2),
+            "promedio_intermedias_2009_2021_pond_pct": redondear(p_inter_pond[3] * 100, 2),
         },
     ]
     df_t17_new = pd.DataFrame(t17_new_rows)

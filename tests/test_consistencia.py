@@ -534,6 +534,23 @@ def test_8_extraccion_exhaustiva_de_numeros_documento_y_fichas() -> None:
         "Fichas_Perfiles_ByteMe.pdf": "\n".join(
             p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages
         ),
+        "Presentacion_Ejecutiva_ByteMe.pdf": "\n".join(
+            p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf")).pages
+        ),
+    }
+
+    WHITELIST_PRESENTACION = {
+        float(x)
+        for x in [
+            # Años (2009-2030)
+            2009, 2012, 2015, 2018, 2020, 2021, 2024, 2027, 2030,
+            # Números de diapositiva (1-10) y conteos fijos de diseño (4 perfiles, 6 elecciones, 7 indicadores)
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            # Parámetros del piloto y priorización (30 juntas, 80% potencia, α=0.05)
+            30, 80, 0.05,
+            # Rangos de edad (18-29, 60+)
+            18, 29, 60,
+        ]
     }
 
     unmatched_by_source: dict[str, list[str]] = {}
@@ -544,6 +561,8 @@ def test_8_extraccion_exhaustiva_de_numeros_documento_y_fichas() -> None:
         total_checked += len(tokens)
         unmatched = []
         for tok, val in tokens:
+            if src_name == "Presentacion_Ejecutiva_ByteMe.pdf" and val in WHITELIST_PRESENTACION:
+                continue
             if not number_matches_reference(tok, val, ref_nums, ref_arr):
                 unmatched.append(f"{tok} ({val})")
         if unmatched:
@@ -561,6 +580,11 @@ def test_kpis_fichas() -> None:
     F: Cada cifra grande de las fichas (participación media, intermedia 2021,
     presidencial 2024 y cuarta cifra) es igual al valor del JSON redondeado a 1 decimal.
     """
+    import sys
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+    from scripts.auditoria.utilidades_formato import redondear_pub
+
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
     perfiles = data["perfiles"]
     reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf"))
@@ -570,23 +594,23 @@ def test_kpis_fichas() -> None:
         page_text = reader.pages[cid + 1].extract_text()
 
         # 1. Participación media
-        part_med = round(p["participacion_media_historica_original"] * 100, 1)
+        part_med = redondear_pub(p["participacion_media_historica_original"] * 100, 1)
         assert f"{part_med:.1f}%" in page_text, f"Participación media {part_med:.1f}% de C{cid} no encontrada en Ficha C{cid}"
 
         # 2. Intermedia 2021
-        p2021 = round(p["p_2021_ponderada"] * 100, 1)
+        p2021 = redondear_pub(p["p_2021_ponderada"] * 100, 1)
         assert f"{p2021:.1f}%" in page_text, f"Intermedia 2021 {p2021:.1f}% de C{cid} no encontrada en Ficha C{cid}"
 
         # 3. Presidencial 2024
-        p2024 = round(p["p_2024_ponderada"] * 100, 1)
+        p2024 = redondear_pub(p["p_2024_ponderada"] * 100, 1)
         assert f"{p2024:.1f}%" in page_text, f"Presidencial 2024 {p2024:.1f}% de C{cid} no encontrada en Ficha C{cid}"
 
         # 4. Cuarta cifra distintiva
         if cid == 0:
-            c4 = round(p["brecha_presidencial_intermedia_original"] * 100, 1)
+            c4 = redondear_pub(p["brecha_presidencial_intermedia_original"] * 100, 1)
             assert f"+{c4:.1f} pts" in page_text, f"Cuarta cifra C0 (+{c4:.1f} pts) no encontrada en Ficha C0"
         elif cid == 1:
-            c4 = round(p["tasa_joven_18_29_original"] * 100, 1)
+            c4 = redondear_pub(p["tasa_joven_18_29_original"] * 100, 1)
             assert f"{c4:.1f}%" in page_text, f"Cuarta cifra C1 ({c4:.1f}%) no encontrada en Ficha C1"
         elif cid == 2:
             assert "+0.88 pts/año" in page_text, f"Cuarta cifra C2 (+0.88 pts/año) no encontrada en Ficha C2"
@@ -637,7 +661,13 @@ def test_impacto_consistente() -> None:
         # 1. En Documento Técnico
         if cid == 0:
             assert "893 mil" in doc_full
-            assert int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) == 892922
+            df12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+            p2021_pan = float(df12.loc["Panel B", "participacion_2021_pond_pct"]) / 100.0
+            p2021_c0 = float(df12.loc["C0", "participacion_2021_pond_pct"]) / 100.0
+            svnv_base_c0 = float(df17.iloc[cid]["svnv_2024_base"])
+            calc_c0 = round(svnv_base_c0 * (p2021_pan - p2021_c0) / 2)
+            assert abs(int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) - calc_c0) <= 1
+            assert 890000 <= calc_c0 <= 896000
         elif cid == 1:
             assert "52 mil" in doc_full
             assert int(df17.iloc[cid]["escenario_regresion_votos_n"]) == 52210
@@ -646,7 +676,13 @@ def test_impacto_consistente() -> None:
             assert int(df17.iloc[cid]["escenario_regresion_votos_n"]) == 1778008
         elif cid == 3:
             assert "316 mil" in doc_full
-            assert int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) == 316246
+            df12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+            p2021_pan = float(df12.loc["Panel B", "participacion_2021_pond_pct"]) / 100.0
+            p2021_c3 = float(df12.loc["C3", "participacion_2021_pond_pct"]) / 100.0
+            svnv_base_c3 = float(df17.iloc[cid]["svnv_2024_base"])
+            calc_c3 = round(svnv_base_c3 * (p2021_pan - p2021_c3) / 2)
+            assert abs(int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) - calc_c3) <= 1
+            assert 314000 <= calc_c3 <= 318000
 
         # Top 3 juntas en Documento
         for junta in top3_juntas.split(", "):
@@ -792,6 +828,12 @@ def test_redondeo_identico() -> None:
     assert "47.8" in doc_full
     assert "60.6" in doc_full
 
+    # Aserciones de ausencia (Bloque 5.2.3 / 5.3)
+    assert "Sexo: +11.1" not in doc_full
+    assert "60.8% / 49.7%" not in doc_full
+    assert "44.4% / 65.3%" not in doc_full
+    assert "47.4% / 63.9%" not in doc_full
+
 
 def test_nombres_nuevos() -> None:
     """
@@ -859,10 +901,29 @@ def test_votantes_equivalentes() -> None:
     """
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
     imp = data["impacto_y_prioridad_territorial"]
-    assert imp["total_votantes_adicionales_c0_c3"] == 1209168
+    df_t12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+    df_t17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv").set_index("codigo_cluster")
+
+    p2021_pan = float(df_t12.loc["Panel B", "participacion_2021_pond_pct"]) / 100.0
+    p2021_c0 = float(df_t12.loc["C0", "participacion_2021_pond_pct"]) / 100.0
+    p2021_c3 = float(df_t12.loc["C3", "participacion_2021_pond_pct"]) / 100.0
+
+    svnv_c0 = float(df_t17.loc["C0", "svnv_2024_base"])
+    svnv_c3 = float(df_t17.loc["C3", "svnv_2024_base"])
+
+    calc_c0 = round(svnv_c0 * (p2021_pan - p2021_c0) / 2)
+    calc_c3 = round(svnv_c3 * (p2021_pan - p2021_c3) / 2)
+    calc_total = calc_c0 + calc_c3
+
+    assert abs(imp["votantes_equivalentes_c0"] - calc_c0) <= 1
+    assert abs(imp["votantes_equivalentes_c3"] - calc_c3) <= 1
+    assert abs(imp["total_votantes_adicionales_c0_c3"] - calc_total) <= 1
+    assert 890000 <= calc_c0 <= 896000
+    assert 314000 <= calc_c3 <= 318000
+
     assert imp["total_adicionales_millones_str"] == "≈ 1.21 millones"
-    assert imp["votantes_equivalentes_c0"] == 892922
-    assert imp["votantes_equivalentes_c3"] == 316246
+    assert imp["votantes_equivalentes_c0_miles_str"] == "≈ 893 mil"
+    assert imp["votantes_equivalentes_c3_miles_str"] == "≈ 316 mil"
     assert imp["total_regresion"] == 1830218
     assert imp["total_regresion_millones_str"] == "≈ 1.83 millones"
     assert imp["escenario_regresion_c1"] == 52210
@@ -883,6 +944,135 @@ def test_votantes_equivalentes() -> None:
         assert token in doc_full, f"Token {token} ausente en Documento"
         assert token in fichas_full, f"Token {token} ausente en Fichas"
         assert token in pres_full, f"Token {token} ausente en Presentación"
+
+
+def test_sin_prefijo_duplicado() -> None:
+    """5.2.1: En el texto de los 3 PDF y del PPTX (incluye notas), re.search(r"\\bCC[0-3]\\b", texto) debe ser None."""
+    import pptx
+    pdf_paths = [
+        ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf",
+        ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf",
+        ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf",
+    ]
+    for pdf_path in pdf_paths:
+        text = "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(str(pdf_path)).pages)
+        match = re.search(r"\bCC[0-3]\b", text)
+        assert match is None, f"Encontrado prefijo duplicado {match.group(0)} en {pdf_path.name}"
+
+    prs = pptx.Presentation(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pptx")
+    pptx_texts = []
+    for slide in prs.slides:
+        for s in slide.shapes:
+            if s.has_text_frame:
+                pptx_texts.append(s.text_frame.text)
+            if s.has_table:
+                for row in s.table.rows:
+                    for cell in row.cells:
+                        pptx_texts.append(cell.text)
+        if slide.has_notes_slide:
+            pptx_texts.append(slide.notes_slide.notes_text_frame.text)
+    full_pptx = "\n".join(pptx_texts)
+    match_pptx = re.search(r"\bCC[0-3]\b", full_pptx)
+    assert match_pptx is None, f"Encontrado prefijo duplicado {match_pptx.group(0)} en Presentacion PPTX"
+
+
+def test_sin_cero_negativo() -> None:
+    """5.2.2: En el texto de los 3 PDF, re.search(r"(?<![\\d.])-0\\.0+(?![0-9]*[1-9])", texto) debe ser None; y en tabla_19 y json['tendencia_corregida'], ningún valor igual a 0 con signo negativo."""
+    import math
+    pdf_paths = [
+        ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf",
+        ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf",
+        ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf",
+    ]
+    pattern = re.compile(r"(?<![\d.])-0\.0+(?![0-9]*[1-9])")
+    for pdf_path in pdf_paths:
+        text = "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(str(pdf_path)).pages)
+        match = pattern.search(text)
+        assert match is None, f"Cero negativo encontrado en {pdf_path.name}: '{match.group(0)}'"
+
+    t19 = pd.read_csv(TABLAS_DIR / "tabla_19_tendencia_corregida.csv")
+    for col in t19.select_dtypes(include=[np.number]).columns:
+        for val in t19[col].dropna():
+            if val == 0:
+                assert math.copysign(1, val) >= 0, f"Cero negativo en tabla_19 col {col}: {val}"
+
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    for k, v in data["tendencia_corregida"].items():
+        if isinstance(v, (int, float)) and v == 0:
+            assert math.copysign(1, v) >= 0, f"Cero negativo en tendencia_corregida[{k}]: {v}"
+
+
+def test_convencion_redondeo() -> None:
+    """5.2.3: Verifica convención única de redondeo en Tablas 4 y 5 del Documento Técnico."""
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    presentes = ["Sexo: +11.2", "60.9% / 49.7%", "44.4% / 65.4%", "47.5% / 63.9%"]
+    ausentes = ["Sexo: +11.1", "60.8% / 49.7%", "44.4% / 65.3%", "47.4% / 63.9%"]
+    for p_str in presentes:
+        assert p_str in doc_full, f"Texto esperado '{p_str}' no encontrado en Documento Técnico"
+    for a_str in ausentes:
+        assert a_str not in doc_full, f"Texto no deseado '{a_str}' encontrado en Documento Técnico"
+
+
+def test_tabla4_sin_cortes() -> None:
+    """5.2.4: En el texto normalizado del documento no deben aparecer cortes de palabras en Tabla 4."""
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    cortes = ["Interge neracional", "Estabilida d", "Pres–Int .", "(z=+0.60 )"]
+    for c in cortes:
+        assert c not in doc_full, f"Corte indeseado '{c}' encontrado en Documento Técnico"
+
+
+def test_calendario_texto() -> None:
+    """5.2.5: El documento contiene pct_c1_en_las_tres y pct_c2_en_ninguna (con redondear_pub) y NO contiene 'C1 agrupa entidades con concurrencia'."""
+    import sys
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+    from scripts.auditoria.utilidades_formato import redondear_pub
+
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    cal = data["calendario_electoral"]
+    pct_c1 = f"{redondear_pub(cal['pct_c1_en_las_tres'], 1):.1f}%"
+    pct_c2 = f"{redondear_pub(cal['pct_c2_en_ninguna'], 1):.1f}%"
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() or "" for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    assert pct_c1 in doc_full, f"'{pct_c1}' no encontrado en Documento Técnico"
+    assert pct_c2 in doc_full, f"'{pct_c2}' no encontrado en Documento Técnico"
+    assert "C1 agrupa entidades con concurrencia" not in doc_full, (
+        "'C1 agrupa entidades con concurrencia' encontrado en Documento Técnico"
+    )
+
+
+def test_regresion_reproducible() -> None:
+    """5.2.6: Para C1 y C2, round(svnv_2024_base * (participacion_2021_pond_pct - promedio_intermedias_2009_2021_pond_pct) / 100) difiere de escenario_regresion_votos_n en <= 300."""
+    df17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv")
+    for cid in ["C1", "C2"]:
+        row = df17[df17["codigo_cluster"] == cid].iloc[0]
+        svnv_2024 = float(row["svnv_2024_base"])
+        p2021 = float(row["participacion_2021_pond_pct"])
+        p_inter = float(row["promedio_intermedias_2009_2021_pond_pct"])
+        esperado_votos = float(row["escenario_regresion_votos_n"])
+        calc_votos = round(svnv_2024 * (p2021 - p_inter) / 100.0)
+        diff = abs(calc_votos - esperado_votos)
+        assert diff <= 300, f"Diferencia de regresión para {cid} es {diff} > 300 (calc={calc_votos}, esperado={esperado_votos})"
+
+
+def test_sin_literales_generadores() -> None:
+    """
+    5.2.7: Verifica que en 07_compilar_documento.py y 11_analisis_auditoria.py no aparezcan constantes literales prohibidas.
+    (En Bloque 6 se extiende el chequeo AST a 08_generar_fichas.py y 10_generar_presentacion.py).
+    """
+    scripts_dir = PROJECT_ROOT / "scripts" / "auditoria"
+    literales_prohibidos = [
+        "0.0333792",
+        "0.0167941",
+        "-0.00 en C1",
+        "(+0.40 en C0",
+        "masculina (46.8%)",
+        "como el promedio (60.9%)",
+    ]
+    for s_name in ["07_compilar_documento.py", "11_analisis_auditoria.py"]:
+        code = (scripts_dir / s_name).read_text(encoding="utf-8")
+        for lit in literales_prohibidos:
+            assert lit not in code, f"Literal prohibido '{lit}' encontrado en {s_name}"
+
 
 
 

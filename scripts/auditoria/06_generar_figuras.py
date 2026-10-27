@@ -186,7 +186,7 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     ax1.set_ylabel("Participación Ponderada (%)", fontsize=8.0, fontweight="bold")
     ax1.set_title("A. Trayectoria por Perfil (2009–2024)", fontsize=8.5, fontweight="bold")
     ax1.grid(True, alpha=0.5, linestyle="--", linewidth=0.5)
-    ax1.legend(loc="lower right", fontsize=6.5, frameon=True, ncol=2, handletextpad=0.3, columnspacing=0.5)
+    ax1.legend(loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=3, fontsize=6.5, frameon=False, handletextpad=0.3, columnspacing=0.8)
 
     # Panel B: Comparación SV/(SV+NV) vs SV/LN errónea y % NS
     err_ln = [r["total_ponderada_erronea_sv_ln_pct"] for r in serie_nac]
@@ -196,7 +196,7 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     bars = ax2_twin.bar(years, ns_pct, width=1.0, color="#FCA5A5", alpha=0.45, label="% NS")
     for b, v in zip(bars, ns_pct):
         if v > 0.5:
-            ax2_twin.text(b.get_x() + b.get_width() / 2, v + 0.3, f"{v:.1f}%", ha="center", va="bottom", fontsize=6.8, color="#991B1B")
+            ax2_twin.text(b.get_x() + b.get_width() / 2, max(0.5, v - 1.2), f"{v:.1f}%", ha="center", va="top", fontsize=6.8, color="#991B1B", fontweight="bold")
 
     ax2.plot(years, nac_ccpc, marker="o", linewidth=1.6, markersize=4.0, color="#047857", label="SV/(SV+NV)")
     ax2.plot(years, err_ln, marker="x", linestyle="--", linewidth=1.4, markersize=4.0, color="#DC2626", label="SV/LN")
@@ -225,9 +225,36 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     lines2, labels2 = ax2_twin.get_legend_handles_labels()
     ax2.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=6.5, frameon=True)
 
-    fig.tight_layout()
+    fig.subplots_adjust(bottom=0.25, top=0.90, left=0.09, right=0.91, wspace=0.35)
+
+    sol = textos_solapados(fig)
+    if sol:
+        raise AssertionError(f"Textos solapados en fig2_evolucion_temporal: {sol}")
+
     fig.savefig(OUT_FIGURAS / "fig2_evolucion_temporal.png", dpi=480)
     plt.close(fig)
+
+
+def textos_solapados(fig):
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    cajas = []
+    for ax in fig.axes:
+        for t in ax.texts:
+            if t.get_visible() and t.get_text().strip():
+                cajas.append((t.get_text(), t.get_window_extent(r)))
+        leg = ax.get_legend()
+        if leg is not None:
+            cajas.append(("<leyenda>", leg.get_window_extent(r)))
+    for leg in fig.legends:
+        cajas.append(("<leyenda fig>", leg.get_window_extent(r)))
+    out = []
+    for i in range(len(cajas)):
+        for j in range(i + 1, len(cajas)):
+            if cajas[i][1].overlaps(cajas[j][1]):
+                out.append((cajas[i][0], cajas[j][0]))
+    return out
+
 
 
 def generate_fig3_radar_centroides(data: dict) -> None:

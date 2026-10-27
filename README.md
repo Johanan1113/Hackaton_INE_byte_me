@@ -146,6 +146,8 @@ pytest -v
 ```
 
 > **Nota de reproducibilidad:** Las pruebas automatizadas (`pytest -v`) y la ejecución del pipeline completo (`python run_all.py`) requieren el repositorio completo clonado desde GitHub (incluyendo los scripts, modelos intermedios y tablas analíticas).
+>
+> **Convención de redondeo:** Las cifras a 1 decimal se obtienen redondeando (`ROUND_HALF_UP`) el valor publicado a 2 decimales en `outputs/tablas`, para que cualquier lector las reproduzca desde las tablas publicadas.
 
 ---
 

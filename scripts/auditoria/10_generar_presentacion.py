@@ -339,7 +339,7 @@ def build_presentation(data: dict) -> Path:
     step_x = Inches(3.033)
     y_icons = Inches(4.75)
     names_official = [
-        f"C{p['codigo_cluster']} · {p['nombre_propuesto']}"
+        f"{p['codigo_cluster']} · {p['nombre_propuesto']}"
         for p in data["perfiles"]
     ]
     for cid in range(4):
@@ -459,7 +459,7 @@ def build_presentation(data: dict) -> Path:
     p_e = tf_exp.paragraphs[0]
     p_e.text = (
         f"En 2018 y 2024, el {ns_pct_2018:.1f}% y el {ns_pct_2024:.1f}% de la lista nominal son registros no especificados (NS): "
-        "cuadernillos sin marcas, no disponibles para captura o con páginas faltantes. "
+        "cuadernillos sin marcas, no disponibles, con páginas faltantes o requeridos por autoridad jurisdiccional. "
         "Contarlos como abstención crea grupos artificiales de baja participación."
     )
     p_e.font.name = "Arial"
@@ -605,7 +605,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide3,
-        "Validamos nuestra serie temporal nacional contra todas las publicaciones oficiales de la DECEyEC y los manuales del INE, logrando una coincidencia milimétrica en los seis comicios analizados. Para el modelo principal construimos un panel balanceado de 53,644 secciones continuas y con captura válida en 2,393 municipios, que concentra el 79.5% de la lista nominal nacional sin recurrir a imputaciones sintéticas. Adicionalmente, mediante asignación determinista por cercanía a centroides, extendemos la cobertura operativa de los perfiles al 91.5% de la ciudadanía."
+        "Validamos nuestra serie nacional contra las publicaciones censales de la DECEyEC y el Manual CCPC: coincide en los seis comicios analizados. Para el modelo principal construimos un panel balanceado de 53,644 secciones continuas y con captura válida en 2,393 municipios, que concentra el 79.5% de la lista nominal nacional sin recurrir a imputaciones sintéticas. Adicionalmente, mediante asignación determinista por cercanía a centroides, extendemos la cobertura operativa de los perfiles al 91.5% de la ciudadanía."
     )
 
     # =========================================================================
@@ -729,7 +729,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide4,
-        "Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette (0.179) y ofrece una estabilidad bootstrap equivalente y altamente robusta (ARI 0.957). Demostramos la solidez del modelo mediante una validación fuera de tiempo: al calibrar solo con datos de 2009 a 2021, la estructura agrega un valor predictivo de nueve punto siete puntos porcentuales de R cuadrado (ΔR² = 0.097)."
+        "Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette (0.179) y ofrece una estabilidad bootstrap equivalente y altamente robusta (ARI 0.957). Demostramos la solidez del modelo mediante una validación fuera de tiempo: al calibrar solo con datos de 2009 a 2021, los perfiles agregan casi una décima de R cuadrado sobre el nivel histórico (ΔR² = 0.097)."
     )
 
     # =========================================================================
@@ -864,7 +864,7 @@ def build_presentation(data: dict) -> Path:
                 (f"{redondear(perfiles[3]['p_2021_ponderada']*100, 1):.1f}%", "intermedia 2021"),
                 ("+11.2 pts", "brecha de género"),
             ],
-            "propuesta": "Promoción del voto masculino en centros laborales agropecuarios y de transporte; brigadas de accesibilidad y casillas extraordinarias (LGIPE 58.1 y DEOE); y promotoras comunitarias.",
+            "propuesta": "Promoción del voto masculino en centros laborales agropecuarios y de transporte; brigadas de accesibilidad y propuesta de casillas extraordinarias a los Consejos Distritales (LGIPE); y promotoras comunitarias.",
             "meta": "51.1% en 2027 · 58.1% en 2030 · voto masculino 46.3%",
             "empezar": "Guanajuato 02 · Estado de México 32 · Sonora 02",
         },
@@ -982,7 +982,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide6,
-        "Para los perfiles ubicados por debajo de la media nacional proponemos intervenciones orientadas a cerrar brechas estructurales. En C0 la prioridad es combatir la apatía legislativa en entornos urbanos y facilitar la credencialización juvenil en centros laborales y universitarios, fijando como meta alcanzar 49.5% en 2027. En C3, con alta presencia rural y una marcada brecha de género por baja participación masculina, enfocamos los esfuerzos en activar el voto de los hombres en cooperativas y centros de trabajo, junto con casillas extraordinarias y brigadas de accesibilidad."
+        "Para los perfiles ubicados por debajo de la media nacional proponemos intervenciones orientadas a cerrar brechas estructurales. En C0 la prioridad es elevar la participación en elecciones intermedias en entornos urbanos y facilitar la credencialización juvenil en centros laborales y universitarios, fijando como meta alcanzar 49.5% en 2027. En C3, con alta presencia rural y una marcada brecha de género por baja participación masculina, enfocamos los esfuerzos en activar el voto de los hombres en cooperativas y centros de trabajo, junto con casillas extraordinarias y brigadas de accesibilidad."
     )
 
     # =========================================================================
@@ -1328,7 +1328,7 @@ def build_presentation(data: dict) -> Path:
     # Nota de 12 pt
     note_d9 = slide9.shapes.add_textbox(Inches(0.6), Inches(6.35), Inches(12.133), Inches(0.5))
     p_n9 = note_d9.text_frame.paragraphs[0]
-    p_n9.text = "Campañas masivas y asignables por sección (brigadas y Ubica tu casilla). Si se aleatoriza por bloques de secciones municipales, MDE ajusta por ICC=0.5428 (m=5: 2.80 pts, m=10: 3.81 pts)."
+    p_n9.text = "Solo acciones asignables por sección (brigadas casa por casa y «Ubica tu casilla»); las campañas masivas se evalúan por distrito o municipio. Si se aleatoriza por bloques municipales (ICC = 0.543, ICC=0.5428), el MDE sube a 2.80 pts con 5 secciones por municipio y a 3.81 pts con 10."
     p_n9.font.name = "Arial"
     p_n9.font.size = Pt(12)
     p_n9.font.italic = True
@@ -1336,7 +1336,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide9,
-        "Planteamos un diseño experimental riguroso para evaluar las intervenciones en el perfil prioritario C0 durante los comicios de 2027. Seleccionamos mil secciones aleatorizadas en quinientas de tratamiento y quinientas de control, con estratificación por entidad y tercil de participación previa. Con un modelo ANCOVA ajustado por línea base detectamos impactos desde 1.57 puntos porcentuales a nivel seccional con ochenta por ciento de potencia para acciones asignables como brigadas y módulos. Si se aleatorizan bloques de secciones municipales por derrame de campañas masivas, el MDE ajusta por efecto de diseño (ICC = 0.5428) a 2.80 puntos con cinco secciones por municipio. La evaluación tiene costo marginal al aprovechar la infraestructura censal ordinaria del instituto."
+        "Planteamos un diseño experimental riguroso para evaluar las intervenciones en el perfil prioritario C0 durante los comicios de 2027. Seleccionamos mil secciones aleatorizadas en quinientas de tratamiento y quinientas de control, con estratificación por entidad y tercil de participación previa. Con un modelo ANCOVA ajustado por línea base detectamos impactos desde 1.57 puntos porcentuales a nivel seccional con ochenta por ciento de potencia para acciones asignables como brigadas y módulos. Si se aleatorizan bloques de secciones municipales por derrame de campañas masivas, el MDE ajusta por efecto de diseño (ICC = 0.543) a 2.80 puntos con cinco secciones por municipio. La evaluación tiene costo marginal al aprovechar la infraestructura censal ordinaria del instituto."
     )
 
     # =========================================================================
@@ -1399,7 +1399,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide10,
-        "Concluimos con cuatro recomendaciones prioritarias para el INE: primero, incorporar un indicador explícito de estatus de captura seccional para aislar registros no especificados; segundo, fortalecer los controles operativos para reducir los cuadernillos sin capturar observados desde 2018; tercero, publicar variables sociodemográficas sobre comunidades originarias en datos abiertos; y cuarto, utilizar la priorización por junta distrital y el piloto experimental aleatorizado 2027 para evaluar qué funciona. Nuestro código y modelos están plenamente documentados y son reproducibles con un solo comando. Muchas gracias."
+        "Concluimos con cuatro recomendaciones prioritarias para el INE: primero, incorporar un indicador explícito de estatus de captura seccional para aislar registros no especificados; segundo, fortalecer los controles operativos para reducir los cuadernillos sin capturar observados desde 2018; tercero, publicar el indicador de población indígena y afromexicana en datos abiertos; y cuarto, utilizar la priorización por junta distrital y el piloto experimental aleatorizado 2027 para evaluar qué funciona. Nuestro código y modelos están plenamente documentados y son reproducibles con un solo comando. Muchas gracias."
     )
 
     out_pptx = OUT_ENTREGABLES / "Presentacion_Ejecutiva_ByteMe.pptx"

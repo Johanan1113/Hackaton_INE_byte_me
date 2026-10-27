@@ -1,6 +1,6 @@
 codigo_cluster,nombre_perfil,n_secciones,tendencia_simple_pts_ano,tendencia_corregida_pts_ano,diferencia_pts_ano
 C0,Baja Participación Intermitente con Rezago Juvenil,17622,0.86,0.4,-0.46
-C1,Alta Participación Estable e Intergeneracional,8824,0.15,-0.0,-0.15
+C1,Alta Participación Estable e Intergeneracional,8824,0.15,0.0,-0.15
 C2,Participación en Ascenso con Juventud Activa,14624,1.28,0.88,-0.4
 C3,Participación a la Baja con Brecha de Género,12574,0.08,-0.17,-0.25
 Panel_B,Media del Panel B,53644,0.68,0.33,-0.34
