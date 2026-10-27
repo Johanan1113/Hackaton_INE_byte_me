@@ -7,7 +7,7 @@ PAQUETE DE ENTREGA OFICIAL · RETO 1: PERFILES CIUDADANOS DE PARTICIPACIÓN
 --------------------------------------------------------------------------------
 Equipo:            Byte me
 Eje / Reto:        Reto 1 — Perfiles ciudadanos de participación
-Repositorio:       https://github.com/Johanan1113/Hackaton_INE_byte_me
+Repositorio:       https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.2)
 
 Integrantes:
 1. Johanan Olivares Gutiérrez (representante)
@@ -23,8 +23,10 @@ Integrantes:
    del CCPC 2009–2024, la cascada de depuración (53,644 secciones del Panel B),
    la justificación de k=4 perfiles mediante K-Means++, validación temporal
    (2009–2021 -> 2024), cobertura ampliada (91.5% Lista Nominal), cuantificación
-   de impacto electoral (607 mil – 1.27 millones votantes adicionales) y diseño
-   del piloto evaluable ANCOVA 2027 (n=500 por grupo, MDE = 1.57 pts).
+   de impacto electoral (equivalencia de metas: ≈ 1.21 millones de votantes
+   adicionales; escenario de regresión: ≈ 1.83 millones) y diseño del piloto
+   evaluable ANCOVA 2027 (acciones asignables por sección, MDE = 1.57 pts;
+   efecto de diseño en bloques municipales ICC = 0.5428, m=5: 2.80 pts).
 
 2. Fichas_Perfiles_ByteMe.pdf
    Fichas infográficas ejecutivas en 5 páginas horizontales (tamaño Carta,
@@ -33,7 +35,7 @@ Integrantes:
    - Página 2: Perfil C0 — Baja Participación Intermitente con Rezago Juvenil.
    - Página 3: Perfil C1 — Alta Participación Estable e Intergeneracional.
    - Página 4: Perfil C2 — Participación en Ascenso con Juventud Activa.
-   - Página 5: Perfil C3 — Liderazgo Femenino con Participación Estancada.
+   - Página 5: Perfil C3 — Participación a la Baja con Brecha de Género.
 
 3. Presentacion_Ejecutiva_ByteMe.pdf
    Presentación ejecutiva en formato PDF (10 diapositivas 16:9, tipografía
@@ -41,9 +43,9 @@ Integrantes:
    síntesis de alto nivel para tomadores de decisiones: portada institucional
    con nombres oficiales, hallazgo de registros NS con gráfica comparativa
    a 1 decimal, validación censal, tipología k=4, dinámicas temporales,
-   estrategias con KPIs en 32 pt y metas por perfil, impacto de 607 mil a
-   1.27 millones de electores, diseño de piloto experimental ANCOVA (MDE 1.57 pts)
-   y tres recomendaciones prioritarias al INE.
+   estrategias con KPIs en 32 pt y metas por perfil, impacto de ≈ 1.21 millones
+   de votantes más en 2027, diseño de piloto experimental ANCOVA (MDE 1.57 pts)
+   y cuatro recomendaciones prioritarias al INE.
 
 4. Presentacion_Ejecutiva_ByteMe.pptx
    Presentación ejecutiva nativa en formato PowerPoint 16:9 con gráficas y
@@ -57,31 +59,28 @@ Integrantes:
    - Ficha_C1.png:              Ficha infográfica C1.
    - Ficha_C2.png:              Ficha infográfica C2.
    - Ficha_C3.png:              Ficha infográfica C3.
-   - Fichas_Perfiles_ByteMe.png: Mosaico vertical completo de las 5 páginas.
 
-6. empaquetar.sh
-   Script bash automatizado y ejecutable para validar la presencia de todos
-   los archivos obligatorios y generar el paquete comprimido final ZIP.
-
-7. LEEME.txt
+6. LEEME.txt
    Este archivo descriptivo de la entrega.
 
+7. ENLACE_REPOSITORIO.txt
+   Enlace al repositorio oficial con instrucciones de reproducción.
 
-3. DOCUMENTOS ADMINISTRATIVOS DEL EQUIPO (CARPETA cartas/)
+
+3. DOCUMENTOS ADMINISTRATIVOS DEL EQUIPO (CARPETA 05_Cartas/)
 --------------------------------------------------------------------------------
 Los documentos firmados de cesión y declaratoria deben ubicarse en:
-- cartas/Carta_Cesion_Derechos.pdf
-- cartas/Carta_Declaratoria.pdf
-
-El script empaquetar.sh verifica automáticamente la existencia de estos dos
-archivos antes de generar el paquete ZIP final.
+- 05_Cartas/Carta_Cesion_Derechos.pdf
+- 05_Cartas/Carta_Declaratoria.pdf
 
 
 4. REPRODUCIBILIDAD Y CÓDIGO FUENTE
 --------------------------------------------------------------------------------
 Todo el código fuente, pruebas automatizadas y scripts de auditoría están
 disponibles en el repositorio público:
-https://github.com/Johanan1113/Hackaton_INE_byte_me
+https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.2)
+
+Las pruebas (pytest) y run_all.py requieren el repositorio completo.
 
 Para reproducir el pipeline completo desde cero:
 1. Clonar el repositorio.

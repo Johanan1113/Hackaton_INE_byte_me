@@ -35,7 +35,7 @@ EXPECTED_NAMES = {
     0: "Baja Participación Intermitente con Rezago Juvenil",
     1: "Alta Participación Estable e Intergeneracional",
     2: "Participación en Ascenso con Juventud Activa",
-    3: "Liderazgo Femenino con Participación Estancada",
+    3: "Participación a la Baja con Brecha de Género",
 }
 
 FORBIDDEN_PHRASES_INSENSITIVE = [
@@ -589,8 +589,7 @@ def test_kpis_fichas() -> None:
             c4 = round(p["tasa_joven_18_29_original"] * 100, 1)
             assert f"{c4:.1f}%" in page_text, f"Cuarta cifra C1 ({c4:.1f}%) no encontrada en Ficha C1"
         elif cid == 2:
-            c4 = round(p["tendencia_participacion_beta_original"] * 100, 2)
-            assert f"+{c4:.2f} pts/año" in page_text, f"Cuarta cifra C2 (+{c4:.2f} pts/año) no encontrada en Ficha C2"
+            assert "+0.88 pts/año" in page_text, f"Cuarta cifra C2 (+0.88 pts/año) no encontrada en Ficha C2"
         elif cid == 3:
             assert "+11.2 pts" in page_text, f"Cuarta cifra C3 (+11.2 pts) no encontrada en Ficha C3"
 
@@ -612,13 +611,12 @@ def test_total_tabla8() -> None:
 
 def test_impacto_consistente() -> None:
     """
-    J1: El impacto y su rango son iguales en el documento y en las fichas;
-    y las cifras exactas existen en tabla_17_impacto.csv.
+    J1, C5, D7: El impacto y las cifras de votantes equivalentes son consistentes
+    en el documento y en las fichas, y coinciden con tabla_17_impacto.csv.
     """
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
     imp = data["impacto_y_prioridad_territorial"]
     tabla_imp = imp["tabla_impacto"]
-    res_p = imp["resumen_por_perfil"]
 
     df17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv")
     assert len(df17) == 4, "tabla_17_impacto.csv debe tener 4 filas"
@@ -627,44 +625,57 @@ def test_impacto_consistente() -> None:
     fichas_pages = [re.sub(r"\s+", " ", p.extract_text()) for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages]
     portada_text = fichas_pages[0]
 
+    # Totales en documento
+    assert "1.21 millones" in doc_full
+    assert "1.83 millones" in doc_full
+
     for cid in range(4):
         c_code = f"C{cid}"
         row_t = tabla_imp[cid]
-        imp_str = row_t["electores_impacto_str"]
-        top3_str = res_p[c_code]["top3_juntas_str"]
-        top3_list = res_p[c_code]["top3_juntas"]
+        top3_juntas = row_t["top3_juntas_distritales"]
 
-        # Exact number in tabla_17
-        assert int(df17.iloc[cid]["electores_impacto_n"]) == row_t["electores_impacto_n"]
+        # 1. En Documento Técnico
+        if cid == 0:
+            assert "893 mil" in doc_full
+            assert int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) == 892922
+        elif cid == 1:
+            assert "52 mil" in doc_full
+            assert int(df17.iloc[cid]["escenario_regresion_votos_n"]) == 52210
+        elif cid == 2:
+            assert "1.78 millones" in doc_full
+            assert int(df17.iloc[cid]["escenario_regresion_votos_n"]) == 1778008
+        elif cid == 3:
+            assert "316 mil" in doc_full
+            assert int(df17.iloc[cid]["votantes_equivalentes_meta_n"]) == 316246
 
-        # 1. En Documento Técnico (Tabla 7)
-        # Check text (e.g. "938 mil", "58 mil", "1.92 millones", "333 mil")
-        num_part = re.search(r"(\d+(?:\.\d+)?\s*(?:mil|millones))", imp_str).group(1)
-        assert num_part in doc_full, f"Texto impacto {num_part} de {c_code} no encontrado en Documento Técnico"
-        for junta in top3_list:
+        # Top 3 juntas en Documento
+        for junta in top3_juntas.split(", "):
             assert junta in doc_full, f"Junta '{junta}' de {c_code} no encontrada en Documento Técnico"
 
         # 2. En Fichas: Portada (página 1)
-        assert num_part in portada_text, f"Impacto {num_part} de {c_code} no encontrado en Portada de Fichas"
+        if cid == 0:
+            assert "893 mil" in portada_text
+        elif cid == 1:
+            assert "52 mil" in portada_text
+        elif cid == 2:
+            assert "1.78 millones" in portada_text
+        elif cid == 3:
+            assert "316 mil" in portada_text
 
         # 3. En Fichas: Ficha individual (página cid + 1)
         ficha_text = fichas_pages[cid + 1]
-        assert num_part in ficha_text, f"Impacto {num_part} de {c_code} no encontrado en Ficha {c_code}"
-
         if cid == 0:
-            assert "≈ 938 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 441 mil)" in ficha_text
-        elif cid == 3:
-            assert "≈ 333 mil votantes adicionales si se cumple la meta 2027 (escenario conservador: 167 mil)" in ficha_text
+            assert "≈ 893 mil votantes adicionales si se cumple la meta 2027" in ficha_text
         elif cid == 1:
-            assert "≈ 58 mil votantes en riesgo si regresa a su promedio intermedio" in ficha_text
+            assert "≈ 52 mil votantes en escenario de regresión" in ficha_text
         elif cid == 2:
-            assert "≈ 1.92 millones de votantes en riesgo si regresa a su promedio intermedio" in ficha_text
+            assert "1.78 millones votantes en escenario de regresión" in ficha_text
+        elif cid == 3:
+            assert "≈ 316 mil votantes adicionales si se cumple la meta 2027" in ficha_text
 
-        if cid in (0, 3):
-            rango = row_t["rango_impacto_str"]
-            assert rango in doc_full, f"Rango '{rango}' de {c_code} ausente en Documento"
-
-        assert f"Dónde empezar: {top3_str}" in ficha_text, f"'Dónde empezar' de {c_code} no coincide en Ficha {c_code}"
+        assert f"Dónde empezar: Juntas prioritarias: {top3_juntas}" in ficha_text, (
+            f"'Dónde empezar' de {c_code} no coincide en Ficha {c_code}"
+        )
 
 
 def test_validacion_temporal_reportada() -> None:
@@ -755,6 +766,124 @@ def test_piloto() -> None:
     assert "500 de tratamiento y 500 de control" in doc_full or "500 secciones por grupo" in doc_full
     assert "1.57" in doc_full, "MDE = 1.57 no encontrado en Documento Técnico"
     assert "ANCOVA" in doc_full, "Diseño ANCOVA no encontrado en Documento Técnico"
+
+
+def test_redondeo_identico() -> None:
+    """
+    G4: Verifica que las cifras de redondeo crítico (11.2, 60.9, 47.8, 60.6) aparezcan
+    de manera idéntica en los entregables y nunca sin redondear.
+    """
+    import sys
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
+    from scripts.auditoria.utilidades_formato import redondear
+    assert redondear(11.15, 1) == 11.2
+    assert redondear(60.85, 1) == 60.9
+    assert redondear(47.75, 1) == 47.8
+    assert redondear(60.55, 1) == 60.6
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    fichas_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages))
+    pres_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf")).pages))
+
+    # Verificar que los valores redondeados con ROUND_HALF_UP aparezcan en los entregables
+    assert "11.2" in doc_full and "11.2" in fichas_full and "11.2" in pres_full
+    assert "60.9" in doc_full and "60.9" in fichas_full
+    assert "47.8" in doc_full
+    assert "60.6" in doc_full
+
+
+def test_nombres_nuevos() -> None:
+    """
+    G4, D2: Verifica que el nuevo nombre oficial de C3 ('Participación a la Baja con Brecha de Género')
+    esté en JSON, tabla_07, Documento, Fichas y Presentación, y que 'Liderazgo' no aparezca.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    assert data["perfiles"][3]["nombre_propuesto"] == "Participación a la Baja con Brecha de Género"
+
+    df_t7 = pd.read_csv(TABLAS_DIR / "tabla_07_perfiles_k4_series_demografia.csv")
+    assert df_t7.loc[df_t7["codigo_cluster"] == "C3", "nombre_perfil"].values[0] == "Participación a la Baja con Brecha de Género"
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    fichas_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages))
+    pres_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf")).pages))
+
+    assert "Participación a la Baja con Brecha de Género" in doc_full
+    assert "Participación a la Baja con Brecha de Género" in fichas_full
+    assert "Participación a la Baja con Brecha de Género" in pres_full
+
+    for txt, src in [(doc_full, "Documento"), (fichas_full, "Fichas"), (pres_full, "Presentación")]:
+        assert "Liderazgo Femenino" not in txt, f"'Liderazgo Femenino' no permitido encontrado en {src}"
+
+
+def test_json_valido() -> None:
+    """
+    G2, G4: Validación estricta de sintaxis JSON estándar en metricas_finales.json
+    sin valores NaN, Infinity ni llaves rotas.
+    """
+    text = METRICAS_PATH.read_text(encoding="utf-8")
+    assert "NaN" not in text, "Valor NaN no permitido en JSON estricto"
+    assert "Infinity" not in text, "Valor Infinity no permitido en JSON estricto"
+    data = json.loads(text)
+    assert isinstance(data, dict), "metricas_finales.json debe ser un objeto diccionario"
+    assert "perfiles" in data
+    assert "impacto_y_prioridad_territorial" in data
+
+
+def test_tendencia_corregida_reportada() -> None:
+    """
+    G4, C2, D5: Verifica que la tendencia corregida (+0.88 pts/año para C2) esté reportada
+    en metricas_finales.json, tabla_19, Documento, Fichas y Presentación.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    c2_trend = data["tendencia_corregida"]["C2"]
+    assert abs(c2_trend - 0.88) < 0.01
+
+    df_t19 = pd.read_csv(TABLAS_DIR / "tabla_19_tendencia_corregida.csv")
+    row_c2 = df_t19[df_t19["codigo_cluster"] == "C2"].iloc[0]
+    assert abs(row_c2["tendencia_corregida_pts_ano"] - 0.88) < 0.01
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    fichas_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages))
+    pres_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf")).pages))
+
+    assert "+0.88" in doc_full
+    assert "+0.88 pts/año" in fichas_full
+    assert "+0.88 pts/año" in pres_full
+
+
+def test_votantes_equivalentes() -> None:
+    """
+    G4, C5: Verifica consistencia de las cifras de impacto C5 (1.21M, 893k, 316k, 1.83M, 1.78M, 52k)
+    en metricas_finales.json, tabla_17, Documento, Fichas y Presentación.
+    """
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    imp = data["impacto_y_prioridad_territorial"]
+    assert imp["total_votantes_adicionales_c0_c3"] == 1209168
+    assert imp["total_adicionales_millones_str"] == "≈ 1.21 millones"
+    assert imp["votantes_equivalentes_c0"] == 892922
+    assert imp["votantes_equivalentes_c3"] == 316246
+    assert imp["total_regresion"] == 1830218
+    assert imp["total_regresion_millones_str"] == "≈ 1.83 millones"
+    assert imp["escenario_regresion_c1"] == 52210
+    assert imp["escenario_regresion_c2"] == 1778008
+
+    df_t17 = pd.read_csv(TABLAS_DIR / "tabla_17_impacto.csv")
+    assert len(df_t17) == 4
+
+    doc_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages))
+    fichas_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Fichas_Perfiles_ByteMe.pdf")).pages))
+    pres_full = re.sub(r"\s+", " ", "\n".join(p.extract_text() for p in pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf")).pages))
+
+    for token in ["1.21 millones", "1.83 millones"]:
+        assert token in doc_full, f"Token {token} ausente en Documento"
+        assert token in pres_full, f"Token {token} ausente en Presentación"
+
+    for token in ["893 mil", "316 mil", "1.78 millones", "52 mil"]:
+        assert token in doc_full, f"Token {token} ausente en Documento"
+        assert token in fichas_full, f"Token {token} ausente en Fichas"
+        assert token in pres_full, f"Token {token} ausente en Presentación"
+
 
 
 

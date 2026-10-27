@@ -58,6 +58,11 @@ OUT_ENTREGABLES.mkdir(parents=True, exist_ok=True)
 from reportlab import rl_config
 rl_config.canvas_basefontname = "Arial"
 
+import sys
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from scripts.auditoria.utilidades_formato import redondear
+
 # Registro de la fuente Arial TrueType
 pdfmetrics.registerFont(TTFont("Arial", "/usr/share/fonts/TTF/Arial.TTF"))
 pdfmetrics.registerFont(TTFont("Arial-Bold", "/usr/share/fonts/TTF/Arialbd.TTF"))
@@ -525,9 +530,9 @@ def build_pdf(data: dict) -> Path:
             Paragraph(f"<b>{p['tendencia_participacion_beta_original']*100:+.2f} pts/año</b><br/>(z={p['tendencia_participacion_beta_zscore']:+.2f})", td_c),
             Paragraph(f"<b>{p['estabilidad_participacion_original']:.4f}</b><br/>(z={p['estabilidad_participacion_zscore']:+.2f})", td_c),
             Paragraph(
-                f"Gen: {p['brecha_generacional_original']*100:+.2f} ({p['brecha_generacional_zscore']:+.2f})<br/>"
-                f"Sexo: {p['brecha_genero_original']*100:+.2f} ({p['brecha_genero_zscore']:+.2f})<br/>"
-                f"Jov: {p['ratio_participacion_joven_original']:.4f} ({p['ratio_participacion_joven_zscore']:+.2f})",
+                f"Gen: {redondear(p['brecha_generacional_original']*100, 1):+.1f} ({p['brecha_generacional_zscore']:+.2f})<br/>"
+                f"Sexo: {redondear(p['brecha_genero_original']*100, 1):+.1f} ({p['brecha_genero_zscore']:+.2f})<br/>"
+                f"Jov: {redondear(p['ratio_participacion_joven_original'], 2):.2f} ({p['ratio_participacion_joven_zscore']:+.2f})",
                 td_c
             ),
         ])
@@ -540,9 +545,9 @@ def build_pdf(data: dict) -> Path:
         Paragraph(f"<b>{pan_b['tendencia_participacion_beta_media']*100:+.2f} pts/año</b><br/>(z=0.00)", td_cb),
         Paragraph(f"<b>{pan_b['estabilidad_participacion_media']:.4f}</b><br/>(z=0.00)", td_cb),
         Paragraph(
-            f"Gen: {pan_b['brecha_generacional_media']*100:+.2f} (0.00)<br/>"
-            f"Sexo: {pan_b['brecha_genero_media']*100:+.2f} (0.00)<br/>"
-            f"Jov: {pan_b['ratio_participacion_joven_media']:.4f} (0.00)",
+            f"Gen: {redondear(pan_b['brecha_generacional_media']*100, 1):+.1f} (0.00)<br/>"
+            f"Sexo: {redondear(pan_b['brecha_genero_media']*100, 1):+.1f} (0.00)<br/>"
+            f"Jov: {redondear(pan_b['ratio_participacion_joven_media'], 2):.2f} (0.00)",
             td_cb
         ),
     ])
@@ -564,27 +569,27 @@ def build_pdf(data: dict) -> Path:
         Paragraph("% Mix.", th_c),
     ]]
     for p in perfiles:
-        s_pond = " / ".join(f"<b>{p[f'p_{y}_ponderada']*100:.1f}%</b>" if y == 2021 else f"{p[f'p_{y}_ponderada']*100:.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
+        s_pond = " / ".join(f"<b>{redondear(p[f'p_{y}_ponderada']*100, 1):.1f}%</b>" if y == 2021 else f"{redondear(p[f'p_{y}_ponderada']*100, 1):.1f}%" for y in [2009, 2012, 2015, 2018, 2021, 2024])
         t6_rows.append([
             Paragraph(f"<b>{p['codigo_cluster']}</b>", td_cb),
             Paragraph(s_pond, td_c),
-            Paragraph(f"{p['media_presidencial_original']*100:.1f}% /<br/>{p['media_intermedia_original']*100:.1f}%", td_c),
-            Paragraph(f"{p['tasa_joven_18_29_original']*100:.1f}% /<br/>{p['tasa_mayor_60_mas_original']*100:.1f}%", td_c),
-            Paragraph(f"{p['tasa_mujeres_original']*100:.1f}% /<br/>{p['tasa_hombres_original']*100:.1f}%", td_c),
-            Paragraph(f"{p['pct_secciones_urbanas']:.1f}%", td_c),
-            Paragraph(f"{p['pct_secciones_rurales']:.1f}%", td_c),
-            Paragraph(f"{p['pct_secciones_mixtas']:.1f}%", td_c),
+            Paragraph(f"{redondear(p['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear(p['media_intermedia_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear(p['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear(p['tasa_mayor_60_mas_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear(p['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear(p['tasa_hombres_original']*100, 1):.1f}%", td_c),
+            Paragraph(f"{redondear(p['pct_secciones_urbanas'], 1):.1f}%", td_c),
+            Paragraph(f"{redondear(p['pct_secciones_rurales'], 1):.1f}%", td_c),
+            Paragraph(f"{redondear(p['pct_secciones_mixtas'], 1):.1f}%", td_c),
         ])
-    s_pond_b = " / ".join(f"<b>{pan_b[f'p_{y}_ponderada']*100:.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
+    s_pond_b = " / ".join(f"<b>{redondear(pan_b[f'p_{y}_ponderada']*100, 1):.1f}%</b>" for y in [2009, 2012, 2015, 2018, 2021, 2024])
     t6_rows.append([
         Paragraph("<b>Panel B</b>", td_cb),
         Paragraph(s_pond_b, td_cb),
-        Paragraph(f"<b>{pan_b['media_presidencial_original']*100:.1f}% /<br/>{pan_b['media_intermedia_original']*100:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['tasa_joven_18_29_original']*100:.1f}% /<br/>{pan_b['tasa_mayor_60_mas_original']*100:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['tasa_mujeres_original']*100:.1f}% /<br/>{pan_b['tasa_hombres_original']*100:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['pct_secciones_urbanas_1d']:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['pct_secciones_rurales_1d']:.1f}%</b>", td_cb),
-        Paragraph(f"<b>{pan_b['pct_secciones_mixtas_1d']:.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear(pan_b['media_intermedia_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear(pan_b['tasa_mayor_60_mas_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear(pan_b['tasa_hombres_original']*100, 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['pct_secciones_urbanas_1d'], 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['pct_secciones_rurales_1d'], 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear(pan_b['pct_secciones_mixtas_1d'], 1):.1f}%</b>", td_cb),
     ])
     t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
     t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)

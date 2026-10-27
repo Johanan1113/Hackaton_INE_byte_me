@@ -4,9 +4,9 @@ Concurso Oficial: "Hackea la Participación: Datos que construyen democracia" (C
 Reto 1: Perfiles ciudadanos de participación
 Equipo: Byte me
 Integrantes:
-  - Johanan Olivares Gutierrez (Representante)
-  - Oscar Ariel Cuevas Martinez
-  - Saul Alexis Arias Gonzales
+  - Johanan Olivares Gutiérrez (Representante)
+  - Oscar Ariel Cuevas Martínez
+  - Saúl Alexis Arias González
 """
 
 import os

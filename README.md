@@ -40,8 +40,8 @@ Dentro del rango de $4$ a $6$ perfiles de la convocatoria, **$k = 4$** alcanza e
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **C0** | **Baja Participación Intermitente con Rezago Juvenil** | 17,622 (32.85% / 24.91%) | 28,070,662 (35.90% / 28.55%) | 50.37% (-0.65) | +17.31 pts (+0.60) | +0.86 pts/año (+0.26) | 46.1% / 56.9% | 79.0/13.5/7.5% |
 | **C1** | **Alta Participación Estable e Intergeneracional** | 8,824 (16.45% / 12.47%) | 11,490,525 (14.69% / 11.69%) | 65.05% (+0.95) | +5.37 pts (-1.10) | +0.15 pts/año (-0.73) | 62.5% / 65.7% | 46.0/40.9/13.2% |
-| **C2** | **Participación en Ascenso con Juventud Activa** | 14,624 (27.26% / 20.67%) | 18,796,916 (24.04% / 19.12%) | 58.93% (+0.29) | +16.81 pts (+0.53) | +1.28 pts/año (+0.84) | 60.4% / 68.0% | 68.6/22.3/9.1% |
-| **C3** | **Liderazgo Femenino con Participación Estancada** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | +0.08 pts/año (-0.83) | 49.5% / 55.6% | 48.8/41.2/10.0% |
+| **C2** | **Participación en Ascenso con Juventud Activa** | 14,624 (27.26% / 20.67%) | 18,796,916 (24.04% / 19.12%) | 58.93% (+0.29) | +16.81 pts (+0.53) | +0.88 pts/año (corregida) | 60.4% / 68.0% | 68.6/22.3/9.1% |
+| **C3** | **Participación a la Baja con Brecha de Género** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | -0.17 pts/año (corregida) | 49.5% / 55.6% | 48.8/41.2/10.0% |
 | **Panel B** | **Media Nacional Panel B** | **53,644** (100% / 75.82%) | **78,199,518** (100% / 79.53%) | **56.30%** (0.00) | **+13.07 pts** (0.00) | **+0.68 pts/año** (0.00) | **52.8% / 60.6%** | **63.7/26.9/9.5%** |
 
 ---
@@ -60,8 +60,9 @@ reto1_perfiles_participacion/
 │   ├── Presentacion_Ejecutiva_ByteMe.pptx           # Presentación Ejecutiva PowerPoint nativa editable
 │   ├── Fichas_Portada.png                           # Portada ejecutiva (300 DPI)
 │   ├── Ficha_C0.png ... Ficha_C3.png                # Fichas individuales por perfil (300 DPI)
-│   ├── Fichas_Perfiles_ByteMe.png                   # Mosaico vertical de 5 páginas (300 DPI)
-│   ├── empaquetar.sh                                # Script automatizado de validación y empaquetado ZIP
+│   ├── crear_zip_entrega.sh                         # Script automatizado de validación y empaquetado ZIP
+│   ├── agregar_cartas.sh                            # Script auxiliar para incorporar cartas firmadas al ZIP
+│   ├── ENLACE_REPOSITORIO.txt                       # Enlace al repositorio y notas de reproducibilidad
 │   └── LEEME.txt                                    # Manifiesto formal de entrega y reserva de espacios
 ├── plantillas/
 │   └── documento_tecnico.md.j2                      # Plantilla Jinja2 del documento técnico
@@ -71,21 +72,23 @@ reto1_perfiles_participacion/
 │   ├── 02_verificacion_datos.py                     # Fase 1: Verificación profunda de datos CCPC 2009–2024
 │   ├── 03_robustez_modelo.py                        # Fase 2: Robustez del modelo y clustering k=4
 │   ├── 04_perfiles_y_nombres.py                     # Fase 3: Perfiles, estrategias y metricas_finales.json
-│   ├── 05_exportar_tablas.py                        # Fase 4: Exportación de las 18 tablas oficiales en CSV (utf-8-sig)
+│   ├── 05_exportar_tablas.py                        # Fase 4: Exportación de tablas oficiales en CSV (utf-8-sig)
 │   ├── 06_generar_figuras.py                        # Fase 5: Generación de figuras analíticas a 300 DPI
 │   ├── 07_compilar_documento.py                     # Fase 6: Compilación del Documento Técnico PDF (Arial 11/19)
 │   ├── 08_generar_fichas.py                         # Fase 7: Generación de Fichas de Perfiles (PDF 5 págs y PNGs)
 │   ├── 09_validacion_consistencia.py                # Fase 8: Validación automatizada de consistencia y cifras
-│   └── 10_generar_presentacion.py                   # Fase 9: Generación de Presentación Ejecutiva PPTX/PDF (10 slides)
+│   ├── 10_generar_presentacion.py                   # Fase 9: Generación de Presentación Ejecutiva PPTX/PDF (10 slides)
+│   ├── 11_analisis_auditoria.py                     # Fase 10: Análisis de auditoría externa (calendario, pendientes, ICC, impacto)
+│   └── utilidades_formato.py                        # Módulo común de redondeo ROUND_HALF_UP con Decimal
 ├── tests/
-│   ├── test_consistencia.py                         # Suite de 23 pruebas de consistencia técnica y cifras
-│   └── test_presentacion.py                         # Suite de 8 pruebas automatizadas de la presentación
+│   ├── test_consistencia.py                         # Suite de 28 pruebas de consistencia técnica y cifras
+│   └── test_presentacion.py                         # Suite de 14 pruebas automatizadas de la presentación
 └── outputs/
-    ├── metricas_finales.json                        # Fuente única de verdad (cero cifras escritas a mano)
+    ├── metricas_finales.json                        # Diccionario estructurado con métricas, diagnósticos y parámetros que alimentan deterministamente el documento, fichas y presentación
     ├── reporte_validacion_consistencia.json         # Resultado de validación automatizada
     ├── perfil_por_seccion_2024.csv                  # Tipología seccional nacional (65,748 secciones, 91.5% LN)
     ├── juntas_prioritarias_por_perfil.csv           # Priorización territorial distrital (300 distritos)
-    ├── tablas/                                      # 18 tablas CSV oficiales en utf-8-sig (tabla_01..tabla_17)
+    ├── tablas/                                      # 21 tablas CSV oficiales en utf-8-sig (tabla_01..tabla_20)
     ├── figuras/                                     # Figuras PNG a 300 DPI
     └── entregables/
         ├── Documento_Tecnico_ByteMe.pdf             # Documento Técnico Oficial (12 págs, Arial 11 pt / 19 pt leading)
@@ -138,9 +141,11 @@ pip install -r requirements.txt
 # 2. Ejecutar todo el pipeline desde cero (determinista, random_state=42)
 python run_all.py
 
-# 3. Ejecutar la suite completa de 31 pruebas automatizadas de consistencia y presentación
+# 3. Ejecutar la suite completa de 42 pruebas automatizadas de consistencia y presentación
 pytest -v
 ```
+
+> **Nota de reproducibilidad:** Las pruebas automatizadas (`pytest -v`) y la ejecución del pipeline completo (`python run_all.py`) requieren el repositorio completo clonado desde GitHub (incluyendo los scripts, modelos intermedios y tablas analíticas).
 
 ---
 
@@ -149,22 +154,22 @@ pytest -v
 Para publicar el repositorio en GitHub sin alterar ramas protegidas:
 ```bash
 # 1. Confirmar rama y estado de git limpio:
-git checkout version-final
+git checkout correccion-auditoria
 git status
 
 # 2. Verificar que no haya archivos mayores a 50 MB ni datos crudos rastreados:
 git ls-files | while read f; do if [ -f "$f" ]; then size=$(stat -c%s "$f"); if [ $size -gt 50000000 ]; then echo "$f: $((size/1024/1024)) MB"; fi; fi; done
 
-# 3. Fusionar con main (avance rápido / fast-forward):
+# 3. Fusionar con main:
 git checkout main
-git merge version-final --ff-only
+git merge correccion-auditoria --ff-only
 
 # 4. Enviar cambios al repositorio remoto en GitHub:
 git push origin main
-git push origin version-final
+git push origin correccion-auditoria
 
 # 5. Si se etiqueta una versión de entrega formal:
-git tag -a v1.0.0 -m "Entrega Oficial Reto 1 - Hackea la participación INE 2026 - Equipo Byte me"
-git push origin v1.0.0
+git tag -a v1.0.2 -m "Entrega Oficial Reto 1 (versión auditada) - Hackea la participación INE 2026 - Equipo Byte me"
+git push origin v1.0.2
 ```
 

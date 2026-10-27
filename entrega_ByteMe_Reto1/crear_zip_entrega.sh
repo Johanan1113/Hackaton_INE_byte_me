@@ -18,9 +18,9 @@ echo "=== INICIANDO EMPAQUETADO DEL ENTREGABLE OFICIAL (Equipo Byte me) ==="
 # 1. Verificación estricta de sumas de verificación MD5 de entregables
 # ------------------------------------------------------------------------------
 echo "--- Paso 1: Verificando MD5 de entregables revisados ---"
-EXPECTED_DOC_MD5="2b67a3d6509c803edd81a8f945ff2fec"
-EXPECTED_FICHAS_MD5="44e3a09dc335d3cdba2a1154ae084543"
-EXPECTED_PRES_MD5="8b18670b1bd80a6a68640b63a42317c0"
+EXPECTED_DOC_MD5="4ac2837517c6061029eafcfa91638fe4"
+EXPECTED_FICHAS_MD5="23a6821b446d42fa51242762625c5a6f"
+EXPECTED_PRES_MD5="14aad7c3d504fcd1dea73a97497cb28a"
 
 ACTUAL_DOC_MD5=$(md5sum "$ENTREGA_DIR/Documento_Tecnico_ByteMe.pdf" | awk '{print $1}')
 ACTUAL_FICHAS_MD5=$(md5sum "$ENTREGA_DIR/Fichas_Perfiles_ByteMe.pdf" | awk '{print $1}')
@@ -100,7 +100,7 @@ cp "$ENTREGA_DIR/Ficha_C3.png" "$PKG_DIR/02_Fichas_Perfiles/"
 cp "$ENTREGA_DIR/Presentacion_Ejecutiva_ByteMe.pdf" "$PKG_DIR/03_Presentacion_Ejecutiva/"
 cp "$ENTREGA_DIR/Presentacion_Ejecutiva_ByteMe.pptx" "$PKG_DIR/03_Presentacion_Ejecutiva/"
 
-# 04_Codigo (copiado mediante git ls-files con exclusiones estrictas)
+# 04_Codigo (copiado mediante git ls-files con exclusiones estrictas de src/, main.py y pipeline.log)
 (
     cd "$REPO_ROOT"
     git ls-files \
@@ -108,17 +108,15 @@ cp "$ENTREGA_DIR/Presentacion_Ejecutiva_ByteMe.pptx" "$PKG_DIR/03_Presentacion_E
         requirements.txt \
         run_all.py \
         BITACORA.md \
-        main.py \
         plantillas/ \
         scripts/ \
         tests/ \
-        src/ \
         outputs/metricas_finales.json \
         outputs/tablas/ \
         outputs/figuras/ \
     | while read -r file; do
         case "$file" in
-            *.parquet|*.joblib|*.zip|*__pycache__*|*.pytest_cache*|*[Cc]arta*)
+            *.parquet|*.joblib|*.zip|*__pycache__*|*.pytest_cache*|*[Cc]arta*|src/*|main.py|pipeline.log)
                 continue
                 ;;
         esac
@@ -137,13 +135,7 @@ EOF
 cp "$ENTREGA_DIR/LEEME.txt" "$PKG_DIR/LEEME.txt"
 
 # ENLACE_REPOSITORIO.txt en raíz
-cat << 'EOF' > "$PKG_DIR/ENLACE_REPOSITORIO.txt"
-Repositorio público con el código completo y reproducible:
-https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.1)
-
-Para reproducir todo el análisis: descargar los datos de la Plataforma de Conteos Censales de Participación Ciudadana del INE según el README y ejecutar "python run_all.py".
-La carpeta 04_Codigo de este ZIP es una copia del código; el repositorio incluye además los archivos .parquet intermedios necesarios para ejecutar las comparaciones con la versión preliminar.
-EOF
+cp "$ENTREGA_DIR/ENLACE_REPOSITORIO.txt" "$PKG_DIR/ENLACE_REPOSITORIO.txt"
 
 # ------------------------------------------------------------------------------
 # 4. Compresión y generación de ByteMe_Reto1_PerfilesCiudadanos.zip
