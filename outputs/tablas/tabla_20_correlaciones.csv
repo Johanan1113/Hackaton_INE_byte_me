@@ -1,0 +1,8 @@
+,Part. Media Histórica,Brecha Pres.–Inter.,Tendencia Anual,Estabilidad,Brecha Generacional,Brecha de Género,Razón Voto Joven
+Part. Media Histórica,1.0,-0.2198,0.062,0.489,-0.2531,0.003,0.385
+Brecha Pres.–Inter.,-0.2198,1.0,0.582,-0.7376,0.1824,-0.2077,-0.0746
+Tendencia Anual,0.062,0.582,1.0,-0.5633,-0.0922,-0.2169,0.1001
+Estabilidad,0.489,-0.7376,-0.5633,1.0,-0.1588,0.1762,0.1928
+Brecha Generacional,-0.2531,0.1824,-0.0922,-0.1588,1.0,0.2313,-0.8186
+Brecha de Género,0.003,-0.2077,-0.2169,0.1762,0.2313,1.0,-0.0863
+Razón Voto Joven,0.385,-0.0746,0.1001,0.1928,-0.8186,-0.0863,1.0
