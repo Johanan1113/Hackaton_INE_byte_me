@@ -18,7 +18,7 @@ Integrantes:
 2. INVENTARIO DE ARCHIVOS ENTREGADOS
 --------------------------------------------------------------------------------
 1. Documento_Tecnico_ByteMe.pdf
-   Documento técnico oficial (12 páginas, tipografía Arial modal 11 pt, 
+   Documento técnico (12 páginas, tipografía Arial modal 11 pt, 
    interlineado 1.5, márgenes de 2.5 cm). Contiene la auditoría de microdatos
    del CCPC 2009–2024, la cascada de depuración (53,644 secciones del Panel B),
    la justificación de k=4 perfiles mediante K-Means++, validación temporal
@@ -38,15 +38,18 @@ Integrantes:
 3. Presentacion_Ejecutiva_ByteMe.pdf
    Presentación ejecutiva en formato PDF (10 diapositivas 16:9, tipografía
    100% Arial embebida, márgenes de seguridad > 0.25 pulgadas). Contiene la
-   síntesis de alto nivel para tomadores de decisiones: hallazgo metodológico,
-   reproducibilidad, tipología seccional, metas 2027–2030, impacto de hasta
-   1.27 millones de votantes adicionales, diseño del piloto ANCOVA y tres
-   recomendaciones institucionales al INE.
+   síntesis de alto nivel para tomadores de decisiones: portada institucional
+   con nombres oficiales, hallazgo de registros NS con gráfica comparativa
+   a 1 decimal, validación censal, tipología k=4, dinámicas temporales,
+   estrategias con KPIs en 32 pt y metas por perfil, impacto de 607 mil a
+   1.27 millones de electores, diseño de piloto experimental ANCOVA (MDE 1.57 pts)
+   y tres recomendaciones prioritarias al INE.
 
 4. Presentacion_Ejecutiva_ByteMe.pptx
    Presentación ejecutiva nativa en formato PowerPoint 16:9 con gráficas y
-   tablas editables, paleta oficial de colores institucionales y notas de
-   orador completas en primera persona del plural (60–90 palabras por lámina).
+   tablas nativas editables, recuadros de métricas en 32 pt, paleta oficial
+   de colores institucionales, diagramas de flujo y notas del orador completas
+   en primera persona del plural (60–90 palabras por lámina).
 
 5. Fichas individuales en formato PNG (300 DPI):
    - Fichas_Portada.png:        Portada ejecutiva y matriz nacional.

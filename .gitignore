@@ -9,8 +9,9 @@ data/
 *.zip
 *.tar.gz
 *.parquet
-outputs/fase2/*.parquet
-output/datasets/*.parquet
+!output/datasets/dataset_clusters_final.parquet
+!outputs/fase2/etiquetas_finales.parquet
+!outputs/fase2/panel_62048_corregido.parquet
 
 # Entregables administrativos sensibles
 entrega_ByteMe_Reto1/cartas/

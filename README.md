@@ -79,7 +79,7 @@ reto1_perfiles_participacion/
 │   └── 10_generar_presentacion.py                   # Fase 9: Generación de Presentación Ejecutiva PPTX/PDF (10 slides)
 ├── tests/
 │   ├── test_consistencia.py                         # Suite de 23 pruebas de consistencia técnica y cifras
-│   └── test_presentacion.py                         # Suite de 5 pruebas automatizadas de la presentación
+│   └── test_presentacion.py                         # Suite de 8 pruebas automatizadas de la presentación
 └── outputs/
     ├── metricas_finales.json                        # Fuente única de verdad (cero cifras escritas a mano)
     ├── reporte_validacion_consistencia.json         # Resultado de validación automatizada
@@ -97,6 +97,10 @@ reto1_perfiles_participacion/
         ├── Ficha_C0.png ... Ficha_C3.png            # Fichas C0 a C3 en PNG a 300 DPI
         └── Fichas_Perfiles_ByteMe.png               # Vista combinada de Fichas a 300 DPI
 ```
+
+### Archivos de la versión preliminar
+
+`src/`, `main.py` y `pipeline.log` corresponden al pipeline preliminar, que calculaba la participación como SV/LN. Se conservan solo por trazabilidad: el pipeline vigente está en `scripts/auditoria/` y se ejecuta con `python run_all.py`. `output/datasets/dataset_clusters_final.parquet` es la salida de esa versión preliminar y se usa únicamente para compararla con la tipología corregida.
 
 ---
 
@@ -134,7 +138,7 @@ pip install -r requirements.txt
 # 2. Ejecutar todo el pipeline desde cero (determinista, random_state=42)
 python run_all.py
 
-# 3. Ejecutar la suite completa de 28 pruebas automatizadas de consistencia y presentación
+# 3. Ejecutar la suite completa de 31 pruebas automatizadas de consistencia y presentación
 pytest -v
 ```
 
