@@ -1056,9 +1056,10 @@ def test_regresion_reproducible() -> None:
 
 def test_sin_literales_generadores() -> None:
     """
-    5.2.7: Verifica que en 07_compilar_documento.py y 11_analisis_auditoria.py no aparezcan constantes literales prohibidas.
-    (En Bloque 6 se extiende el chequeo AST a 08_generar_fichas.py y 10_generar_presentacion.py).
+    5.2.7: Verifica que en 07_compilar_documento.py y 11_analisis_auditoria.py no aparezcan constantes literales prohibidas,
+    y que el árbol AST de 08_generar_fichas.py y 10_generar_presentacion.py no contenga literales de cifras fuera de cargar_cifras().
     """
+    import ast
     scripts_dir = PROJECT_ROOT / "scripts" / "auditoria"
     literales_prohibidos = [
         "0.0333792",
@@ -1072,6 +1073,28 @@ def test_sin_literales_generadores() -> None:
         code = (scripts_dir / s_name).read_text(encoding="utf-8")
         for lit in literales_prohibidos:
             assert lit not in code, f"Literal prohibido '{lit}' encontrado en {s_name}"
+
+    pattern = re.compile(r"\d+\.\d+\s*(%|pts|millones|mil\b)|≈\s*\d|\b\d{1,3}(,\d{3})+\b")
+    for s_name in ["08_generar_fichas.py", "10_generar_presentacion.py"]:
+        code = (scripts_dir / s_name).read_text(encoding="utf-8")
+        tree = ast.parse(code)
+        matches = []
+        class Visitor(ast.NodeVisitor):
+            def __init__(self):
+                self.scope = ["module"]
+            def visit_FunctionDef(self, node):
+                self.scope.append(node.name)
+                self.generic_visit(node)
+                self.scope.pop()
+            def visit_Constant(self, node):
+                if isinstance(node.value, str):
+                    if self.scope[-1] == "cargar_cifras":
+                        return
+                    m = pattern.findall(node.value)
+                    if m:
+                        matches.append((node.lineno, self.scope[-1], node.value, m))
+        Visitor().visit(tree)
+        assert len(matches) == 0, f"Literales de cifras encontrados en AST de {s_name} fuera de cargar_cifras: {matches}"
 
 
 

@@ -60,6 +60,25 @@ THEMES = {
 }
 
 
+def cargar_cifras() -> dict:
+    """Extrae todas las cifras y métricas requeridas desde tablas y JSON (Bloque 6)."""
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    t07_df = pd.read_csv(TABLA_07_PATH)
+    t12_df = pd.read_csv(TABLA_12_PATH).set_index("codigo_cluster")
+    t17_df = pd.read_csv(TABLA_17_PATH).set_index("codigo_cluster")
+    serie = {r["anio"]: r for r in data.get("serie_nacional_2009_2024", [])}
+    subest_2018 = float(serie.get(2018, {}).get("subestimacion_erronea_sv_ln_pond_pts", 4.27))
+    texts_dict = build_profile_texts(data, t07_df)
+    return {
+        "data": data,
+        "t07_df": t07_df,
+        "t12_df": t12_df,
+        "t17_df": t17_df,
+        "texts_dict": texts_dict,
+        "subest_2018": subest_2018,
+    }
+
+
 def get_top3_entidades(t07_df: pd.DataFrame, cid: int) -> str:
     """Extrae las 3 entidades principales con su porcentaje desde tabla_07."""
     row = t07_df[t07_df["codigo_cluster"] == f"C{cid}"].iloc[0]
@@ -293,7 +312,7 @@ def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038,
         ax.plot([cx - 0.010 * scale, cx + 0.010 * scale], [cy - 0.012 * scale, cy - 0.012 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
 
 
-def render_cover_page(data: dict, texts: dict) -> plt.Figure:
+def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figure:
     """Página 1: Portada ejecutiva en formato carta horizontal."""
     fig = plt.figure(figsize=(11.0, 8.5), facecolor="white")
     ax = fig.add_axes([0, 0, 1, 1])
@@ -358,7 +377,8 @@ def render_cover_page(data: dict, texts: dict) -> plt.Figure:
     pan_b_pct_ln = redondear(univ.get("panel_principal_pct_ln_2024", 79.53), 1)
     pan_b_mun = univ.get("panel_principal_municipios", 2393)
 
-    p1_text = textwrap.fill("1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta 4.27 pts en 2018.", width=108)
+    subest_val = cifras["subest_2018"] if (cifras and "subest_2018" in cifras) else float(data.get("serie_nacional_2009_2024", [{}])[3].get("subestimacion_erronea_sv_ln_pond_pts", 0.0))
+    p1_text = textwrap.fill(f"1. Corrección por registros sin captura (NS): En microdatos abiertos la Lista Nominal es LN = SV + NV + NS; la fórmula oficial es SV/(SV+NV), evitando subestimar hasta {subest_val:.2f} pts en 2018.", width=108)
     p2_text = textwrap.fill(f"2. Panel Principal continuo (Opción B, cero imputación): {pan_b_secc:,} secciones con captura válida (SV+NV ≥ 50) y sin saltos por reseccionamiento ({pan_b_pct_secc:.1f}% secciones y {pan_b_pct_ln:.1f}% LN 2024 en {pan_b_mun:,} municipios).", width=108)
     bench_k4 = [r for r in data["benchmark_modelos"] if r.get("algoritmo") == "K-Means++" and int(r.get("k", 0)) == 4][0]
     sil_val = bench_k4["silhouette"]
@@ -664,23 +684,22 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
 
 
 def main() -> None:
-    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
-    t07_df = pd.read_csv(TABLA_07_PATH)
+    print("[Fase 7.3] Construyendo textos dinámicos desde JSON y tablas...")
+    cifras = cargar_cifras()
+    data = cifras["data"]
+    texts_dict = cifras["texts_dict"]
 
     pdf_multi_path = OUT_ENTREGABLES / "Fichas_Perfiles_ByteMe.pdf"
     png_portada_path = OUT_ENTREGABLES / "Fichas_Portada.png"
     png_cards = [OUT_ENTREGABLES / f"Ficha_C{cid}.png" for cid in range(4)]
     png_combined_path = OUT_ENTREGABLES / "Fichas_Perfiles_ByteMe.png"
 
-    print("[Fase 7.3] Construyendo textos dinámicos desde JSON y tablas...")
-    texts_dict = build_profile_texts(data, t07_df)
-
     print("[Fase 7.3] Generando Fichas en 5 páginas horizontales (Carta)...")
 
     # Guardar PDF de 5 páginas y los PNGs individuales a 300 DPI
     with PdfPages(pdf_multi_path) as pdf:
         # Página 1: Portada
-        fig_cover = render_cover_page(data, texts_dict)
+        fig_cover = render_cover_page(data, texts_dict, cifras)
         fig_cover.savefig(png_portada_path, dpi=300)
         pdf.savefig(fig_cover)
         plt.close(fig_cover)
