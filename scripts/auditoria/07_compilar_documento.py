@@ -628,9 +628,9 @@ def build_pdf(data: dict) -> Path:
         ),
         (
             f"• <b>{perfiles[2]['codigo_cluster']} — {perfiles[2]['nombre_propuesto']}:</b> "
-            f"Caracteriza a secciones en crecimiento sostenido ({perfiles[2]['tendencia_participacion_beta_original']*100:+.2f} pts/año) donde la juventud alcanza su mayor "
-            f"incorporación relativa frente al promedio seccional (razón de {perfiles[2]['ratio_participacion_joven_original']:.2f}). "
-            f"Demuestra que la movilización juvenil es viable cuando existe dinamismo cívico local y requiere consolidación para evitar retrocesos en elecciones intermedias."
+            f"Caracteriza a secciones en crecimiento sostenido ({perfiles[2]['tendencia_participacion_beta_original']*100:+.2f} pts/año) donde su razón de participación juvenil "
+            f"es la segunda más alta de los cuatro perfiles ({perfiles[2]['ratio_participacion_joven_original']:.2f}, después de C1 con 0.91). "
+            f"El ascenso se concentra en las intermedias (41.8% → 48.3% → 60.4%), mientras que en presidenciales pasó de 69.3% a 68.0% entre 2018 y 2024."
         ),
         (
             f"• <b>{perfiles[3]['codigo_cluster']} — {perfiles[3]['nombre_propuesto']}:</b> "

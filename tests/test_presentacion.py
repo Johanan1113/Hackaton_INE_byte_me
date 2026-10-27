@@ -19,6 +19,7 @@ import subprocess
 from pathlib import Path
 
 import pdfplumber
+import pandas as pd
 import pptx
 import pytest
 
@@ -218,4 +219,37 @@ def test_nombres_oficiales_portada():
     ]
     for nom in oficiales:
         assert nom in s1_text, f"Nombre oficial no encontrado en portada (diapositiva 1): '{nom}'"
+
+
+def test_grafica_perfiles():
+    """A1: Lee los valores de la gráfica en la diapositiva 5 del .pptx y los compara con tabla_07 (±0.05)."""
+    assert PPTX_PATH.is_file(), f"No existe el archivo PPTX: {PPTX_PATH}"
+    tabla_07_path = PROJECT_ROOT / "outputs" / "tablas" / "tabla_07_perfiles_k4_series_demografia.csv"
+    assert tabla_07_path.is_file(), f"No existe tabla_07: {tabla_07_path}"
+
+    df_t07 = pd.read_csv(tabla_07_path)
+    prs = pptx.Presentation(PPTX_PATH)
+    slide5 = prs.slides[4]
+    chart = None
+    for shape in slide5.shapes:
+        if shape.has_chart:
+            chart = shape.chart
+            break
+    assert chart is not None, "No se encontró la gráfica en la diapositiva 5"
+
+    years = [2009, 2012, 2015, 2018, 2021, 2024]
+    for series in chart.series:
+        s_name = series.name
+        if s_name == "Media del panel":
+            row = df_t07[df_t07["codigo_cluster"] == "Panel_B"].iloc[0]
+        else:
+            row = df_t07[df_t07["codigo_cluster"] == s_name].iloc[0]
+
+        expected_vals = [float(row[f"p_{y}_pond_pct"]) for y in years]
+        chart_vals = list(series.values)
+        assert len(chart_vals) == len(expected_vals), f"Longitud de serie distinta en {s_name}"
+        for y_idx, (cv, ev) in enumerate(zip(chart_vals, expected_vals)):
+            assert round(abs(cv - ev), 4) <= 0.05 or abs(cv - ev) <= 0.0501, (
+                f"Discrepancia en {s_name} año {years[y_idx]}: chart={cv}, tabla={ev}"
+            )
 

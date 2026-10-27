@@ -108,11 +108,12 @@ PROFILE_TEXTS = {
     2: {
         "quienes_son": (
             "Secciones con fuerte dinamismo cívico en entornos urbanos (68.6%), rurales (22.3%) y mixtos (9.1%). "
-            "Es el perfil de mayor crecimiento histórico (+1.28 pts/año), pasando de 41.8% en 2009 a 68.0% en 2024, impulsado por una alta afluencia juvenil."
+            "Su razón de participación juvenil es la segunda más alta de los cuatro perfiles (0.88, después de C1 con 0.91). "
+            "El ascenso histórico se concentra en las intermedias (41.8% → 48.3% → 60.4%); en presidenciales pasó de 69.3% a 68.0% entre 2018 y 2024."
         ),
         "hipotesis": (
-            "Hipótesis: El crecimiento participativo se explica por la incorporación de nuevas generaciones de electores "
-            "y la creciente politización de demandas locales y servicios en zonas en consolidación."
+            "Hipótesis: El crecimiento en intermedias responde a la consolidación de demandas comunitarias en zonas en desarrollo, "
+            "con un electorado joven activo que requiere incentivos específicos en elecciones intermedias."
         ),
         "propuesta": (
             "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "

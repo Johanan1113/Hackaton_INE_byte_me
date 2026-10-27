@@ -41,6 +41,10 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.chart.data import CategoryChartData
 
+# Utilidades de formato
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from scripts.auditoria.utilidades_formato import redondear, formatear
+
 # Rutas del proyecto
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 METRICAS_PATH = PROJECT_ROOT / "outputs" / "metricas_finales.json"
@@ -725,13 +729,31 @@ def build_presentation(data: dict) -> Path:
     add_footer(slide5, 5)
 
     # Izquierda (55%): Gráfica de líneas 2009–2024
+    df_t07 = pd.read_csv(TABLAS_DIR / "tabla_07_perfiles_k4_series_demografia.csv")
+    def get_series_t07(code):
+        row = df_t07[df_t07["codigo_cluster"] == code].iloc[0]
+        return tuple(redondear(row[f"p_{y}_pond_pct"], 1) for y in [2009, 2012, 2015, 2018, 2021, 2024])
+
+    s_c0 = get_series_t07("C0")
+    s_c1 = get_series_t07("C1")
+    s_c2 = get_series_t07("C2")
+    s_c3 = get_series_t07("C3")
+    s_pan = get_series_t07("Panel_B")
+
+    # Verificación esperada (A1)
+    assert s_c0 == (36.9, 58.5, 38.8, 60.0, 46.1, 56.9), f"C0 no coincide: {s_c0}"
+    assert s_c1 == (59.2, 69.2, 64.2, 68.2, 62.5, 65.7), f"C1 no coincide: {s_c1}"
+    assert s_c2 == (41.8, 65.8, 48.3, 69.3, 60.4, 68.0), f"C2 no coincide: {s_c2}"
+    assert s_c3 == (49.6, 61.2, 50.4, 59.0, 49.5, 55.6), f"C3 no coincide: {s_c3}"
+    assert s_pan == (44.5, 62.6, 47.8, 63.2, 52.8, 60.6), f"Panel no coincide: {s_pan}"
+
     cd5 = CategoryChartData()
     cd5.categories = ["2009", "2012", "2015", "2018", "2021", "2024"]
-    cd5.add_series("C0", (38.5, 59.9, 41.5, 60.1, 46.1, 56.9))
-    cd5.add_series("C1", (58.8, 70.8, 62.0, 71.9, 62.5, 65.7))
-    cd5.add_series("C2", (41.8, 63.8, 48.0, 67.2, 60.4, 68.0))
-    cd5.add_series("C3", (49.6, 61.2, 50.4, 60.0, 49.5, 55.6))
-    cd5.add_series("Media del panel", (44.5, 62.6, 47.7, 63.2, 52.8, 60.5))
+    cd5.add_series("C0", s_c0)
+    cd5.add_series("C1", s_c1)
+    cd5.add_series("C2", s_c2)
+    cd5.add_series("C3", s_c3)
+    cd5.add_series("Media del panel", s_pan)
 
     gf5 = slide5.shapes.add_chart(XL_CHART_TYPE.LINE, Inches(0.6), Inches(1.7), Inches(6.5), Inches(5.1), cd5)
     ch5 = gf5.chart
@@ -792,7 +814,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide5,
-        "La tipología segmenta el país en cuatro dinámicas nítidas. C0 agrupa un tercio de las secciones en zonas metropolitanas con una profunda caída en elecciones intermedias y desafección juvenil. C1 representa comunidades altamente participativas y estables en todas las edades. C2 es el perfil más dinámico, con un crecimiento promedio de uno punto veintiocho puntos por año impulsado por las nuevas generaciones. Finalmente, C3 se caracteriza por una marcada brecha favorable a las mujeres de once puntos, pero con un estancamiento en elecciones presidenciales."
+        "La tipología segmenta el país en cuatro dinámicas nítidas. C0 agrupa un tercio de las secciones en zonas metropolitanas con una profunda caída en elecciones intermedias y desafección juvenil. C1 representa comunidades altamente participativas y estables en todas las edades. C2 tiene una razón de participación juvenil que es la segunda más alta de los cuatro perfiles (0.88, después de C1 con 0.91); su ascenso histórico se concentra en las intermedias (41.8% a 48.3% a 60.4%), mientras que en presidenciales pasó de 69.3% a 68.0% entre 2018 y 2024. Finalmente, C3 presenta una brecha de género favorable a las mujeres explicada por baja participación masculina."
     )
 
     # =========================================================================
@@ -1098,7 +1120,7 @@ def build_presentation(data: dict) -> Path:
 
     add_speaker_notes(
         slide7,
-        "Los perfiles que superan el promedio del panel requieren estrategias de blindaje y consolidación. En C1 el desafío operativo central es asegurar el relevo generacional en las mesas directivas de casilla mediante capacitación temprana a personas insaculadas. En C2, que experimenta una fuerte movilización de votantes jóvenes, proponemos profundizar el diálogo público a través de la plataforma Conóceles y debates comunitarios, consolidando el piso de participación intermedia por encima del sesenta punto cuatro por ciento."
+        "Los perfiles que superan el promedio del panel requieren estrategias de blindaje y consolidación. En C1 el desafío operativo central es asegurar el relevo generacional en casillas mediante capacitación temprana. En C2, cuya razón de participación juvenil es la segunda más alta de los cuatro perfiles y su ascenso se concentra en las intermedias de 41.8% a 60.4%, proponemos profundizar el diálogo público mediante Conóceles y debates comunitarios para consolidar su piso de participación."
     )
 
     # =========================================================================
