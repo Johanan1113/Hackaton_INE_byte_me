@@ -585,11 +585,11 @@ def build_pdf(data: dict) -> Path:
     t4_table = styled_table(t5_rows, [88.27, 50.0, 56.0, 47.0, 50.0, 50.0, 48.0, 81.0], highlight_last=True)
     story.append(t4_cap)
     story.append(t4_table)
+    t4_note_st = ParagraphStyle("T4Note", parent=note_st, spaceBefore=1.0, spaceAfter=1.5)
     story.append(Paragraph(
-        "<i>Nota: Tend. simple = pendiente usada en el agrupamiento; la corregida está en la Sección 3.</i>",
-        note_st
+        "<i>Nota de la Tabla 4: Tend. simple = pendiente usada en el agrupamiento; la corregida está en la Sección 3.</i>",
+        t4_note_st
     ))
-    story.append(Spacer(1, 4))
 
     # Tabla 5: Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (8 columnas, Bloque H4 & 2.1)
     t6_rows = [[
@@ -629,8 +629,9 @@ def build_pdf(data: dict) -> Path:
     t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)
     story.append(t5_cap)
     story.append(t5_table)
-    story.append(Paragraph("<i>Nota: Pres. / Inter. corresponden a medias simples de las elecciones de cada tipo; las demás columnas son ponderadas o promedios del periodo.</i>", note_st))
-    story.append(Spacer(1, 4))
+    t5_note_st = ParagraphStyle("T5Note", parent=note_st, spaceBefore=1.5, spaceAfter=2.0)
+    story.append(Paragraph("<i>Nota: Pres. / Inter. corresponden a medias simples de las elecciones de cada tipo; las demás columnas son ponderadas o promedios del periodo.</i>", t5_note_st))
+    story.append(Spacer(1, 2))
 
     # A1 & D2, D3, D5: Diagnósticos por perfil en <= 60 palabras de narrativa y máximo 2 cifras por perfil (Bloques 2.4, 2.5, 2.10)
     c0_hom = redondear_pub(perfiles[0]['tasa_hombres_original'] * 100, 1)

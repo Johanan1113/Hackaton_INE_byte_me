@@ -154,7 +154,7 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     for p in perfiles:
         c = p["cluster_id"]
         y_vals = [p[f"p_{y}_ponderada"] * 100 for y in years]
-        lbl = f"{p['codigo_cluster']} ({p['pct_secciones_panel']:.1f}%)"
+        lbl = f"{p['codigo_cluster']} ({redondear_pub(p['pct_secciones_panel'], 1):.1f}%)"
         ax1.plot(
             years, y_vals, marker="o", linewidth=1.6, markersize=4.0,
             color=CLUSTER_COLORS[c], label=lbl, zorder=4

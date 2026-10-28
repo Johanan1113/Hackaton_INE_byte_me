@@ -25,3 +25,8 @@ output/models/
 
 # Temporales de auditoría
 outputs/auditoria/
+
+# Informes internos no entregables
+Informe_*.pdf
+outputs/entregables/Informe_*.pdf
+outputs/entregables/Checkpoint_*.pdf
