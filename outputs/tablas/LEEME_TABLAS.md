@@ -4,15 +4,15 @@ Proyecto: Reto 1 - Perfiles Ciudadanos de Participación (Equipo "Byte me")
 1. `tabla_01_cascada_universo.csv`: Cascada metodológica de conformación del universo de análisis y panel principal de secciones (2009–2024).
 2. `tabla_02_serie_nacional_2009_2024.csv`: Serie temporal de participación nacional oficial CCPC vs. panel y subestimación por SV/LN (la columna `dif_reportada_doc_erronea_vs_oficial_pts` es histórico de la versión preliminar).
 3. `tabla_03_incluidas_vs_excluidas_2024.csv`: Comparativa de balance y cobertura entre secciones incluidas en el Panel B y secciones excluidas en 2024.
-4. `tabla_04_benchmark_modelos.csv`: Benchmark de algoritmos de agrupamiento y métricas de validación interna para k=4, 5 y 6.
-5. `tabla_05a_estabilidad_comparacion.csv`: Comparación de estabilidad y consistencia de clústeres mediante remuestreo bootstrap (ARI).
+4. `tabla_04_benchmark_modelos.csv`: Benchmark de agrupamiento: K-Means++ y GMM para k=3 a 7 y HDBSCAN en tres configuraciones, con métricas de validación interna y estabilidad bootstrap (ARI).
+5. `tabla_05a_estabilidad_comparacion.csv`: Comparación de tres transformaciones de la variable de estabilidad (1/CV sin acotar, CV directo winsorizado y log(1 + 1/CV) winsorizado) y su efecto en las métricas y en el ARI entre versiones.
 6. `tabla_05b_vif_colinealidad.csv`: Diagnóstico de multicolinealidad (VIF) entre variables rectoras e impacto de exclusión etaria en ARI.
 7. `tabla_05c_ventanas_temporales.csv`: Análisis de sensibilidad temporal y estabilidad de la tipología ante ventanas sub-periódicas.
 8. `tabla_06_perfiles_k4_resumen.csv`: Resumen cuantitativo de los 4 perfiles ciudadanos (secciones, Lista Nominal, medias z y tipo seccional).
 9. `tabla_07_perfiles_k4_series_demografia.csv`: Trayectoria histórica hexanual y desglose sociodemográfico por perfil ciudadano (2009–2024).
 10. `tabla_08_estrategias_k4.csv`: Matriz de estrategias focalizadas de educación cívica, metas e hipótesis por perfil ciudadano.
-11. `tabla_09_transicion_clusters.csv`: Matriz de transición y reasignación de secciones entre k=3 preliminar y k=4 auditado (histórico de la versión preliminar).
-12. `tabla_10_sensibilidad_opcion_a.csv`: Análisis de sensibilidad comparativo frente a imputación de secciones atípicas (Opción A vs. Opción B).
+11. `tabla_09_transicion_clusters.csv`: Matriz de transición de secciones entre los 5 grupos de la versión preliminar (C0_viejo a C4_viejo) y los 4 perfiles finales (histórico de la versión preliminar).
+12. `tabla_10_sensibilidad_opcion_a.csv`: Análisis de sensibilidad con la Opción A (filtro alternativo del panel, sin imputación) frente al Panel Principal B: concordancia ARI y métricas.
 13. `tabla_11_interpretabilidad_rf_anova.csv`: Diagnóstico de interpretabilidad y relevancia de características mediante Random Forest y ANOVA.
 14. `tabla_12_lineas_base_metas.csv`: Líneas base observadas (2021/2024) y metas cuantitativas verificables generales y secundarias por perfil rumbo a 2027 y 2030.
 15. `tabla_13_validacion_temporal.csv`: Validación fuera de tiempo (calibración 2009–2021 y evaluación predictiva sobre comicios de 2024).

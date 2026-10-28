@@ -41,7 +41,7 @@ Dentro del rango de $4$ a $6$ perfiles de la convocatoria, **$k = 4$** alcanza e
 | **C0** | **Baja Participación Intermitente con Rezago Juvenil** | 17,622 (32.85% / 24.91%) | 28,070,662 (35.90% / 28.55%) | 50.37% (-0.65) | +17.31 pts (+0.60) | +0.86 pts/año (+0.26) | 46.1% / 56.9% | 79.0/13.5/7.5% |
 | **C1** | **Alta Participación Estable e Intergeneracional** | 8,824 (16.45% / 12.47%) | 11,490,525 (14.69% / 11.69%) | 65.05% (+0.95) | +5.37 pts (-1.10) | +0.15 pts/año (-0.73) | 62.5% / 65.7% | 46.0/40.9/13.2% |
 | **C2** | **Participación en Ascenso con Juventud Activa** | 14,624 (27.26% / 20.67%) | 18,796,916 (24.04% / 19.12%) | 58.93% (+0.29) | +16.81 pts (+0.53) | +1.28 pts/año (+0.84) | 60.4% / 68.0% | 68.6/22.3/9.1% |
-| **C3** | **Participación a la Baja con Brecha de Género** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | -0.63 pts/año (-0.83) | 49.5% / 55.6% | 48.8/41.2/10.0% |
+| **C3** | **Participación a la Baja con Brecha de Género** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | +0.08 pts/año (-0.83) | 49.5% / 55.6% | 48.8/41.2/10.0% |
 | **Panel B** | **Media Nacional Panel B** | **53,644** (100% / 75.82%) | **78,199,518** (100% / 79.53%) | **56.30%** (0.00) | **+13.07 pts** (0.00) | **+0.68 pts/año** (0.00) | **52.8% / 60.6%** | **63.7/26.9/9.5%** |
 
 > *Nota sobre tendencias:* La columna «Tendencia Anual» reporta la pendiente lineal simple 2009–2024 (variable rectora de la tipología). La tendencia corregida que controla por el ciclo presidencial–intermedio mediante regresión con efectos fijos temporales se reporta en `tabla_19_tendencia_corregida.csv` (C0: +0.40, C1: 0.00, C2: +0.88, C3: -0.17 pts/año).
