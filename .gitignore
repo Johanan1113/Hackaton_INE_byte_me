@@ -30,3 +30,6 @@ outputs/auditoria/
 Informe_*.pdf
 outputs/entregables/Informe_*.pdf
 outputs/entregables/Checkpoint_*.pdf
+outputs/entregables/paginas_png/
+outputs/entregables/paginas_presentacion/
+outputs/entregables/Documento_Tecnico_ByteMe.md

@@ -177,7 +177,7 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
             "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
             "brecha_label": "Brecha Pres.–Inter.",
             "brecha_val": f"+{p0_brecha:.1f} pts",
-            "brecha_sub": "Mayor desmovilización intermedia",
+            "brecha_sub": "Mayor caída en intermedia",
             "impacto_lbl": "Impacto:",
             "impacto_txt": f"{c0_imp_str} votantes adicionales si se cumple la meta 2027",
             "impacto_portada": f"{c0_imp_str}\nadicionales",
@@ -228,8 +228,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 "Consolidar el hábito del voto mediante foros juveniles de diálogo democrático (propuesta); vinculación con colectivos juveniles y organizaciones vecinales; "
                 "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar candidaturas."
             ),
-            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y razón juvenil de la intermedia 2021 (0.88).",
-            "indicador": "Tasa ponderada 2027 y razón juvenil de la intermedia 2021 (0.88).",
+            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y razón juvenil de la intermedia 2021 ({p2_ratio:.2f}).",
+            "indicador": f"Tasa ponderada 2027 y razón juvenil de la intermedia 2021 ({p2_ratio:.2f}).",
             "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Bajo-Medio (foros distritales)",
             "lema": "Tu voto cuenta en cada elección: participa también en 2027",
             "brecha_label": "Tendencia Corregida",
@@ -312,7 +312,7 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
     # Marco exterior
     border = FancyBboxPatch(
         (0.03, 0.03), 0.94, 0.94,
-        boxstyle="round,pad=0.015,rounding_size=0.02",
+        boxstyle=f"round,pad={0.015},rounding_size={0.02}",
         facecolor="#F8FAFC", edgecolor="#1E3A8A", linewidth=2.2, transform=ax.transAxes
     )
     ax.add_patch(border)
@@ -320,7 +320,7 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
     # Banner superior institucional
     hdr = FancyBboxPatch(
         (0.04, 0.81), 0.92, 0.14,
-        boxstyle="round,pad=0.01,rounding_size=0.015",
+        boxstyle=f"round,pad={0.01},rounding_size={0.015}",
         facecolor="#1E3A8A", edgecolor="#1E3A8A", transform=ax.transAxes
     )
     ax.add_patch(hdr)
@@ -340,7 +340,7 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
     # Bloque de datos del equipo y repositorio (E5: eliminado entorno de software)
     team_box = FancyBboxPatch(
         (0.04, 0.675), 0.92, 0.115,
-        boxstyle="round,pad=0.01,rounding_size=0.015",
+        boxstyle=f"round,pad={0.01},rounding_size={0.015}",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(team_box)
@@ -357,7 +357,7 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
     # Bloque metodológico en exactamente 3 renglones
     meth_box = FancyBboxPatch(
         (0.04, 0.442), 0.92, 0.213,
-        boxstyle="round,pad=0.01,rounding_size=0.015",
+        boxstyle=f"round,pad={0.01},rounding_size={0.015}",
         facecolor="#F1F5F9", edgecolor="#94A3B8", linewidth=1.2, transform=ax.transAxes
     )
     ax.add_patch(meth_box)
@@ -461,7 +461,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     # Marco exterior
     border = FancyBboxPatch(
         (0.025, 0.025), 0.95, 0.95,
-        boxstyle="round,pad=0.015,rounding_size=0.02",
+        boxstyle=f"round,pad={0.015},rounding_size={0.02}",
         facecolor=theme["bg"], edgecolor=theme["border"], linewidth=2.0, transform=ax.transAxes
     )
     ax.add_patch(border)
@@ -469,7 +469,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     # Banner superior
     hdr = FancyBboxPatch(
         (0.035, 0.870), 0.930, 0.090,
-        boxstyle="round,pad=0.01,rounding_size=0.015",
+        boxstyle=f"round,pad={0.01},rounding_size={0.015}",
         facecolor=theme["primary"], edgecolor=theme["primary"], transform=ax.transAxes
     )
     ax.add_patch(hdr)
@@ -505,7 +505,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     for i, (title_c, val_c, sub_c) in enumerate(cards_info):
         box_c = FancyBboxPatch(
             (x_starts[i], 0.755), card_w, 0.098,
-            boxstyle="round,pad=0.008,rounding_size=0.012",
+            boxstyle=f"round,pad={0.008},rounding_size={0.012}",
             facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes
         )
         ax.add_patch(box_c)
@@ -538,7 +538,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
         ax_plot.annotate(
             f"{redondear(y_v, 1):.1f}%", (x_v, y_v), textcoords="offset points", xytext=(0, dy),
             ha="center", va=va_align, fontsize=9.5, fontweight="bold", color=theme["primary"],
-            bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none", alpha=0.85),
+            bbox=dict(boxstyle=f"round,pad={0.15}", facecolor="white", edgecolor="none", alpha=0.85),
             zorder=5
         )
 
@@ -577,7 +577,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     h1 = (y1_top - y1_body_bot) + 0.010
     b1_box = FancyBboxPatch(
         (card_x, y1_top - h1), card_w_right, h1,
-        boxstyle="round,pad=0.006,rounding_size=0.01",
+        boxstyle=f"round,pad={0.006},rounding_size={0.01}",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes, zorder=2
     )
     ax.add_patch(b1_box)
@@ -596,7 +596,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     h2 = (y2_top - y2_body_bot) + 0.010
     b2_box = FancyBboxPatch(
         (card_x, y2_top - h2), card_w_right, h2,
-        boxstyle="round,pad=0.006,rounding_size=0.01",
+        boxstyle=f"round,pad={0.006},rounding_size={0.01}",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes, zorder=2
     )
     ax.add_patch(b2_box)
@@ -615,7 +615,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     h3 = (y3_top - y3_body_bot) + 0.010
     b3_box = FancyBboxPatch(
         (card_x, y3_top - h3), card_w_right, h3,
-        boxstyle="round,pad=0.006,rounding_size=0.01",
+        boxstyle=f"round,pad={0.006},rounding_size={0.01}",
         facecolor="white", edgecolor="#CBD5E1", linewidth=1.2, transform=ax.transAxes, zorder=2
     )
     ax.add_patch(b3_box)
@@ -625,7 +625,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     lema_h = 0.050
     lema_box = FancyBboxPatch(
         (0.035, lema_y0), 0.930, lema_h,
-        boxstyle="round,pad=0.006,rounding_size=0.012",
+        boxstyle=f"round,pad={0.006},rounding_size={0.012}",
         facecolor=theme["primary"], edgecolor=theme["primary"], transform=ax.transAxes, zorder=2
     )
     ax.add_patch(lema_box)
@@ -639,7 +639,7 @@ def render_profile_page(cid: int, data: dict, texts_dict: dict) -> plt.Figure:
     meta_h = 0.218
     meta_box = FancyBboxPatch(
         (0.035, meta_y0), 0.930, meta_h,
-        boxstyle="round,pad=0.008,rounding_size=0.014",
+        boxstyle=f"round,pad={0.008},rounding_size={0.014}",
         facecolor="white", edgecolor=theme["border"], linewidth=1.5, transform=ax.transAxes, zorder=2
     )
     ax.add_patch(meta_box)

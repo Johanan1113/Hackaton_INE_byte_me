@@ -7,7 +7,7 @@
 > En los archivos abiertos de los Conteos Censales de Participación Ciudadana (CCPC), cada fila cumple la identidad exacta `LN = SV + NV + NS`, donde:
 > - `SV` = Sí votaron (registros con marca de voto en el cuadernillo).
 > - `NV` = No votaron (registros sin marca de voto en cuadernillos capturados).
-> - `NS` = **No especificados** (cuadernillos no disponibles para su captura, requeridos por autoridades jurisdiccionales o sin marcas de votación).
+> - `NS` = **No especificados** (cuadernillos no disponibles para su captura o sin marcas de votación).
 > 
 > De acuerdo con el **Manual de la Plataforma CCPC 2009–2024 (pág. 17)**, la fórmula oficial de participación del INE es:
 > $$\text{Participación CCPC} = \frac{\text{Sí votaron}}{\text{Sí votaron} + \text{No votaron}} = \frac{SV}{SV + NV}$$

@@ -1114,7 +1114,7 @@ def build_presentation(cifras: dict) -> Path:
                 (f"{c2_tend:+.2f} pts/año", "tendencia corregida"),
             ],
             "propuesta": "Foros juveniles de diálogo democrático (propuesta), alianzas con colectivos juveniles y difusión de «Conóceles» para consultar información de todas las candidaturas.",
-            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil de la intermedia 2021 (0.88)",
+            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil de la intermedia 2021 ({cifras['m2_razon_joven']})",
             "empezar": "Ciudad de México 15 · Tlaxcala 03 · Ciudad de México 10",
         },
     ]

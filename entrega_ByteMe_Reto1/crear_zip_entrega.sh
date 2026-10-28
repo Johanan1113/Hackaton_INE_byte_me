@@ -18,9 +18,9 @@ echo "=== INICIANDO EMPAQUETADO DEL ENTREGABLE OFICIAL (Equipo Byte me) ==="
 # 1. Verificación estricta de sumas de verificación MD5 de entregables
 # ------------------------------------------------------------------------------
 echo "--- Paso 1: Verificando MD5 de entregables revisados ---"
-EXPECTED_DOC_MD5="cd97898558645d4e32a79eb4c00c7c1e"
-EXPECTED_FICHAS_MD5="2ab5a11030b7c22ae170a159b4cbe96d"
-EXPECTED_PRES_MD5="ccd93339aa5686c654910d8ef1539d83"
+EXPECTED_DOC_MD5="350e72056a1eae7ccf158019d0af6981"
+EXPECTED_FICHAS_MD5="e8133adf1c114ae4a6d351552b2b6998"
+EXPECTED_PRES_MD5="0c244aef389eb17509a2eee444e5c040"
 
 ACTUAL_DOC_MD5=$(md5sum "$ENTREGA_DIR/Documento_Tecnico_ByteMe.pdf" | awk '{print $1}')
 ACTUAL_FICHAS_MD5=$(md5sum "$ENTREGA_DIR/Fichas_Perfiles_ByteMe.pdf" | awk '{print $1}')
@@ -112,6 +112,8 @@ cp "$ENTREGA_DIR/Presentacion_Ejecutiva_ByteMe.pptx" "$PKG_DIR/03_Presentacion_E
         scripts/ \
         tests/ \
         outputs/metricas_finales.json \
+        outputs/perfil_por_seccion_2024.csv \
+        outputs/juntas_prioritarias_por_perfil.csv \
         outputs/tablas/ \
         outputs/figuras/ \
     | while read -r file; do

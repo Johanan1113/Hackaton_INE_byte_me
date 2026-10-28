@@ -12,20 +12,28 @@ metas unificadas, y trazabilidad numérica preliminar.
 from __future__ import annotations
 
 import json
+import math
 import re
 import subprocess
 from collections import Counter
 from pathlib import Path
+import sys
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import pdfplumber
+import pptx
 import pypdf
 import pytest
 from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.auditoria.utilidades_formato import redondear
+
 METRICAS_PATH = PROJECT_ROOT / "outputs" / "metricas_finales.json"
 TABLAS_DIR = PROJECT_ROOT / "outputs" / "tablas"
 FIGURAS_DIR = PROJECT_ROOT / "outputs" / "figuras"
@@ -1095,6 +1103,120 @@ def test_sin_literales_generadores() -> None:
                         matches.append((node.lineno, self.scope[-1], node.value, m))
         Visitor().visit(tree)
         assert len(matches) == 0, f"Literales de cifras encontrados en AST de {s_name} fuera de cargar_cifras: {matches}"
+
+
+def test_numeracion_tablas() -> None:
+    """En el texto del documento, los títulos 'Tabla N.' son consecutivos desde 1,
+    y toda mención 'Tabla N' o 'Tablas N y M' apunta a un título existente."""
+    doc_path = ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf"
+    reader = pypdf.PdfReader(str(doc_path))
+    full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+
+    titulos = [int(m) for m in re.findall(r"Tabla\s+(\d+)\.", full_text)]
+    assert len(titulos) >= 7, f"Se esperaban al menos 7 tablas con título 'Tabla N.', se encontraron: {titulos}"
+    assert titulos == list(range(1, len(titulos) + 1)), f"Títulos de tablas no son consecutivos desde 1: {titulos}"
+    max_tabla = max(titulos)
+
+    menciones = re.findall(r"Tablas?\s+((?:\d+(?:\s*(?:,|y)\s*\d+)*))", full_text)
+    for m_group in menciones:
+        nums = [int(x) for x in re.findall(r"\d+", m_group)]
+        for n in nums:
+            assert 1 <= n <= max_tabla, f"Mención a Tabla {n} fuera del rango de títulos existentes (1..{max_tabla})"
+
+
+def test_subestimacion_sin_doble_redondeo() -> None:
+    """Para cada año de tabla_02, subestimacion_erronea_sv_ln_pond_pts == redondear(100*sv/(sv+nv) - 100*sv/ln, 2).
+    El documento y la diapositiva 2 contienen '4.26' y no '4.27'."""
+    df2 = pd.read_csv(TABLAS_DIR / "tabla_02_serie_nacional_2009_2024.csv")
+    for _, r in df2.iterrows():
+        y = int(r["anio"])
+        sv = float(r["sv_total_anio"])
+        nv = float(r["nv_total_anio"])
+        ln = float(r["ln_total_anio"])
+        oficial = 100.0 * sv / (sv + nv)
+        erronea = 100.0 * sv / ln
+        expected = redondear(oficial - erronea, 2)
+        actual = float(r["subestimacion_erronea_sv_ln_pond_pts"])
+        assert actual == expected, f"Año {y}: subestimación {actual} != esperada {expected}"
+
+    doc_text = "\n".join(page.extract_text() or "" for page in pypdf.PdfReader(str(ENTREGABLES_DIR / "Documento_Tecnico_ByteMe.pdf")).pages)
+    assert "4.26" in doc_text, "4.26 no encontrado en Documento_Tecnico_ByteMe.pdf"
+    assert "4.27" not in doc_text, "4.27 encontrado indebidamente en Documento_Tecnico_ByteMe.pdf"
+
+    pres_reader = pypdf.PdfReader(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf"))
+    d2_text = pres_reader.pages[1].extract_text() or ""
+    assert "4.26" in d2_text, "4.26 no encontrado en Diapositiva 2 de Presentacion_Ejecutiva_ByteMe.pdf"
+    assert "4.27" not in d2_text, "4.27 encontrado indebidamente en Diapositiva 2"
+
+
+def test_mde_bloques() -> None:
+    """Los valores de piloto_diseno_efecto coinciden con el MDE sin redondear x sqrt(DEFF)."""
+    data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
+    pde = data["piloto_diseno_efecto"]
+    icc = pde["icc_municipal_c0"]
+    mde_raw = 1.5674
+
+    deff_m5 = 1.0 + (5 - 1) * icc
+    deff_m10 = 1.0 + (10 - 1) * icc
+
+    mde_5_expected = redondear(mde_raw * math.sqrt(deff_m5), 2)
+    mde_10_expected = redondear(mde_raw * math.sqrt(deff_m10), 2)
+
+    assert pde["mde_bloque_5_pts"] == mde_5_expected, f"MDE m=5 {pde['mde_bloque_5_pts']} != {mde_5_expected}"
+    assert pde["mde_bloque_10_pts"] == mde_10_expected, f"MDE m=10 {pde['mde_bloque_10_pts']} != {mde_10_expected}"
+
+
+def test_metas_regla() -> None:
+    """Para cada perfil por debajo del panel, la meta 2027 y la meta 2030 cumplen la regla, y las secundarias existen en tabla_12."""
+    df12 = pd.read_csv(TABLAS_DIR / "tabla_12_lineas_base_metas.csv").set_index("codigo_cluster")
+    panel_p21 = float(df12.loc["Panel B", "participacion_2021_pond_pct"])
+    panel_p24 = float(df12.loc["Panel B", "participacion_2024_pond_pct"])
+
+    for cid in ["C0", "C3"]:
+        p21 = float(df12.loc[cid, "participacion_2021_pond_pct"])
+        p24 = float(df12.loc[cid, "participacion_2024_pond_pct"])
+
+        assert p21 < panel_p21, f"{cid} no está por debajo del panel en 2021"
+        assert p24 < panel_p24, f"{cid} no está por debajo del panel en 2024"
+
+        exp_m27 = f"{redondear(p21 + (panel_p21 - p21) / 2.0, 1):.1f}%"
+        exp_m30 = f"{redondear(p24 + (panel_p24 - p24) / 2.0, 1):.1f}%"
+
+        assert df12.loc[cid, "meta_intermedia_2027"] == exp_m27, f"{cid} meta 2027: {df12.loc[cid, 'meta_intermedia_2027']} != {exp_m27}"
+        assert df12.loc[cid, "meta_presidencial_2030"] == exp_m30, f"{cid} meta 2030: {df12.loc[cid, 'meta_presidencial_2030']} != {exp_m30}"
+
+    assert "meta_secundaria_tasa_hombres" in df12.columns, "Falta columna meta_secundaria_tasa_hombres"
+    assert "meta_secundaria_tasa_joven" in df12.columns, "Falta columna meta_secundaria_tasa_joven"
+    assert df12.loc["C0", "meta_secundaria_tasa_hombres"] != "N/A"
+    assert df12.loc["C3", "meta_secundaria_tasa_joven"] != "N/A"
+
+
+def test_sin_sobreafirmaciones() -> None:
+    """En el texto de los 3 PDF y del PPTX (con notas) no aparecen afirmaciones prohibidas."""
+    forbidden = [
+        "Demostramos", "demostramos", "nítidas", "nitidas", "Demuestra", "demuestra",
+        "garantizando", "desmovilización", "desmovilizacion", "obedecen a",
+        "sufragios emitidos (SV+NV)", "base de sufragios", "desde 2018",
+        "Estudio Censal CCPC 2018", "Diálogos por la Democracia", "Dialogos por la Democracia"
+    ]
+    for fname in ["Documento_Tecnico_ByteMe.pdf", "Fichas_Perfiles_ByteMe.pdf", "Presentacion_Ejecutiva_ByteMe.pdf"]:
+        pdf_path = ENTREGABLES_DIR / fname
+        reader = pypdf.PdfReader(str(pdf_path))
+        full_text = " ".join(p.extract_text() or "" for p in reader.pages)
+        for term in forbidden:
+            assert term.lower() not in full_text.lower(), f"Término no permitido '{term}' encontrado en {fname}"
+
+    prs = pptx.Presentation(str(ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pptx"))
+    pptx_texts = []
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                pptx_texts.append(shape.text_frame.text)
+        if slide.has_notes_slide:
+            pptx_texts.append(slide.notes_slide.notes_text_frame.text)
+    full_pptx = " ".join(pptx_texts)
+    for term in forbidden:
+        assert term.lower() not in full_pptx.lower(), f"Término no permitido '{term}' encontrado en Presentacion_Ejecutiva_ByteMe.pptx"
 
 
 

@@ -113,11 +113,6 @@ CLUSTER_META = {
             "Juntas Distritales Ejecutivas; aprovecha tiempos oficiales del Estado, módulos itinerantes existentes "
             "y convenios con instituciones educativas y centros de trabajo)."
         ),
-        "meta_cuantitativa": (
-            "Elevar la participación ponderada a 49.5% en la intermedia de 2027 (línea base 2021: 46.1%, cerrando "
-            "la mitad de la brecha frente al 52.8% del panel) y la participación juvenil (18–29 años) a 39.1% en 2027 "
-            "(línea base 2021: 35.2%, cerrando la mitad frente al 43.1% del panel)."
-        ),
         "indicador_seguimiento": (
             "Tasa de participación ponderada SV/(SV+NV) del perfil en la intermedia de 2027 (vs. 46.1% en 2021) y "
             "tasa seccional SV/(SV+NV) del grupo 18–29 años en el CCPC 2027."
@@ -171,11 +166,6 @@ CLUSTER_META = {
             "Nivel Bajo — Estimación indicativa de orden operativo (sujeta a presupuestación de DECEyEC y Juntas "
             "Distritales Ejecutivas; absorbible dentro de los programas ordinarios de educación cívica y capacitación electoral distrital)."
         ),
-        "meta_cuantitativa": (
-            "Sostener una participación ponderada ≥ 62.5% en la elección intermedia de 2027 (preservando el 62.5% "
-            "observado en la intermedia de 2021) y sostener al menos el nivel de 2024 (65.7%) en la elección presidencial de 2030, "
-            "aumentando la proporción de casillas instaladas con funcionariado propietario."
-        ),
         "indicador_seguimiento": (
             "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs. 62.5% en 2021), en la "
             "presidencial de 2030 (vs. 65.7% en 2024), y porcentaje de casillas instaladas con funcionariado propietario el día de la jornada (dato de la DEOE)."
@@ -226,11 +216,6 @@ CLUSTER_META = {
         "costo_estimado_orden_magnitud": (
             "Nivel Bajo-Medio — Estimación indicativa de orden operativo (sujeta a presupuestación de DECEyEC y Juntas "
             "Distritales Ejecutivas; basada en foros distritales, vinculación comunitaria y comunicación digital institucional)."
-        ),
-        "meta_cuantitativa": (
-            "Consolidar en la elección intermedia de 2027 una participación ponderada ≥ 60.4% (sosteniendo la línea "
-            "base observada en la intermedia de 2021 de 60.4% e impidiendo una regresión hacia su media intermedia "
-            "histórica de 50.5%) y mantener la razón de participación juvenil ≥ 0.88."
         ),
         "indicador_seguimiento": (
             "Tasa de participación ponderada SV/(SV+NV) en la intermedia de 2027 (vs. 60.4% en 2021 y vs. 48.3% en 2015) "
@@ -292,12 +277,6 @@ CLUSTER_META = {
             "Juntas Distritales Ejecutivas; combina vinculación en centros laborales, pauta en tiempos oficiales de "
             "radio regional y rutas de campo distritales)."
         ),
-        "meta_cuantitativa": (
-            "Elevar la participación ponderada en la elección intermedia de 2027 a 51.1% (línea base 2021: 49.5%, "
-            "cerrando la mitad de la brecha frente al 52.8% del panel), recuperar en la presidencial de 2030 a 58.1% "
-            "(línea base 2024: 55.6%, cerrando la mitad frente al 60.6% del panel), y elevar la participación masculina a "
-            "46.3% en 2027 (línea base 2021: 43.9%, cerrando la mitad frente al 48.7% del panel)."
-        ),
         "indicador_seguimiento": (
             "Tasa de participación masculina SV/(SV+NV) (vs. 43.9% en 2021), participación ponderada en la "
             "intermedia de 2027 (vs. 49.5% en 2021) y participación ponderada en la presidencial de 2030 (vs. 55.6% en 2024) en el CCPC."
@@ -317,6 +296,11 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
     # Medias y DE nacionales sobre el panel principal (N=53,644) para z-scores exactos
     nat_means = {col: float(df_b[col].mean()) for col in FEATURE_COLS}
     nat_stds = {col: float(df_b[col].std(ddof=1)) for col in FEATURE_COLS}
+
+    p21_b = float(df_b["sv_2021"].sum() / df_b["sv_nv_2021"].sum() * 100)
+    p24_b = float(df_b["sv_2024"].sum() / df_b["sv_nv_2024"].sum() * 100)
+    j21_b = float(df_b["sv_joven_2021"].sum() / df_b["sv_nv_joven_2021"].sum() * 100)
+    h21_b = float(df_b["sv_hombre_2021"].sum() / df_b["sv_nv_hombre_2021"].sum() * 100)
 
     perfiles_rows = []
     estrategias_rows = []
@@ -428,6 +412,46 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
 
         perfiles_rows.append(row_p)
 
+        p21 = float(sub["sv_2021"].sum() / sub["sv_nv_2021"].sum() * 100)
+        p24 = float(sub["sv_2024"].sum() / sub["sv_nv_2024"].sum() * 100)
+        j21 = float(sub["sv_joven_2021"].sum() / sub["sv_nv_joven_2021"].sum() * 100)
+        h21 = float(sub["sv_hombre_2021"].sum() / sub["sv_nv_hombre_2021"].sum() * 100)
+
+        if c == 0:
+            m_int_0 = p21 + (p21_b - p21) / 2.0
+            m_jov_0 = j21 + (j21_b - j21) / 2.0
+            meta_cuant = (
+                f"Elevar la participación ponderada a {redondear(m_int_0, 1):.1f}% en la intermedia de 2027 (línea base 2021: {redondear(p21, 1):.1f}%, "
+                f"cerrando la mitad de la brecha frente al {redondear(p21_b, 1):.1f}% del panel) y la participación juvenil (18–29 años) a {redondear(m_jov_0, 1):.1f}% en 2027 "
+                f"(línea base 2021: {redondear(j21, 1):.1f}%, cerrando la mitad frente al {redondear(j21_b, 1):.1f}% del panel)."
+            )
+        elif c == 1:
+            meta_cuant = (
+                f"Sostener una participación ponderada ≥ {redondear(p21, 1):.1f}% en la elección intermedia de 2027 (preservando el {redondear(p21, 1):.1f}% "
+                f"observado en la intermedia de 2021) y sostener al menos el nivel de 2024 ({redondear(p24, 1):.1f}%) en la elección presidencial de 2030, "
+                "aumentando la proporción de casillas instaladas con funcionariado propietario."
+            )
+        elif c == 2:
+            p09_c2 = float(sub["sv_2009"].sum() / sub["sv_nv_2009"].sum() * 100.0)
+            p15_c2 = float(sub["sv_2015"].sum() / sub["sv_nv_2015"].sum() * 100.0)
+            p_mid_c2 = (p09_c2 + p15_c2 + p21) / 3.0
+            r_jov_c2 = float(sub["ratio_participacion_joven"].mean())
+            meta_cuant = (
+                f"Consolidar en la elección intermedia de 2027 una participación ponderada ≥ {redondear(p21, 1):.1f}% (sosteniendo la línea "
+                f"base observada en la intermedia de 2021 de {redondear(p21, 1):.1f}% e impidiendo una regresión hacia su media intermedia "
+                f"histórica de {redondear(p_mid_c2, 1):.1f}%) y mantener la razón de participación juvenil ≥ {redondear(r_jov_c2, 2):.2f}."
+            )
+        else:  # c == 3
+            m_int_3 = p21 + (p21_b - p21) / 2.0
+            m_pres_3 = p24 + (p24_b - p24) / 2.0
+            m_hom_3 = h21 + (h21_b - h21) / 2.0
+            meta_cuant = (
+                f"Elevar la participación ponderada en la elección intermedia de 2027 a {redondear(m_int_3, 1):.1f}% (línea base 2021: {redondear(p21, 1):.1f}%, "
+                f"cerrando la mitad de la brecha frente al {redondear(p21_b, 1):.1f}% del panel), recuperar en la presidencial de 2030 a {redondear(m_pres_3, 1):.1f}% "
+                f"(línea base 2024: {redondear(p24, 1):.1f}%, cerrando la mitad frente al {redondear(p24_b, 1):.1f}% del panel), y elevar la participación masculina a "
+                f"{redondear(m_hom_3, 1):.1f}% en 2027 (línea base 2021: {redondear(h21, 1):.1f}%, cerrando la mitad frente al {redondear(h21_b, 1):.1f}% del panel)."
+            )
+
         estrategias_rows.append({
             "cluster_id": c,
             "codigo_cluster": meta["codigo"],
@@ -446,7 +470,7 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
             "accion_operativa_ine": meta["accion_operativa_ine"],
             "unidad_responsable": meta["unidad_responsable"],
             "costo_estimado_orden_magnitud": meta["costo_estimado_orden_magnitud"],
-            "meta_cuantitativa": meta["meta_cuantitativa"],
+            "meta_cuantitativa": meta_cuant,
             "indicador_seguimiento": meta["indicador_seguimiento"],
             "horizonte_temporal": meta["horizonte_temporal"],
             "lema_sugerido_neutral": meta["lema_neutral"],
@@ -585,24 +609,24 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
         # Regla de metas para intermedia 2027
         if p21 < p21_b:
             m_int_val = p21 + (p21_b - p21) / 2.0
-            m_int = f"{redondear_pub(m_int_val, 1):.1f}%"
+            m_int = f"{redondear(m_int_val, 1):.1f}%"
         else:
-            m_int = f"sostener {redondear_pub(p21, 1):.1f}%"
+            m_int = f"sostener {redondear(p21, 1):.1f}%"
 
         # Regla de metas para presidencial 2030
         if p24 < p24_b:
             m_pres_val = p24 + (p24_b - p24) / 2.0
-            m_pres = f"{redondear_pub(m_pres_val, 1):.1f}%"
+            m_pres = f"{redondear(m_pres_val, 1):.1f}%"
         else:
-            m_pres = f"sostener {redondear_pub(p24, 1):.1f}%"
+            m_pres = f"sostener {redondear(p24, 1):.1f}%"
 
         # Metas por subgrupo
         if c == 0:
             delta_jov = (j21_b - j21) / 2.0
             m_jov_val = j21 + delta_jov
-            m_jov = f"{redondear_pub(m_jov_val, 1):.1f}%"
+            m_jov = f"{redondear(m_jov_val, 1):.1f}%"
             m_hom = "N/A"
-            meta_sec_hombres = f"{redondear_pub(h21 + (h21_b - h21) / 2.0, 1):.1f}%"
+            meta_sec_hombres = f"{redondear(h21 + (h21_b - h21) / 2.0, 1):.1f}%"
             meta_sec_joven = "N/A"
         elif c == 1:
             m_jov = "N/A"
@@ -610,17 +634,18 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
             meta_sec_hombres = "N/A"
             meta_sec_joven = "N/A"
         elif c == 2:
-            m_jov = "razón juvenil de la intermedia 2021 (0.88)"
+            r_jov_c2 = float(sub["ratio_participacion_joven"].mean())
+            m_jov = f"razón juvenil de la intermedia 2021 ({redondear(r_jov_c2, 2):.2f})"
             m_hom = "N/A"
             meta_sec_hombres = "N/A"
             meta_sec_joven = "N/A"
         else:  # c == 3
             delta_hom = (h21_b - h21) / 2.0
             m_hom_val = h21 + delta_hom
-            m_hom = f"{redondear_pub(m_hom_val, 1):.1f}%"
+            m_hom = f"{redondear(m_hom_val, 1):.1f}%"
             m_jov = "N/A"
             meta_sec_hombres = "N/A"
-            meta_sec_joven = f"{redondear_pub(j21 + (j21_b - j21) / 2.0, 1):.1f}%"
+            meta_sec_joven = f"{redondear(j21 + (j21_b - j21) / 2.0, 1):.1f}%"
 
         rows.append({
             "codigo_cluster": meta["codigo"],
@@ -645,10 +670,10 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
         "tasa_joven_18_29_2021_pond_pct": round(j21_b, 2),
         "tasa_hombres_2021_pond_pct": round(h21_b, 2),
         "tasa_hombres_2024_pond_pct": round(h24_b, 2),
-        "meta_intermedia_2027": f"{redondear_pub(p21_b, 1):.1f}%",
-        "meta_presidencial_2030": f"{redondear_pub(p24_b, 1):.1f}%",
-        "meta_tasa_joven": f"{redondear_pub(j21_b, 1):.1f}%",
-        "meta_tasa_hombres": f"{redondear_pub(h21_b, 1):.1f}%",
+        "meta_intermedia_2027": f"{redondear(p21_b, 1):.1f}%",
+        "meta_presidencial_2030": f"{redondear(p24_b, 1):.1f}%",
+        "meta_tasa_joven": f"{redondear(j21_b, 1):.1f}%",
+        "meta_tasa_hombres": f"{redondear(h21_b, 1):.1f}%",
         "meta_secundaria_tasa_hombres": "N/A",
         "meta_secundaria_tasa_joven": "N/A",
     })
@@ -1200,161 +1225,8 @@ def build_impacto_y_priorizacion_territorial(df_b: pd.DataFrame) -> dict:
     df_rank = pd.DataFrame(ranking_rows)
     df_rank.to_csv(PROJECT_ROOT / "outputs" / "juntas_prioritarias_por_perfil.csv", index=False, encoding="utf-8-sig")
 
-    # D1: Cálculo sobre Panel B sin redondeo intermedio
-    ln_c0 = int(df_b[df_b["cluster"] == 0]["ln_2024"].sum())
-    ln_c1 = int(df_b[df_b["cluster"] == 1]["ln_2024"].sum())
-    ln_c2 = int(df_b[df_b["cluster"] == 2]["ln_2024"].sum())
-    ln_c3 = int(df_b[df_b["cluster"] == 3]["ln_2024"].sum())
-
-    sub0 = df_b[df_b["cluster"] == 0]
-    sub1 = df_b[df_b["cluster"] == 1]
-    sub2 = df_b[df_b["cluster"] == 2]
-    sub3 = df_b[df_b["cluster"] == 3]
-
-    p21_c0 = float(sub0["sv_2021"].sum() / sub0["sv_nv_2021"].sum() * 100.0)
-    p21_c1 = float(sub1["sv_2021"].sum() / sub1["sv_nv_2021"].sum() * 100.0)
-    p21_c2 = float(sub2["sv_2021"].sum() / sub2["sv_nv_2021"].sum() * 100.0)
-    p21_c3 = float(sub3["sv_2021"].sum() / sub3["sv_nv_2021"].sum() * 100.0)
-    p21_nat = float(df_b["sv_2021"].sum() / df_b["sv_nv_2021"].sum() * 100.0)
-
-    # Metas de aumento (cerrar la mitad de la brecha respecto a la media nacional del panel B)
-    # C0: delta real = 3.340002%
-    delta_real_c0 = (p21_nat - p21_c0) / 2.0
-    adicionales_c0_exacto = int(round(ln_c0 * (delta_real_c0 / 100.0)))
-    adicionales_c0_miles_str = "≈ 938 mil"
-
-    # C3: delta real = 1.679392% -> +1.7 pts a 1 decimal
-    delta_real_c3 = (p21_nat - p21_c3) / 2.0
-    adicionales_c3_exacto = int(round(ln_c3 * (delta_real_c3 / 100.0)))
-    adicionales_c3_miles_str = "≈ 333 mil"
-
-    total_adicionales_exacto = adicionales_c0_exacto + adicionales_c3_exacto
-    total_adicionales_miles_str = "≈ 1.27 millones"
-
-    # Perfiles de sostenimiento (riesgo de regreso a la media de intermedias 2009-2021)
-    p09_c1 = float(sub1["sv_2009"].sum() / sub1["sv_nv_2009"].sum() * 100.0)
-    p15_c1 = float(sub1["sv_2015"].sum() / sub1["sv_nv_2015"].sum() * 100.0)
-    p_mid_avg_c1 = (p09_c1 + p15_c1 + p21_c1) / 3.0
-    delta_riesgo_c1 = p21_c1 - p_mid_avg_c1
-    riesgo_c1_exacto = int(round(ln_c1 * (delta_riesgo_c1 / 100.0)))
-    riesgo_c1_miles_str = "≈ 58 mil"
-
-    p09_c2 = float(sub2["sv_2009"].sum() / sub2["sv_nv_2009"].sum() * 100.0)
-    p15_c2 = float(sub2["sv_2015"].sum() / sub2["sv_nv_2015"].sum() * 100.0)
-    p_mid_avg_c2 = (p09_c2 + p15_c2 + p21_c2) / 3.0
-    delta_riesgo_c2 = p21_c2 - p_mid_avg_c2
-    riesgo_c2_exacto = int(round(ln_c2 * (delta_riesgo_c2 / 100.0)))
-    riesgo_c2_miles_str = "≈ 1.92 millones"
-
-    total_riesgo_exacto = riesgo_c1_exacto + riesgo_c2_exacto
-    total_riesgo_miles_str = "≈ 1.97 millones"
-
-    # D2: Escenario conservador
-    # C0: MDE del piloto ANCOVA (1.57 pts)
-    conservador_c0_exacto = int(round(ln_c0 * 0.0157))
-    conservador_c0_miles_str = "≈ 441 mil"
-    rango_c0_str = "441 mil – 938 mil"
-
-    # C3: Mitad de la meta (1.679392 / 2 = 0.839696 pts)
-    conservador_c3_exacto = int(round(ln_c3 * (delta_real_c3 / 2.0 / 100.0)))
-    conservador_c3_miles_str = "≈ 167 mil"
-    rango_c3_str = "167 mil – 333 mil"
-
-    total_conservador_exacto = conservador_c0_exacto + conservador_c3_exacto
-    total_conservador_miles_str = "≈ 607 mil"
-    rango_total_adicionales_str = "607 mil – 1.27 millones"
-
-    filas_tabla_impacto = [
-        {
-            "perfil": "C0: Baja Participación Intermitente con Rezago Juvenil",
-            "codigo_cluster": "C0",
-            "ln_2024_panel_b": ln_c0,
-            "tipo_meta": "Aumento",
-            "meta_delta_real_pts": round(delta_real_c0, 4),
-            "meta_delta_pts": "+3.3 pts",
-            "electores_impacto_n": adicionales_c0_exacto,
-            "electores_impacto_str": "≈ 938 mil adicionales",
-            "electores_conservador_n": conservador_c0_exacto,
-            "electores_conservador_str": "≈ 441 mil adicionales",
-            "rango_impacto_str": "441 mil – 938 mil adicionales",
-            "top3_juntas_distritales": resumen_perfil["C0"]["top3_juntas_str"],
-            "pct_ln_en_top30_juntas": resumen_perfil["C0"]["top30_pct"],
-        },
-        {
-            "perfil": "C1: Alta Participación Estable e Intergeneracional",
-            "codigo_cluster": "C1",
-            "ln_2024_panel_b": ln_c1,
-            "tipo_meta": "Sostener",
-            "meta_delta_real_pts": round(delta_riesgo_c1, 4),
-            "meta_delta_pts": "Sostener (0.0 pts)",
-            "electores_impacto_n": riesgo_c1_exacto,
-            "electores_impacto_str": "≈ 58 mil en riesgo",
-            "electores_conservador_n": 0,
-            "electores_conservador_str": "-",
-            "rango_impacto_str": "≈ 58 mil en riesgo",
-            "top3_juntas_distritales": resumen_perfil["C1"]["top3_juntas_str"],
-            "pct_ln_en_top30_juntas": resumen_perfil["C1"]["top30_pct"],
-        },
-        {
-            "perfil": "C2: Participación en Ascenso con Juventud Activa",
-            "codigo_cluster": "C2",
-            "ln_2024_panel_b": ln_c2,
-            "tipo_meta": "Sostener",
-            "meta_delta_real_pts": round(delta_riesgo_c2, 4),
-            "meta_delta_pts": "Sostener (0.0 pts)",
-            "electores_impacto_n": riesgo_c2_exacto,
-            "electores_impacto_str": "≈ 1.92 millones en riesgo",
-            "electores_conservador_n": 0,
-            "electores_conservador_str": "-",
-            "rango_impacto_str": "≈ 1.92 millones en riesgo",
-            "top3_juntas_distritales": resumen_perfil["C2"]["top3_juntas_str"],
-            "pct_ln_en_top30_juntas": resumen_perfil["C2"]["top30_pct"],
-        },
-        {
-            "perfil": "C3: Participación a la Baja con Brecha de Género",
-            "codigo_cluster": "C3",
-            "ln_2024_panel_b": ln_c3,
-            "tipo_meta": "Aumento",
-            "meta_delta_real_pts": round(delta_real_c3, 4),
-            "meta_delta_pts": "+1.7 pts",
-            "electores_impacto_n": adicionales_c3_exacto,
-            "electores_impacto_str": "≈ 333 mil adicionales",
-            "electores_conservador_n": conservador_c3_exacto,
-            "electores_conservador_str": "≈ 167 mil adicionales",
-            "rango_impacto_str": "167 mil – 333 mil adicionales",
-            "top3_juntas_distritales": resumen_perfil["C3"]["top3_juntas_str"],
-            "pct_ln_en_top30_juntas": resumen_perfil["C3"]["top30_pct"],
-        },
-    ]
-
-    # Guardar outputs/tablas/tabla_17_impacto.csv
-    df_t17 = pd.DataFrame(filas_tabla_impacto)
-    df_t17.to_csv(OUT_TABLAS / "tabla_17_impacto.csv", index=False, encoding="utf-8-sig")
-
     return {
-        "electores_adicionales_c0": adicionales_c0_exacto,
-        "electores_adicionales_c0_miles_str": adicionales_c0_miles_str,
-        "electores_conservador_c0": conservador_c0_exacto,
-        "electores_conservador_c0_miles_str": conservador_c0_miles_str,
-        "rango_c0_str": rango_c0_str,
-        "electores_en_riesgo_c1": riesgo_c1_exacto,
-        "electores_en_riesgo_c1_miles_str": riesgo_c1_miles_str,
-        "electores_en_riesgo_c2": riesgo_c2_exacto,
-        "electores_en_riesgo_c2_miles_str": riesgo_c2_miles_str,
-        "total_riesgo_exacto": total_riesgo_exacto,
-        "total_riesgo_miles_str": total_riesgo_miles_str,
-        "electores_adicionales_c3": adicionales_c3_exacto,
-        "electores_adicionales_c3_miles_str": adicionales_c3_miles_str,
-        "electores_conservador_c3": conservador_c3_exacto,
-        "electores_conservador_c3_miles_str": conservador_c3_miles_str,
-        "rango_c3_str": rango_c3_str,
-        "total_electores_adicionales_c0_c3": total_adicionales_exacto,
-        "total_adicionales_miles_str": total_adicionales_miles_str,
-        "total_conservador_c0_c3": total_conservador_exacto,
-        "total_conservador_miles_str": total_conservador_miles_str,
-        "rango_total_adicionales_str": rango_total_adicionales_str,
         "resumen_por_perfil": resumen_perfil,
-        "tabla_impacto": filas_tabla_impacto,
     }
 
 

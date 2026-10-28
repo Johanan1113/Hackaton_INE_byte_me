@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Módulo de Utilidades de Formato y Redondeo Unificado
@@ -6,7 +5,7 @@ Proyecto: Reto 1 - Perfiles Ciudadanos de Participación (Equipo "Byte me")
 Ubicación: scripts/auditoria/utilidades_formato.py
 
 Implementa la política única de redondeo aritmético simétrico (ROUND_HALF_UP)
-mediante la biblioteca Decimal de Python, garantizando consistencia absoluta
+mediante la biblioteca Decimal de Python, asegurando consistencia absoluta
 en todos los entregables impresos y reportados:
 - 60.85 -> 60.9
 - 11.15 -> 11.2

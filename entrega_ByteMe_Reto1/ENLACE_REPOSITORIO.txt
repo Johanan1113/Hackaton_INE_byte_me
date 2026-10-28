@@ -1,5 +1,5 @@
 Repositorio público con el código completo y reproducible:
-https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.5)
+https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.6)
 
 Para reproducir todo el análisis: descargar los datos de la Plataforma de Conteos Censales de Participación Ciudadana del INE según el README y ejecutar "python run_all.py".
 Las pruebas (pytest) y run_all.py requieren el repositorio completo.

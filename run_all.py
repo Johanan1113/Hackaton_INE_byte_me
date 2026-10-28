@@ -6,8 +6,8 @@ Proyecto: Reto 1 - Perfiles Ciudadanos de Participación (Equipo "Byte me")
 
 Ejecuta secuencialmente todo el pipeline de auditoría, modelado (k=4),
 exportación de tablas, generación de figuras a 300 DPI, compilación del
-documento técnico (MD/PDF/DOCX), generación de fichas infográficas (PDF/PNG)
-y suite de validación de consistencia (pytest).
+documento técnico (PDF), generación de fichas infográficas (PDF/PNG),
+validación de consistencia y presentación ejecutiva (PPTX/PDF).
 """
 
 from __future__ import annotations

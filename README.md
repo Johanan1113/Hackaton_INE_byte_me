@@ -29,7 +29,7 @@ En los archivos abiertos del CCPC se cumple la identidad $\text{LN} = \text{SV} 
 > *- Registro correspondiente a un cuadernillo no disponible para su captura.*
 > *- Registro correspondiente a una página no disponible en el cuadernillo."*
 
-Calcular $\text{SV}/\text{LN}$ en lugar de la fórmula oficial $\text{SV}/(\text{SV}+\text{NV})$ asigna $0.0\%$ de participación a las secciones sin captura ($\text{SV}+\text{NV}=0$), subestima la participación nacional en $4.27\text{ puntos}$ en 2018 y $3.84\text{ en }2024$, y genera grupos artificiales de baja participación en cualquier análisis de conglomerados.
+Calcular $\text{SV}/\text{LN}$ en lugar de la fórmula oficial $\text{SV}/(\text{SV}+\text{NV})$ asigna $0.0\%$ de participación a las secciones sin captura ($\text{SV}+\text{NV}=0$), subestima la participación nacional en $4.26\text{ puntos}$ en 2018 y $3.84\text{ en }2024$, y genera grupos artificiales de baja participación en cualquier análisis de conglomerados.
 
 Al aplicar $\text{SV}/(\text{SV}+\text{NV})$ en todas las tasas y construir el **Panel Principal (Opción B, cero imputación)** con las **53,644 secciones** que cuentan con captura válida ($\text{SV}+\text{NV} \ge 50$ en las seis elecciones) y sin saltos abruptos de Lista Nominal por reseccionamiento —cubriendo el **75.82% de las secciones** y el **79.53% de la Lista Nominal de 2024** ($78{,}199{,}518$ electores en **2,393 municipios**)—, la serie nacional reproduce los datos censales oficiales del INE (`2009: 44.06%`, `2012: 62.08%`, `2015: 47.07%`, `2018: 62.37% vs 62.4%`, `2021: 51.84% vs 51.8%`, `2024: 59.67% vs 59.7%`).
 
@@ -40,9 +40,11 @@ Dentro del rango de $4$ a $6$ perfiles de la convocatoria, **$k = 4$** alcanza e
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **C0** | **Baja Participación Intermitente con Rezago Juvenil** | 17,622 (32.85% / 24.91%) | 28,070,662 (35.90% / 28.55%) | 50.37% (-0.65) | +17.31 pts (+0.60) | +0.86 pts/año (+0.26) | 46.1% / 56.9% | 79.0/13.5/7.5% |
 | **C1** | **Alta Participación Estable e Intergeneracional** | 8,824 (16.45% / 12.47%) | 11,490,525 (14.69% / 11.69%) | 65.05% (+0.95) | +5.37 pts (-1.10) | +0.15 pts/año (-0.73) | 62.5% / 65.7% | 46.0/40.9/13.2% |
-| **C2** | **Participación en Ascenso con Juventud Activa** | 14,624 (27.26% / 20.67%) | 18,796,916 (24.04% / 19.12%) | 58.93% (+0.29) | +16.81 pts (+0.53) | +0.88 pts/año (corregida) | 60.4% / 68.0% | 68.6/22.3/9.1% |
-| **C3** | **Participación a la Baja con Brecha de Género** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | -0.17 pts/año (corregida) | 49.5% / 55.6% | 48.8/41.2/10.0% |
+| **C2** | **Participación en Ascenso con Juventud Activa** | 14,624 (27.26% / 20.67%) | 18,796,916 (24.04% / 19.12%) | 58.93% (+0.29) | +16.81 pts (+0.53) | +1.28 pts/año (+0.84) | 60.4% / 68.0% | 68.6/22.3/9.1% |
+| **C3** | **Participación a la Baja con Brecha de Género** | 12,574 (23.44% / 17.77%) | 19,841,415 (25.37% / 20.18%) | 55.42% (-0.10) | +8.20 pts (-0.69) | -0.63 pts/año (-0.83) | 49.5% / 55.6% | 48.8/41.2/10.0% |
 | **Panel B** | **Media Nacional Panel B** | **53,644** (100% / 75.82%) | **78,199,518** (100% / 79.53%) | **56.30%** (0.00) | **+13.07 pts** (0.00) | **+0.68 pts/año** (0.00) | **52.8% / 60.6%** | **63.7/26.9/9.5%** |
+
+> *Nota sobre tendencias:* La columna «Tendencia Anual» reporta la pendiente lineal simple 2009–2024 (variable rectora de la tipología). La tendencia corregida que controla por el ciclo presidencial–intermedio mediante regresión con efectos fijos temporales se reporta en `tabla_19_tendencia_corregida.csv` (C0: +0.40, C1: 0.00, C2: +0.88, C3: -0.17 pts/año).
 
 ---
 
@@ -109,22 +111,19 @@ reto1_perfiles_participacion/
 
 ## 4. Obtención de Datos Crudos del INE (CCPC 2009–2024)
 
-Los datos abiertos de los Conteos Censales de Participación Ciudadana corresponden a los microdatos seccionales publicados por el INE:
-- **2009:** Conteo Censal de Participación Ciudadana 2009 (elección intermedia).
-- **2012:** Conteo Censal de Participación Ciudadana 2012 (elección presidencial).
-- **2015:** Conteo Censal de Participación Ciudadana 2015 (elección intermedia).
-- **2018:** Conteo Censal de Participación Ciudadana 2018 (elección presidencial).
-- **2021:** Conteo Censal de Participación Ciudadana 2021 (elección intermedia).
-- **2024:** Conteo Censal de Participación Ciudadana 2024 (elección presidencial).
+Los datos abiertos de los Conteos Censales de Participación Ciudadana corresponden a los microdatos seccionales publicados por el INE en la **Plataforma de Conteos Censales del INE** (https://www.ine.mx/conteos-censales-participacion-ciudadana/):
+- **2009:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2009.zip`
+- **2012:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2012.zip`
+- **2015:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2015.zip`
+- **2018:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2018.zip`
+- **2021:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2021.zip`
+- **2024:** `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales2024.zip`
 
-Plataforma oficial de descarga: https://www.ine.mx/conteos-censales-participacion-ciudadana/
+Sintaxis contraída: `data/raw_zips/DatosAbiertos_DECEyEC_ConteosCensales{2009,2012,2015,2018,2021,2024}.zip`
 
-Para reproducir desde cero, los archivos comprimidos provistos por el INE deben residir en `data/raw_zips/` (o extraerse en `data/raw_csvs/`):
-```bash
-# Crear directorio de datos crudos:
-mkdir -p data/raw_zips
-# Descargar o copiar los ZIPs de microdatos del CCPC 2009-2024 en data/raw_zips/
-```
+Para la reproducción completa desde datos crudos, dichos archivos descargados de la Plataforma de Conteos Censales del INE deben residir en `data/raw_zips/`.
+
+Los pasos 01–03 del pipeline auditan la versión preliminar con `output/datasets/dataset_clusters_final.parquet`, incluido en el repositorio para permitir la auditoría inmediata sin necesidad de re-descargar los paquetes crudos.
 
 ---
 
@@ -149,29 +148,4 @@ pytest -v
 >
 > **Convención de redondeo:** Las cifras a 1 decimal se obtienen redondeando (`ROUND_HALF_UP`) el valor publicado a 2 decimales en `outputs/tablas`, para que cualquier lector las reproduzca desde las tablas publicadas.
 
----
-
-## 6. Instrucciones de Publicación del Repositorio (para el equipo)
-
-Para publicar el repositorio en GitHub sin alterar ramas protegidas:
-```bash
-# 1. Confirmar rama y estado de git limpio:
-git checkout correccion-auditoria
-git status
-
-# 2. Verificar que no haya archivos mayores a 50 MB ni datos crudos rastreados:
-git ls-files | while read f; do if [ -f "$f" ]; then size=$(stat -c%s "$f"); if [ $size -gt 50000000 ]; then echo "$f: $((size/1024/1024)) MB"; fi; fi; done
-
-# 3. Fusionar con main:
-git checkout main
-git merge correccion-auditoria --ff-only
-
-# 4. Enviar cambios al repositorio remoto en GitHub:
-git push origin main
-git push origin correccion-auditoria
-
-# 5. Si se etiqueta una versión de entrega formal:
-git tag -a v1.0.2 -m "Entrega Oficial Reto 1 (versión auditada) - Hackea la participación INE 2026 - Equipo Byte me"
-git push origin v1.0.2
-```
 

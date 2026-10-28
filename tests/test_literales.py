@@ -7,8 +7,16 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = Path(os.environ.get("SCRIPTS_DIR", PROJECT_ROOT / "scripts" / "auditoria"))
-GENERADORES = ["07_compilar_documento.py", "08_generar_fichas.py", "10_generar_presentacion.py"]
+GENERADORES = [
+    "04_perfiles_y_nombres.py",
+    "07_compilar_documento.py",
+    "08_generar_fichas.py",
+    "10_generar_presentacion.py",
+    "11_analisis_auditoria.py",
+]
 PATRON = re.compile(r"\d+\.\d+\s*(%|pts|millones|mil\b)|≈\s*\d|\b\d{1,3}(,\d{3})+\b")
+PATRON_VISIBLE_07_08_10 = re.compile(r"(?<![\w.])\d+\.\d{2,}(?![\w.])")
+EXCEPCIONES_VISIBLES = {"0.05", "0.001", "0.50", "0.00", "100.00"}
 # Únicas cadenas con cifras permitidas: títulos de referencias, dato del PREP y constantes de formato.
 PERMITIDAS = ("Expansión Política", "PREP cerró en", "asigna 0.0% de participación", "(100.00%)")
 EXACTAS = {"0.00 pts"}
@@ -52,12 +60,18 @@ def problemas(path):
                     for v in m.values:
                         if isinstance(v, ast.Constant) and _es_numero(v.value) and v.value not in (0, 1):
                             out.append(f"{path.name}:{v.lineno} número fijo en cargar_cifras(): {v.value}")
-        # 3) cadenas visibles con cifras
-        if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in fuera:
-            if n.value in EXACTAS:
-                continue
-            if PATRON.search(n.value) and not any(p in n.value for p in PERMITIDAS):
-                out.append(f"{path.name}:{n.lineno} cadena con cifra: {n.value[:80]!r}")
+        # 3) cadenas visibles con cifras solo de 07, 08 y 10
+        if path.name in ("07_compilar_documento.py", "08_generar_fichas.py", "10_generar_presentacion.py"):
+            if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in fuera:
+                if n.value in EXACTAS:
+                    continue
+                if PATRON.search(n.value) and not any(p in n.value for p in PERMITIDAS):
+                    out.append(f"{path.name}:{n.lineno} cadena con cifra: {n.value[:80]!r}")
+                m_vis = PATRON_VISIBLE_07_08_10.findall(n.value)
+                if m_vis:
+                    for val in m_vis:
+                        if val not in EXCEPCIONES_VISIBLES:
+                            out.append(f"{path.name}:{n.lineno} cifra con 2+ decimales visible: {val!r} en {n.value[:80]!r}")
     return out
 
 
