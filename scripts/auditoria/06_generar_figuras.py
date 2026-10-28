@@ -27,6 +27,10 @@ import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from utilidades_formato import redondear_pub
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 METRICAS_PATH = PROJECT_ROOT / "outputs" / "metricas_finales.json"
 PARQUET_PATH = PROJECT_ROOT / "outputs" / "fase2" / "etiquetas_finales.parquet"
@@ -95,7 +99,7 @@ def generate_fig1_mapa_clusters(data: dict, df_b: pd.DataFrame) -> None:
     left = np.zeros(len(states))
     for c in [1, 2, 3, 0]:
         vals = ct[c].values
-        lbl = f"{perfiles[c]['codigo_cluster']}: {perfiles[c]['nombre_propuesto']} ({perfiles[c]['pct_secciones_panel']:.1f}%)"
+        lbl = f"{perfiles[c]['codigo_cluster']}: {perfiles[c]['nombre_propuesto']} ({redondear_pub(perfiles[c]['pct_secciones_panel'], 1):.1f}%)"
         ax1.barh(
             y_pos, vals, left=left, height=0.74, color=CLUSTER_COLORS[c],
             edgecolor="white", linewidth=0.4, label=lbl

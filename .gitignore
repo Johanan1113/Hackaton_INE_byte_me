@@ -22,3 +22,6 @@ cartas/
 *.joblib
 output/models/*.joblib
 output/models/
+
+# Temporales de auditoría
+outputs/auditoria/

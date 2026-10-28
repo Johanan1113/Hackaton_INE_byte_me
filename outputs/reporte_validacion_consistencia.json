@@ -3,12 +3,12 @@
   "paginas_documento_pdf": 12,
   "paginas_fichas_pdf": 5,
   "numeros_auditados": {
-    "pool_valores_referencia_autorizados": 2149,
+    "pool_valores_referencia_autorizados": 2145,
     "extraidos_documento_md": 1445,
     "no_encontrados_documento_md": [],
     "extraidos_documento_pdf": 846,
     "no_encontrados_documento_pdf": [],
-    "extraidos_fichas_pdf": 292,
+    "extraidos_fichas_pdf": 288,
     "no_encontrados_fichas_pdf": []
   },
   "hashes_sha256": {
@@ -17,13 +17,13 @@
     "estrategias_csv": "bbbb048d4d63f5b0fdef244088ec5c87ebc2c917682411b25e2d08f8f5f91ce6",
     "metricas_finales_json": "388ce0b8b0f3187634934f037a16bd8f87ee0a06808ad43c7dd02dd063fcb275",
     "Documento_Tecnico_ByteMe_md": "a8d737bf1e97db6143f48d517ee8065e9dba4038b24b0abe007643dff7f55b8c",
-    "Documento_Tecnico_ByteMe_pdf": "df265baf26cb4b26a929043043547ded9a17f205676c0a1b2c86b07f7f717b7f",
-    "Fichas_Perfiles_ByteMe_pdf": "2204fd09cda48dab988e04753f67ae379e002429e5983b0ce44249fb10017f39",
-    "Fichas_Perfiles_ByteMe_png": "b6d56b2b12493ed26252d677ba30143f15fcfef0ce810665f5cdfcd65194c53c",
-    "Fichas_Portada_png": "78e1381b3c3588e08549052721048c971cc23a60495e14b1fd909a12a336f59d",
-    "Ficha_C0_png": "dd0d807dcd94060af14a7d7166e776bea09c6c4c2562dbe0fff378f461add271",
-    "Ficha_C1_png": "19ff725c9429a78006f45e78e7327cd28b553835dbab43417a439d0acb983562",
-    "Ficha_C2_png": "2e1d10b0403c1c7c257f473352843fbea6298d85d1d623b52136947990baa438",
-    "Ficha_C3_png": "1c5175dd712b3a339d8650f83a6f9c6308894080855699e57341f32f8ff43365"
+    "Documento_Tecnico_ByteMe_pdf": "7ce74b172f84cdc7ec92305fe03ea74e40e8c17fd768b6bdb95c345e8f56904e",
+    "Fichas_Perfiles_ByteMe_pdf": "dc5aeec057e41742e2e635a68d70fc751526b4f65e9eff5dac2fa1f160fb1233",
+    "Fichas_Perfiles_ByteMe_png": "f9f731689ccb1d11ae7e43128c9d13c0a9d5a510f8737ad4c98215015ace4424",
+    "Fichas_Portada_png": "ed6b9353bff3781e4eca7722b28002edf06014c22517280919942ae4d5619c89",
+    "Ficha_C0_png": "ac76c1f752b8debe9233b4ca23daaa0e636d48c1bb3e73e90c60683174ac9354",
+    "Ficha_C1_png": "dada6a1a187ddd5c981d3d907537f9545688a8f276a59e4514537719b3c9b106",
+    "Ficha_C2_png": "b9393e36dbf134c4a5ce20d9e3048713192f0f004fb573782172992f08777771",
+    "Ficha_C3_png": "81f553550763c1142d6a8d2aa90060adc2a85c43e20c3dcbc4d94ee27c2460f1"
   }
 }

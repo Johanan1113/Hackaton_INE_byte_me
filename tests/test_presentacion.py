@@ -280,7 +280,7 @@ def test_diapositiva_08_impacto():
 
 
 def test_diapositiva_09_mde_icc():
-    """F: Verifica que la diapositiva 9 mencione MDE 1.57 pts, ICC=0.5428, m=5 (2.80 pts) y m=10 (3.81 pts)."""
+    """F: Verifica que la diapositiva 9 mencione MDE 1.57 pts, ICC = 0.543, m=5 (2.80 pts) y m=10 (3.81 pts)."""
     prs = pptx.Presentation(PPTX_PATH)
     slide9 = prs.slides[8]
     text9 = ""
@@ -289,7 +289,7 @@ def test_diapositiva_09_mde_icc():
             text9 += s.text_frame.text + "\n"
 
     assert "1.57 pts" in text9, "Falta MDE seccional '1.57 pts' en diapositiva 9"
-    assert "ICC=0.5428" in text9, "Falta 'ICC=0.5428' en nota de diapositiva 9"
+    assert "ICC = 0.543" in text9 and "0.5428" not in text9, "Falta 'ICC = 0.543' o persiste '0.5428' en diapositiva 9"
     assert "2.80 pts" in text9, "Falta '2.80 pts' en nota de diapositiva 9"
     assert "3.81 pts" in text9, "Falta '3.81 pts' en nota de diapositiva 9"
 
@@ -319,8 +319,8 @@ def test_notas_orador_sin_prohibidos():
 
     notes9 = prs.slides[8].notes_slide.notes_text_frame.text
     assert "asignables" in notes9, "Notas de diapositiva 9 deben mencionar acciones asignables"
-    assert "0.5428" in notes9 or "conglomerados" in notes9 or "efecto de diseño" in notes9, (
-        "Notas de diapositiva 9 deben mencionar efecto de conglomerados/diseño"
+    assert "0.543" in notes9 or "0.5428" in notes9 or "conglomerados" in notes9 or "efecto de diseño" in notes9, (
+        "Notas de diapositiva 9 deben mencionar efecto de conglomerados/diseño o ICC"
     )
 
 

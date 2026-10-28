@@ -184,15 +184,18 @@ def cargar_cifras() -> dict:
     pan_b = data["resumen_panel_b"]
     tend_corr = data.get("tendencia_corregida", {})
     serie = {r["anio"]: r for r in data.get("serie_nacional_2009_2024", [])}
-    imp_meta = data.get("impacto_y_prioridad_territorial", {})
-    tabla_imp = imp_meta.get("tabla_impacto", [])
-    univ = data.get("universo_y_cobertura", {})
-    pil = data.get("potencia_piloto_c0", {})
+    imp_meta = data["impacto_y_prioridad_territorial"]
+    tabla_imp = imp_meta["tabla_impacto"]
+    univ = data["universo_y_cobertura"]
+    pil = data["potencia_piloto_c0"]
+    pde = data["piloto_diseno_efecto"]
 
     p0 = perfiles[0]
     p1 = perfiles[1]
     p2 = perfiles[2]
     p3 = perfiles[3]
+
+    row_t15 = t15_df[t15_df["detecta_menor_mitad_meta"] == True].sort_values("secciones_totales_piloto").iloc[0]
 
     return {
         "data": data,
@@ -204,11 +207,11 @@ def cargar_cifras() -> dict:
         "t15_df": t15_df,
         "imp_meta": imp_meta,
         "tabla_imp": tabla_imp,
-        "panel_secciones": univ.get("panel_principal_secciones", 53644),
-        "panel_municipios": univ.get("panel_principal_municipios", 2393),
-        "panel_pct_ln": redondear(univ.get("panel_principal_pct_ln_2024", 79.53), 1),
-        "pct_cobertura_ampliada": data.get("cobertura_ampliada_2024", {}).get("pct_ln_panel_b_mas_asignadas", 91.5),
-        "c2_tend": redondear(tend_corr.get("C2", 0.88), 2),
+        "panel_secciones": univ["panel_principal_secciones"],
+        "panel_municipios": univ["panel_principal_municipios"],
+        "panel_pct_ln": redondear(univ["panel_principal_pct_ln_2024"], 1),
+        "pct_cobertura_ampliada": data["cobertura_ampliada_2024"]["pct_ln_panel_b_mas_asignadas"],
+        "c2_tend": redondear(tend_corr["C2"], 2),
         "c3_brecha_pts": redondear_pub(p3["brecha_genero_original"] * 100, 1),
         "p1_ratio_str": f"{redondear(p1['ratio_participacion_joven_original'], 2):.2f}",
         "p2_ratio_str": f"{redondear(p2['ratio_participacion_joven_original'], 2):.2f}",
@@ -228,22 +231,21 @@ def cargar_cifras() -> dict:
         "m3_meta": t12_df.loc["C3", "meta_intermedia_2027"],
         "m3_pres": t12_df.loc["C3", "meta_presidencial_2030"],
         "m3_homb": t12_df.loc["C3", "meta_tasa_hombres"],
-        "total_adicionales_millones_str": imp_meta.get("total_adicionales_millones_str", "≈ 1.21 millones"),
-        "votantes_c0_miles_str": imp_meta.get("votantes_equivalentes_c0_miles_str", "≈ 893 mil"),
-        "votantes_c3_miles_str": imp_meta.get("votantes_equivalentes_c3_miles_str", "≈ 316 mil"),
-        "total_regresion_millones_str": imp_meta.get("total_regresion_millones_str", "≈ 1.83 millones"),
-        "regresion_c1_miles_str": imp_meta.get("escenario_regresion_c1_miles_str", "≈ 52 mil"),
-        "regresion_c2_millones_str": imp_meta.get("escenario_regresion_c2_millones_str", "≈ 1.78 millones"),
-        "piloto_total_secciones": 1000,
-        "piloto_mde_seccional": pil.get("mde_seleccionado_pts", 1.57),
-        "piloto_potencia_pct": int(pil.get("tabla_15", [{}, {"potencia_pct": 80.0}])[1].get("potencia_pct", 80)),
-        "piloto_icc_3d": 0.543,
-        "piloto_icc_4d": 0.5428,
-        "piloto_mde_m5": 2.80,
-        "piloto_mde_m10": 3.81,
-        "ns_2012": serie.get(2012, {}).get("pct_ns_anio", 0.22),
-        "ns_2018": serie.get(2018, {}).get("pct_ns_anio", 6.83),
-        "ns_2024": serie.get(2024, {}).get("pct_ns_anio", 6.43),
+        "total_adicionales_millones_str": imp_meta["total_adicionales_millones_str"],
+        "votantes_c0_miles_str": imp_meta["votantes_equivalentes_c0_miles_str"],
+        "votantes_c3_miles_str": imp_meta["votantes_equivalentes_c3_miles_str"],
+        "total_regresion_millones_str": imp_meta["total_regresion_millones_str"],
+        "regresion_c1_miles_str": imp_meta["escenario_regresion_c1_miles_str"],
+        "regresion_c2_millones_str": imp_meta["escenario_regresion_c2_millones_str"],
+        "piloto_total_secciones": int(row_t15["secciones_totales_piloto"]),
+        "piloto_mde_seccional": float(row_t15["mde_ancova_pts"]),
+        "piloto_potencia_pct": int(row_t15["potencia_pct"]),
+        "piloto_icc_3d": redondear(pde["icc_municipal_c0"], 3),
+        "piloto_mde_m5": float(pde["mde_bloque_5_pts"]),
+        "piloto_mde_m10": float(pde["mde_bloque_10_pts"]),
+        "ns_2012": serie[2012]["pct_ns_anio"],
+        "ns_2018": serie[2018]["pct_ns_anio"],
+        "ns_2024": serie[2024]["pct_ns_anio"],
     }
 
 
@@ -876,9 +878,7 @@ def build_presentation(cifras: dict) -> Path:
     for el in ch5._element.xpath("//a:latin"):
         el.set("typeface", "Arial")
 
-    # Derecha: 4 renglones con ícono, nombre, porcentajes y rasgo
-    tend_corr = data.get("tendencia_corregida", {})
-    c2_tend = redondear(tend_corr.get("C2", 0.88), 2)
+    c2_tend = cifras["c2_tend"]
     perfiles = data["perfiles"]
 
     traits = [
@@ -1419,7 +1419,7 @@ def build_presentation(cifras: dict) -> Path:
     # Nota de 12 pt
     note_d9 = slide9.shapes.add_textbox(Inches(0.6), Inches(6.35), Inches(12.133), Inches(0.5))
     p_n9 = note_d9.text_frame.paragraphs[0]
-    p_n9.text = f"Solo acciones asignables por sección (brigadas casa por casa y «Ubica tu casilla»); las campañas masivas se evalúan por distrito o municipio. Si se aleatoriza por bloques municipales (ICC = {cifras['piloto_icc_3d']:.3f}, ICC={cifras['piloto_icc_4d']:.4f}), el MDE sube a {cifras['piloto_mde_m5']:.2f} pts con 5 secciones por municipio y a {cifras['piloto_mde_m10']:.2f} pts con 10."
+    p_n9.text = f"Solo acciones asignables por sección (brigadas casa por casa y «Ubica tu casilla»); las campañas masivas se evalúan por distrito o municipio. Si se aleatoriza por bloques municipales (ICC = {cifras['piloto_icc_3d']:.3f}), el MDE sube a {cifras['piloto_mde_m5']:.2f} pts con 5 secciones por municipio y a {cifras['piloto_mde_m10']:.2f} pts con 10."
     p_n9.font.name = "Arial"
     p_n9.font.size = Pt(12)
     p_n9.font.italic = True

@@ -186,12 +186,7 @@ def build_pdf(data: dict) -> Path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from utilidades_formato import redondear, formatear, formatear_pct
 
-    nombre_map = data.get("nombre_publico", {
-        "C0": "Baja Participación Intermitente con Rezago Juvenil",
-        "C1": "Alta Participación Estable e Intergeneracional",
-        "C2": "Participación en Ascenso con Juventud Activa",
-        "C3": "Participación a la Baja con Brecha de Género",
-    })
+    nombre_map = data["nombre_publico"]
     for p in perfiles:
         if p["codigo_cluster"] in nombre_map:
             p["nombre_propuesto"] = nombre_map[p["codigo_cluster"]]
@@ -262,11 +257,11 @@ def build_pdf(data: dict) -> Path:
         v = redondear(v, 2) + 0.0
         return "0.00" if v == 0 else f"{v:+.2f}"
 
-    tc_panel = fmt_pend(tc_data.get("Panel_B", 0.33))
-    tc_c0 = fmt_pend(tc_data.get("C0", 0.40))
-    tc_c1 = fmt_pend(tc_data.get("C1", 0.00))
-    tc_c2 = fmt_pend(tc_data.get("C2", 0.88))
-    tc_c3 = fmt_pend(tc_data.get("C3", -0.17))
+    tc_panel = fmt_pend(tc_data["Panel_B"])
+    tc_c0 = fmt_pend(tc_data["C0"])
+    tc_c1 = fmt_pend(tc_data["C1"])
+    tc_c2 = fmt_pend(tc_data["C2"])
+    tc_c3 = fmt_pend(tc_data["C3"])
 
     story = []
 
@@ -318,7 +313,7 @@ def build_pdf(data: dict) -> Path:
         + f" y <b>{perfiles[3]['codigo_cluster']}: {perfiles[3]['nombre_propuesto']}</b>. "
         f"La equivalencia de las metas en votantes representa {imp['total_adicionales_millones_str']} de sufragios adicionales ({imp['votantes_equivalentes_c0_miles_str']} en C0 y {imp['votantes_equivalentes_c3_miles_str']} en C3); "
         f"en caso de regreso a promedios intermedios históricos en C1 y C2, el escenario de regresión (sin probabilidad asociada) involucra {imp['total_regresion_millones_str']} de electores. "
-        f"La propuesta incluye un piloto evaluable con MDE de {pde.get('mde_seccion_pts', 1.57):.2f} pts por sección (500 secciones por grupo).",
+        f"La propuesta incluye un piloto evaluable con MDE de {pde['mde_seccion_pts']:.2f} pts por sección (500 secciones por grupo).",
         body_st
     ))
 
@@ -465,12 +460,22 @@ def build_pdf(data: dict) -> Path:
     story.append(t3_table)
     story.append(Spacer(1, 4))
 
+    gmm_rows = [r for r in data["benchmark_modelos"] if "GMM" in r.get("algoritmo", "")]
+    gmm_sils = [r["silhouette"] for r in gmm_rows if r.get("silhouette") is not None]
+    min_gmm_sil = redondear(min(gmm_sils), 3)
+    max_gmm_sil = redondear(max(gmm_sils), 3)
+    min_gmm_k = int(min(r["k"] for r in gmm_rows))
+    max_gmm_k = int(max(r["k"] for r in gmm_rows))
+    hdb_rows = [r for r in data["benchmark_modelos"] if "HDBSCAN" in r.get("algoritmo", "")]
+    max_hdb_grupos = max(r["n_clusters_efectivos"] for r in hdb_rows)
+    hdb_ruido = redondear(next(r["pct_ruido"] for r in hdb_rows if r.get("n_clusters_efectivos", 0) > 0), 1)
+
     # C7: Oración sobre GMM y HDBSCAN (con redondeo A4: silhouette 3 dec, porcentajes 1 dec)
     story.append(Paragraph(
-        "Los modelos de mezclas gaussianas obtuvieron silhouette de 0.019 a 0.105 (k=3–7) y su BIC sigue bajando hasta k=7, "
-        "sin un óptimo claro. HDBSCAN, en tres configuraciones, encontró como máximo 2 grupos con 50.7% de secciones sin asignar, "
-        "o ninguno. Esto indica que las secciones forman un continuo sin grupos densos naturales: los cuatro perfiles son una "
-        "segmentación operativa de ese continuo, no grupos naturales.",
+        f"Los modelos de mezclas gaussianas obtuvieron silhouette de {min_gmm_sil:.3f} a {max_gmm_sil:.3f} (k={min_gmm_k}–{max_gmm_k}) y su BIC sigue bajando hasta k={max_gmm_k}, "
+        f"sin un óptimo claro. HDBSCAN, en tres configuraciones, encontró como máximo {max_hdb_grupos} grupos con {hdb_ruido:.1f}% de secciones sin asignar, "
+        f"o ninguno. Esto indica que las secciones forman un continuo sin grupos densos naturales: los cuatro perfiles son una "
+        f"segmentación operativa de ese continuo, no grupos naturales.",
         body_st
     ))
 
@@ -484,21 +489,22 @@ def build_pdf(data: dict) -> Path:
         body_st
     ))
 
+    rf_acc = redondear(data["interpretabilidad_rf_anova"][0]["rf_cv5_accuracy_media"] * 100, 1)
     # C6: Oración única de Random Forest (A4: porcentaje a 1 decimal)
     story.append(Paragraph(
-        "Como medida de interpretabilidad (no de validación, porque el clasificador usa las mismas variables que definieron los grupos), "
-        "un Random Forest con validación cruzada de 5 pliegues reproduce las etiquetas con 96.3% de exactitud; "
-        "las variables más discriminantes son la razón de participación juvenil, la estabilidad y la brecha generacional.",
+        f"Como medida de interpretabilidad (no de validación, porque el clasificador usa las mismas variables que definieron los grupos), "
+        f"un Random Forest con validación cruzada de 5 pliegues reproduce las etiquetas con {rf_acc:.1f}% de exactitud; "
+        f"las variables más discriminantes son la razón de participación juvenil, la estabilidad y la brecha generacional.",
         body_st
     ))
 
     # Bloque C: Estabilidad temporal y valor agregado sobre nivel histórico (<= 90 palabras)
-    val_temp = data.get("validacion_fuera_de_tiempo", {})
-    va_hist = data.get("valor_agregado_nivel_historico", val_temp.get("valor_agregado_nivel_historico", {}))
+    val_temp = data["validacion_fuera_de_tiempo"]
+    va_hist = data["valor_agregado_nivel_historico"]
     if val_temp:
-        p_val_fmt = va_hist.get("p_valor_p2024_str", "< 0.001").replace("<", "&lt;")
-        d_r2_p = va_hist.get("delta_r2_p2024_3d", 0.097)
-        d_r2_c = va_hist.get("delta_r2_cambio_3d", 0.012)
+        p_val_fmt = va_hist["p_valor_p2024_str"].replace("<", "&lt;")
+        d_r2_p = va_hist["delta_r2_p2024_3d"]
+        d_r2_c = va_hist["delta_r2_cambio_3d"]
         if d_r2_p >= 0.01:
             frase_dinamicas = (
                 f"sino distinguir dinámicas: con perfiles construidos sin datos de 2024, el perfil agrega "
@@ -525,7 +531,7 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(f"4. Caracterización de los 4 Perfiles Ciudadanos de Participación (k = {k_sel})", h1_st))
     # C9
     story.append(Paragraph(
-        f"{pan_b.get('pct_secciones_urbanas_1d', 63.7):.1f}% de las secciones del panel son urbanas, {pan_b.get('pct_secciones_rurales_1d', 26.9):.1f}% rurales y {pan_b.get('pct_secciones_mixtas_1d', 9.5):.1f}% mixtas; por electores, {pan_b.get('pct_ln_urbana', 68.5):.1f}%, {pan_b.get('pct_ln_rural', 18.0):.1f}% y {pan_b.get('pct_ln_mixta', 13.5):.1f}%. "
+        f"{pan_b['pct_secciones_urbanas_1d']:.1f}% de las secciones del panel son urbanas, {pan_b['pct_secciones_rurales_1d']:.1f}% rurales y {pan_b['pct_secciones_mixtas_1d']:.1f}% mixtas; por electores, {pan_b['pct_ln_urbana']:.1f}%, {pan_b['pct_ln_rural']:.1f}% y {pan_b['pct_ln_mixta']:.1f}%. "
         f"Los perfiles describen secciones electorales, no personas. "
         f"Las Tablas 4 y 5 presentan los centroides en escala original y puntaje z estandarizado respecto a la media del Panel B, "
         f"así como sus trayectorias históricas ponderadas y perfiles demográficos.",
@@ -615,9 +621,9 @@ def build_pdf(data: dict) -> Path:
         Paragraph(f"<b>{redondear_pub(pan_b['media_presidencial_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['media_intermedia_original']*100, 1):.1f}%</b>", td_cb),
         Paragraph(f"<b>{redondear_pub(pan_b['tasa_joven_18_29_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['tasa_mayor_60_mas_original']*100, 1):.1f}%</b>", td_cb),
         Paragraph(f"<b>{redondear_pub(pan_b['tasa_mujeres_original']*100, 1):.1f}% /<br/>{redondear_pub(pan_b['tasa_hombres_original']*100, 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_urbanas_1d', 63.7), 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_rurales_1d', 26.9), 1):.1f}%</b>", td_cb),
-        Paragraph(f"<b>{redondear_pub(pan_b.get('pct_secciones_mixtas_1d', 9.5), 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['pct_secciones_urbanas_1d'], 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['pct_secciones_rurales_1d'], 1):.1f}%</b>", td_cb),
+        Paragraph(f"<b>{redondear_pub(pan_b['pct_secciones_mixtas_1d'], 1):.1f}%</b>", td_cb),
     ])
     t5_cap = Paragraph(f"Tabla 5. Series Históricas Ponderadas, Tasas Demográficas y Composición Territorial por Perfil (k = {k_sel})", cap_st)
     t5_table = styled_table(t6_rows, [35.27, 125.0, 58.0, 56.0, 60.0, 45.0, 45.0, 46.0], highlight_last=True)
@@ -817,13 +823,13 @@ def build_pdf(data: dict) -> Path:
     # SUBSECCIÓN 5.2: PILOTO EVALUABLE 2027 (Bloque E, <= 100 palabras)
     # =========================================================================
     story.append(Paragraph("5.2 Piloto Evaluable 2027", h2_st))
-    p_piloto = data.get("potencia_piloto_c0", {})
-    n_sec_tot = p_piloto.get("tabla_15", [{}, {"secciones_totales_piloto": 1000}])[1].get("secciones_totales_piloto", 1000)
-    n_sec_grp = p_piloto.get("n_seleccionado", 500)
-    mde_sec = pde.get("mde_seccion_pts", 1.57)
-    icc_val = pde.get("icc_municipal_c0", 0.5428)
-    mde_5 = pde.get("mde_bloque_5_pts", 2.80)
-    mde_10 = pde.get("mde_bloque_10_pts", 3.81)
+    p_piloto = data["potencia_piloto_c0"]
+    n_sec_tot = p_piloto["tabla_15"][1]["secciones_totales_piloto"]
+    n_sec_grp = p_piloto["n_seleccionado"]
+    mde_sec = pde["mde_seccion_pts"]
+    icc_val = pde["icc_municipal_c0"]
+    mde_5 = pde["mde_bloque_5_pts"]
+    mde_10 = pde["mde_bloque_10_pts"]
     story.append(Paragraph(
         f"Para evaluar intervenciones en C0, el piloto aleatorizado se restringe a acciones asignables por sección "
         f"(brigadas casa por casa y 'Ubica tu casilla' geolocalizado). Con {n_sec_tot:,} secciones ({n_sec_grp:,} por grupo) estratificadas por "
@@ -839,6 +845,7 @@ def build_pdf(data: dict) -> Path:
     # SECCIÓN 6: LIMITACIONES Y RECOMENDACIONES AL INE
     # =========================================================================
     story.append(Paragraph("6. Limitaciones Metodológicas, Análisis de Sensibilidad y Recomendaciones al INE", h1_st))
+    cob_amp = data["cobertura_ampliada_2024"]
     # Sesgo del panel B: +0.44 a +0.97 pts ponderado
     story.append(Paragraph(
         f"<b>1. Sesgo del Panel Principal y secciones excluidas (Tabla 8):</b> Las {inc_exc[1]['n_secciones']:,} secciones activas en {serie[-1]['anio']} "
@@ -851,9 +858,9 @@ def build_pdf(data: dict) -> Path:
         f"({serie[0]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[0]['anio']}, {serie[1]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[1]['anio']}, "
         f"{serie[2]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[2]['anio']}, {serie[3]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[3]['anio']}, "
         f"{serie[4]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[4]['anio']} y {serie[5]['sesgo_panel_b_ponderada_vs_ccpc_pts']:+.2f} en {serie[5]['anio']}). "
-        f"Para uso operativo, se asignó perfil por cercanía al centroide a {data.get('cobertura_ampliada_2024', {}).get('secciones_asignadas', 12104):,} secciones excluidas con historia suficiente, "
-        f"lo que eleva la cobertura a {data.get('cobertura_ampliada_2024', {}).get('pct_ln_panel_b_mas_asignadas', 91.5):.1f}% de la lista nominal 2024; "
-        f"las {data.get('cobertura_ampliada_2024', {}).get('secciones_sin_historia_suficiente', 5003):,} secciones sin historia suficiente (creadas después de 2015 o con captura insuficiente) requieren esperar a la elección de 2027.",
+        f"Para uso operativo, se asignó perfil por cercanía al centroide a {cob_amp['secciones_asignadas']:,} secciones excluidas con historia suficiente, "
+        f"lo que eleva la cobertura a {cob_amp['pct_ln_panel_b_mas_asignadas']:.1f}% de la lista nominal 2024; "
+        f"las {cob_amp['secciones_sin_historia_suficiente']:,} secciones sin historia suficiente (creadas después de 2015 o con captura insuficiente) requieren esperar a la elección de 2027.",
         body_st
     ))
 
@@ -877,7 +884,7 @@ def build_pdf(data: dict) -> Path:
         is_tot = "Total" in lbl
         st_l = td_lb if is_tot else td_l
         st_c = td_cb if is_tot else td_c
-        urb_val = pan_b.get("pct_secciones_urbanas_1d", 63.7) if "Panel Principal" in lbl else r["pct_urbana"]
+        urb_val = pan_b["pct_secciones_urbanas_1d"] if "Panel Principal" in lbl else r["pct_urbana"]
         t8_rows.append([
             Paragraph(lbl, st_l),
             Paragraph(f"{r['n_secciones']:,}", st_c),
@@ -922,10 +929,11 @@ def build_pdf(data: dict) -> Path:
     ))
 
     # D10: Alineación de sensibilidad Opción A con variante sin salto abrupto de LN (60,433 secciones)
+    sens_op_a = [r for r in sens if r.get("variante") == "Opcion_A_con_2pres_2inter_y_sin_salto_abrupto_LN"][0]
     story.append(Paragraph(
         f"<b>3. Análisis de sensibilidad (Opción A):</b> Al evaluar la Opción A sobre las secciones continuas sin saltos abruptos de Lista Nominal "
-        f"y con al menos 2 comicios de cada tipo válidos (60,433 secciones), K-Means++ (k={k_sel}) alcanza una concordancia casi perfecta con el "
-        f"Panel Principal B: <b>ARI = {sens[1]['ari_vs_panel_principal_B']:.3f}</b> ({sens[1]['coincidencia_exacta_alineada_pct']:.1f}% de coincidencia exacta) "
+        f"y con al menos 2 comicios de cada tipo válidos ({sens_op_a['secciones_incluidas']:,} secciones), K-Means++ (k={k_sel}) alcanza una concordancia casi perfecta con el "
+        f"Panel Principal B: <b>ARI = {sens_op_a['ari_vs_panel_principal_B']:.3f}</b> ({sens_op_a['coincidencia_exacta_alineada_pct']:.1f}% de coincidencia exacta) "
         f"en las {u['panel_principal_secciones']:,} secciones comunes. Esto indica que la segmentación es robusta a la depuración del panel.",
         body_st
     ))
@@ -947,8 +955,8 @@ def build_pdf(data: dict) -> Path:
     c0_vot_str = imp["votantes_equivalentes_c0_miles_str"]
     c3_vot_str = imp["votantes_equivalentes_c3_miles_str"]
     reg_tot_str = imp["total_regresion_millones_str"]
-    d_r2_c = va_hist.get("delta_r2_cambio_3d", 0.012) if val_temp else 0.012
-    pde_mde = pde.get("mde_seccion_pts", 1.57)
+    d_r2_c = va_hist["delta_r2_cambio_3d"]
+    pde_mde = pde["mde_seccion_pts"]
 
     story.append(Paragraph(
         f"Aplicamos la definición oficial del Manual CCPC (p. 17), <b>SV / (SV + NV)</b>, cuantificando el sesgo de omitir registros NS: "
