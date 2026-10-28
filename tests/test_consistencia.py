@@ -1154,7 +1154,13 @@ def test_mde_bloques() -> None:
     data = json.loads(METRICAS_PATH.read_text(encoding="utf-8"))
     pde = data["piloto_diseno_efecto"]
     icc = pde["icc_municipal_c0"]
-    mde_raw = 1.5674
+    pil = data["potencia_piloto_c0"]
+    mde_raw = (
+        float(pil["tabla_15"][0]["constante_mde"])
+        * float(pil["sigma_p_exacta"])
+        * math.sqrt(2.0 / float(pil["n_seleccionado"]))
+        * math.sqrt(1.0 - float(pil["correlacion_rho"]) ** 2)
+    )
 
     deff_m5 = 1.0 + (5 - 1) * icc
     deff_m10 = 1.0 + (10 - 1) * icc
@@ -1197,7 +1203,8 @@ def test_sin_sobreafirmaciones() -> None:
         "Demostramos", "demostramos", "nítidas", "nitidas", "Demuestra", "demuestra",
         "garantizando", "desmovilización", "desmovilizacion", "obedecen a",
         "sufragios emitidos (SV+NV)", "base de sufragios", "desde 2018",
-        "Estudio Censal CCPC 2018", "Diálogos por la Democracia", "Dialogos por la Democracia"
+        "Estudio Censal CCPC 2018", "Diálogos por la Democracia", "Dialogos por la Democracia",
+        "autoridad jurisdiccional", "autoridades jurisdiccionales"
     ]
     for fname in ["Documento_Tecnico_ByteMe.pdf", "Fichas_Perfiles_ByteMe.pdf", "Presentacion_Ejecutiva_ByteMe.pdf"]:
         pdf_path = ENTREGABLES_DIR / fname

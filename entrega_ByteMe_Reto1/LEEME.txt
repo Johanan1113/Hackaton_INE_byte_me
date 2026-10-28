@@ -7,7 +7,7 @@ PAQUETE DE ENTREGA OFICIAL · RETO 1: PERFILES CIUDADANOS DE PARTICIPACIÓN
 --------------------------------------------------------------------------------
 Equipo:            Byte me
 Eje / Reto:        Reto 1 — Perfiles ciudadanos de participación
-Repositorio:       https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.6)
+Repositorio:       https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.7)
 
 Integrantes:
 1. Johanan Olivares Gutiérrez (representante)
@@ -78,7 +78,7 @@ Los documentos firmados de cesión y declaratoria deben ubicarse en:
 --------------------------------------------------------------------------------
 Todo el código fuente, pruebas automatizadas y scripts de auditoría están
 disponibles en el repositorio público:
-https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.6)
+https://github.com/Johanan1113/Hackaton_INE_byte_me (etiqueta v1.0.7)
 
 Las pruebas (pytest) y run_all.py requieren el repositorio completo.
 

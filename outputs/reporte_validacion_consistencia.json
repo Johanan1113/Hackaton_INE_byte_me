@@ -3,29 +3,29 @@
   "paginas_documento_pdf": 12,
   "paginas_fichas_pdf": 5,
   "numeros_auditados": {
-    "pool_valores_referencia_autorizados": 2149,
-    "extraidos_documento_md": 1445,
+    "pool_valores_referencia_autorizados": 2159,
+    "extraidos_documento_md": 1446,
     "no_encontrados_documento_md": [
       "52.67 (52.67)"
     ],
-    "extraidos_documento_pdf": 867,
+    "extraidos_documento_pdf": 868,
     "no_encontrados_documento_pdf": [],
-    "extraidos_fichas_pdf": 295,
+    "extraidos_fichas_pdf": 296,
     "no_encontrados_fichas_pdf": []
   },
   "hashes_sha256": {
     "etiquetas_finales_parquet": "7f0db6a9b1437d9e9703480ca3bfcfe2e1f79908380ccfc967014cf1e2ac74eb",
     "perfiles_csv": "40fe493fe721919b6b5919c0272382f0d3204bdddda8b0eb568a3fcca697c239",
-    "estrategias_csv": "80a0f139cc0d5a574a9376a447696ce60028889da6c048496e1ea9c670d40a07",
-    "metricas_finales_json": "bc4d3c223c694ef9411474a29be6d809c704afb6538b159c06317976e14e46be",
-    "Documento_Tecnico_ByteMe_md": "b2ed02469e0524094b15038061d532386b56a2aa2af805c3fda0ba8f98034e37",
-    "Documento_Tecnico_ByteMe_pdf": "f5b343fbda84e8df88f6ae0fc2d08275f91c95851f29330ba8ac1c50357190ab",
-    "Fichas_Perfiles_ByteMe_pdf": "a5a885930c9e9ad60facbf27faf440f702befd3eab10196285cd98a15b79e94c",
-    "Fichas_Perfiles_ByteMe_png": "1d7e70d1616d6de4fcc9252ffc80d941b33cfd7410edabb2683d5c82ac0e2dc2",
+    "estrategias_csv": "078e2c19b7539a57a1005232c13a5bd636c1dd1730597d8d42492a4ff25e3f6a",
+    "metricas_finales_json": "8a41774614e2d9813557980d0e37e8dbed791b48c79071d8a66a291d37ed2ad7",
+    "Documento_Tecnico_ByteMe_md": "519eec133fefa1371cd20ba54bf036b0aa238dc6c4808c270ad024afccd4a8ee",
+    "Documento_Tecnico_ByteMe_pdf": "d541dac7e151cb7b50cd2502756f317a0939bca5753c4809d2901fd0e1c4272b",
+    "Fichas_Perfiles_ByteMe_pdf": "859613477859c3082c8c0da1a959160e22b6a55146a3eadadc640e5061289d9f",
+    "Fichas_Perfiles_ByteMe_png": "30ef6ee3f9dfeb35905d9ad04ee507f4dac6164639657d3dd1ac563e69457ae7",
     "Fichas_Portada_png": "594931ad6420974e3d27b3d9abc6cebe801ddce698bd42f9a98948c6ba88eebc",
     "Ficha_C0_png": "fb091bea286b7fc899e1c3c6c4a88e13d1b4d0efb39bb89bda884a4d7e7737f1",
     "Ficha_C1_png": "56a7cdb169939f8532277f5c227d31f1d24fe4bb05b54c13b8528196a27acba5",
-    "Ficha_C2_png": "730d0493eba6cdb36cc9f1d1e3e0f844957fc14f35f8c7ecbc82d1ec3c6f3e49",
+    "Ficha_C2_png": "c908e45a9f11c1921842a2aafc0d57adac810aab8e6b636cf3f479bdfe45b229",
     "Ficha_C3_png": "6c5beb1140391e0009593c0ba07116dc23eb696999869089e53fb2d5580f7f91"
   }
 }

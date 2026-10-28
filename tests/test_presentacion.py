@@ -294,6 +294,22 @@ def test_diapositiva_09_mde_icc():
     assert "3.80 pts" in text9, "Falta '3.80 pts' en nota de diapositiva 9"
 
 
+def test_notas_diapositiva_04_k4():
+    """Las notas de la diapositiva 4 citan Silhouette y ARI bootstrap de k=4 (0.179 y 0.957), no los de k=7."""
+    prs = pptx.Presentation(PPTX_PATH)
+    notes4 = prs.slides[3].notes_slide.notes_text_frame.text
+    assert "0.179" in notes4 and "0.957" in notes4, "Notas de diapositiva 4 sin Silhouette 0.179 o ARI 0.957 de k=4"
+    assert "0.154" not in notes4 and "0.950" not in notes4, "Notas de diapositiva 4 con cifras de k=7"
+
+
+def test_meta_c2_razon_juvenil_base_2021():
+    """La meta de C2 en la diapositiva 7 dice 'razón juvenil ≥ 0.88 (base 2021)'."""
+    prs = pptx.Presentation(PPTX_PATH)
+    text7 = " ".join(s.text_frame.text for s in prs.slides[6].shapes if s.has_text_frame)
+    text7 = " ".join(text7.split())
+    assert "razón juvenil ≥ 0.88 (base 2021)" in text7, "Meta de C2 sin 'razón juvenil ≥ 0.88 (base 2021)' en diapositiva 7"
+
+
 def test_diapositiva_10_cuatro_recomendaciones():
     """F: Verifica que la diapositiva 10 tenga el encabezado 'Cuatro recomendaciones al INE' y la 4ª recomendación."""
     prs = pptx.Presentation(PPTX_PATH)

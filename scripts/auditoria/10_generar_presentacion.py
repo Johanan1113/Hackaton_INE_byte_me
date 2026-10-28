@@ -197,6 +197,14 @@ def cargar_cifras() -> dict:
 
     row_t15 = t15_df[t15_df["detecta_menor_mitad_meta"] == True].sort_values("secciones_totales_piloto").iloc[0]
 
+    filas_k4 = [
+        m for m in data["benchmark_modelos"]
+        if m.get("algoritmo") == "K-Means++" and m.get("configuracion") == "k=4"
+    ]
+    if len(filas_k4) != 1:
+        raise ValueError(f"Se esperaba exactamente una fila K-Means++ k=4 en benchmark_modelos; hay {len(filas_k4)}")
+    fila_k4 = filas_k4[0]
+
     return {
         "data": data,
         "perfiles": perfiles,
@@ -228,7 +236,7 @@ def cargar_cifras() -> dict:
         "m1_meta": str(t12_df.loc["C1", "meta_intermedia_2027"]).replace("sostener ", "").strip(),
         "m1_pres": str(t12_df.loc["C1", "meta_presidencial_2030"]).replace("sostener ", "").strip(),
         "m2_meta": str(t12_df.loc["C2", "meta_intermedia_2027"]).replace("sostener ", "").strip(),
-        "m2_razon_joven": f"{redondear(p2['ratio_participacion_joven_original'], 2):.2f}",
+        "m2_razon_joven": f"{redondear(float(t12_df.loc['C2', 'razon_juvenil_2021']), 2):.2f}",
         "m3_meta": t12_df.loc["C3", "meta_intermedia_2027"],
         "m3_pres": t12_df.loc["C3", "meta_presidencial_2030"],
         "m3_homb": t12_df.loc["C3", "meta_tasa_hombres"],
@@ -250,8 +258,8 @@ def cargar_cifras() -> dict:
         "ns_2021": serie[2021]["pct_ns_anio"],
         "ns_2024": serie[2024]["pct_ns_anio"],
         "pct_c1_tres": redondear(data.get("calendario_electoral", {}).get("pct_c1_en_las_tres", 0), 1),
-        "sil_k4_3d": redondear(data["benchmark_modelos"][4]["silhouette"], 3),
-        "ari_boot_3d": redondear(data["benchmark_modelos"][4]["bootstrap_ari_media"], 3),
+        "sil_k4_3d": redondear(fila_k4["silhouette"], 3),
+        "ari_boot_3d": redondear(fila_k4["bootstrap_ari_media"], 3),
         "delta_r2_3d": redondear(data["valor_agregado_nivel_historico"]["delta_r2_p2024_3d"], 3),
     }
 
@@ -553,7 +561,7 @@ def build_presentation(cifras: dict) -> Path:
     p_e = tf_exp.paragraphs[0]
     p_e.text = (
         f"En 2018 y 2024, el {ns_pct_2018:.1f}% y el {ns_pct_2024:.1f}% de la lista nominal son registros no especificados (NS): "
-        "cuadernillos sin marcas, no disponibles, con páginas faltantes o requeridos por autoridad jurisdiccional. "
+        "cuadernillos sin marcas, no disponibles para captura o con páginas no disponibles. "
         "Contarlos como abstención crea grupos artificiales de baja participación."
     )
     p_e.font.name = "Arial"
@@ -792,9 +800,11 @@ def build_presentation(cifras: dict) -> Path:
     p_vh.font.bold = True
     p_vh.font.color.rgb = NAVY
 
-    k4_bm = [m for m in data.get("benchmark_modelos", []) if m.get("algoritmo") == "K-Means++" and m.get("k") == 4.0]
-    sil_k4 = redondear(k4_bm[0]["silhouette"] if k4_bm else 0.1789, 3)
-    ari_boot = redondear(k4_bm[0]["bootstrap_ari_media"] if k4_bm else 0.9572, 3)
+    k4_bm = [m for m in data["benchmark_modelos"] if m.get("algoritmo") == "K-Means++" and m.get("configuracion") == "k=4"]
+    if len(k4_bm) != 1:
+        raise ValueError(f"Se esperaba exactamente una fila K-Means++ k=4 en benchmark_modelos; hay {len(k4_bm)}")
+    sil_k4 = redondear(k4_bm[0]["silhouette"], 3)
+    ari_boot = redondear(k4_bm[0]["bootstrap_ari_media"], 3)
     vft = data.get("validacion_fuera_de_tiempo", [])
     pct_cons = redondear(vft[0]["coincidencia_global_pct"] if isinstance(vft, list) and vft else 83.65, 1)
     d_r2 = redondear(data["valor_agregado_nivel_historico"]["delta_r2_p2024"], 3)
@@ -823,7 +833,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide4,
-        f"Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette ({cifras['sil_k4_3d']:.3f}) y ofrece una estabilidad bootstrap equivalente y altamente robusta (ARI {cifras['ari_boot_3d']:.3f}). Probamos el modelo fuera de tiempo: al calibrar solo con datos de 2009 a 2021, los perfiles agregan casi una décima de R cuadrado sobre el nivel histórico (ΔR² = {cifras['delta_r2_3d']:.3f})."
+        f"Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette ({cifras['sil_k4_3d']:.3f}) con estabilidad bootstrap alta (ARI {cifras['ari_boot_3d']:.3f}). Probamos el modelo fuera de tiempo: al calibrar solo con datos de 2009 a 2021, los perfiles agregan casi una décima de R cuadrado sobre el nivel histórico (ΔR² = {cifras['delta_r2_3d']:.3f})."
     )
 
     # =========================================================================
@@ -1114,7 +1124,7 @@ def build_presentation(cifras: dict) -> Path:
                 (f"{c2_tend:+.2f} pts/año", "tendencia corregida"),
             ],
             "propuesta": "Foros juveniles de diálogo democrático (propuesta), alianzas con colectivos juveniles y difusión de «Conóceles» para consultar información de todas las candidaturas.",
-            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil de la intermedia 2021 ({cifras['m2_razon_joven']})",
+            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil ≥ {cifras['m2_razon_joven']} (base 2021)",
             "empezar": "Ciudad de México 15 · Tlaxcala 03 · Ciudad de México 10",
         },
     ]
@@ -1437,7 +1447,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide9,
-        f"Planteamos un diseño experimental riguroso para evaluar intervenciones en C0 durante 2027. Mil secciones aleatorizadas en 500 de tratamiento y 500 de control, estratificadas por entidad y tercil de participación. Con ANCOVA ajustado por línea base detectamos impactos desde {cifras['piloto_mde_seccional']:.2f} puntos porcentuales con 80% de potencia para acciones asignables. Si se aleatorizan bloques municipales por derrame de campañas masivas, el efecto de diseño ajusta el MDE a {cifras['piloto_mde_m5']:.2f} puntos con 5 secciones y a {cifras['piloto_mde_m10']:.2f} con 10. La evaluación no genera costo adicional al aprovechar el conteo censal ordinario del instituto."
+        f"Planteamos un diseño experimental riguroso para evaluar intervenciones en C0 durante 2027. Mil secciones aleatorizadas en 500 de tratamiento y 500 de control, estratificadas por entidad y tercil de participación. Con ANCOVA ajustado por línea base detectamos impactos desde {cifras['piloto_mde_seccional']:.2f} puntos porcentuales con 80% de potencia para acciones asignables. Si se aleatorizan bloques municipales por derrame de campañas masivas, el efecto de diseño ajusta el MDE a {cifras['piloto_mde_m5']:.2f} puntos con 5 secciones y a {cifras['piloto_mde_m10']:.2f} con 10. La medición no genera costo adicional al aprovechar el conteo censal ordinario del instituto."
     )
 
     # =========================================================================

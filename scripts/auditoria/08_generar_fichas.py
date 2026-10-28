@@ -127,6 +127,7 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
 
     p2_urb = redondear_pub(p2['pct_secciones_urbanas'], 1)
     p2_ratio = redondear_pub(p2['ratio_participacion_joven_original'], 2)
+    p2_ratio_2021 = redondear(float(df12.loc["C2", "razon_juvenil_2021"]), 2)
     p2_p2009 = redondear_pub(p2['p_2009_ponderada'] * 100, 1)
     p2_p2012 = redondear_pub(p2['p_2012_ponderada'] * 100, 1)
     p2_p2015 = redondear_pub(p2['p_2015_ponderada'] * 100, 1)
@@ -228,8 +229,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 "Consolidar el hábito del voto mediante foros juveniles de diálogo democrático (propuesta); vinculación con colectivos juveniles y organizaciones vecinales; "
                 "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar candidaturas."
             ),
-            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y razón juvenil de la intermedia 2021 ({p2_ratio:.2f}).",
-            "indicador": f"Tasa ponderada 2027 y razón juvenil de la intermedia 2021 ({p2_ratio:.2f}).",
+            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y una razón juvenil ≥ {p2_ratio_2021:.2f} (base: intermedia 2021).",
+            "indicador": f"Tasa ponderada 2027 y razón juvenil 2027 (base 2021: {p2_ratio_2021:.2f}).",
             "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Bajo-Medio (foros distritales)",
             "lema": "Tu voto cuenta en cada elección: participa también en 2027",
             "brecha_label": "Tendencia Corregida",

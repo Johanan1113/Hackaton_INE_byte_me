@@ -934,7 +934,7 @@
       "linea_base_intermedia_2021_pond_pct": 60.4,
       "linea_base_presidencial_2024_pond_pct": 68.0,
       "ln_2024": 18796916,
-      "meta_cuantitativa": "Consolidar en la elección intermedia de 2027 una participación ponderada ≥ 60.4% (sosteniendo la línea base observada en la intermedia de 2021 de 60.4% e impidiendo una regresión hacia su media intermedia histórica de 50.2%) y mantener la razón de participación juvenil ≥ 0.88.",
+      "meta_cuantitativa": "Consolidar en la elección intermedia de 2027 una participación ponderada ≥ 60.4% (sosteniendo la línea base observada en la intermedia de 2021 de 60.4% e impidiendo una regresión hacia su media intermedia histórica de 50.2%) y mantener la razón de participación juvenil ≥ 0.88 (base: intermedia 2021).",
       "n_secciones": 14624,
       "narrativa_mensaje_neutral": "Continuidad del compromiso cívico como práctica permanente en comicios legislativos y locales, vinculando la participación juvenil con el seguimiento de propuestas y atribuciones de la Cámara de Diputados.",
       "nombre_perfil": "Participación en Ascenso con Juventud Activa",
@@ -1268,6 +1268,7 @@
       "nombre_perfil": "Baja Participación Intermitente con Rezago Juvenil",
       "participacion_2021_pond_pct": 46.13,
       "participacion_2024_pond_pct": 56.94,
+      "razon_juvenil_2021": 0.7621,
       "tasa_hombres_2021_pond_pct": 42.57,
       "tasa_hombres_2024_pond_pct": 52.35,
       "tasa_joven_18_29_2021_pond_pct": 35.16
@@ -1283,6 +1284,7 @@
       "nombre_perfil": "Alta Participación Estable e Intergeneracional",
       "participacion_2021_pond_pct": 62.45,
       "participacion_2024_pond_pct": 65.7,
+      "razon_juvenil_2021": 0.8967,
       "tasa_hombres_2021_pond_pct": 58.21,
       "tasa_hombres_2024_pond_pct": 60.88,
       "tasa_joven_18_29_2021_pond_pct": 56.0
@@ -1294,10 +1296,11 @@
       "meta_secundaria_tasa_hombres": "N/A",
       "meta_secundaria_tasa_joven": "N/A",
       "meta_tasa_hombres": "N/A",
-      "meta_tasa_joven": "razón juvenil de la intermedia 2021 (0.88)",
+      "meta_tasa_joven": "razón juvenil ≥ 0.88 (base: intermedia 2021)",
       "nombre_perfil": "Participación en Ascenso con Juventud Activa",
       "participacion_2021_pond_pct": 60.37,
       "participacion_2024_pond_pct": 68.04,
+      "razon_juvenil_2021": 0.8797,
       "tasa_hombres_2021_pond_pct": 56.92,
       "tasa_hombres_2024_pond_pct": 63.77,
       "tasa_joven_18_29_2021_pond_pct": 53.1
@@ -1313,6 +1316,7 @@
       "nombre_perfil": "Participación a la Baja con Brecha de Género",
       "participacion_2021_pond_pct": 49.45,
       "participacion_2024_pond_pct": 55.57,
+      "razon_juvenil_2021": 0.7781,
       "tasa_hombres_2021_pond_pct": 43.94,
       "tasa_hombres_2024_pond_pct": 49.36,
       "tasa_joven_18_29_2021_pond_pct": 38.48
@@ -1328,6 +1332,7 @@
       "nombre_perfil": "Media Nacional Panel B",
       "participacion_2021_pond_pct": 52.81,
       "participacion_2024_pond_pct": 60.55,
+      "razon_juvenil_2021": 0.8156,
       "tasa_hombres_2021_pond_pct": 48.66,
       "tasa_hombres_2024_pond_pct": 55.56,
       "tasa_joven_18_29_2021_pond_pct": 43.07

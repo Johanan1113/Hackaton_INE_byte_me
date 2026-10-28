@@ -727,7 +727,8 @@ def build_pdf(data: dict) -> Path:
             canales_fmt = "Colectivos juveniles, redes vecinales y 'Conóceles'."
             accion_fmt = "Foros juveniles de diálogo democrático (propuesta) y monitoreo de casillas en crecimiento (DEOE)."
             meta_fmt = f"Consolidar participación ≥ {base_inter:.1f}% en 2027 y {m_jov_c2}."
-            ind_fmt = f"Tasa ponderada 2027 y {m_jov_c2}."
+            r21_c2 = redondear(float(df12.loc["C2", "razon_juvenil_2021"]), 2)
+            ind_fmt = f"Tasa ponderada 2027 y razón juvenil 2027 (base 2021: {r21_c2:.2f})."
             resp_fmt = "DECEyEC, DEOE y Juntas Distritales"
         else:  # C3
             b_hom_c3 = df12.loc["C3", "tasa_hombres_2021_pond_pct"]

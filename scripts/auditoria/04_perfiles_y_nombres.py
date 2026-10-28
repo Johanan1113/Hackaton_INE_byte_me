@@ -435,11 +435,11 @@ def build_perfiles_and_estrategias(df_b: pd.DataFrame, df_univ: pd.DataFrame) ->
             p09_c2 = float(sub["sv_2009"].sum() / sub["sv_nv_2009"].sum() * 100.0)
             p15_c2 = float(sub["sv_2015"].sum() / sub["sv_nv_2015"].sum() * 100.0)
             p_mid_c2 = (p09_c2 + p15_c2 + p21) / 3.0
-            r_jov_c2 = float(sub["ratio_participacion_joven"].mean())
+            r_jov_c2 = j21 / p21  # razón juvenil de la intermedia 2021 (tasa 18–29 / participación, ponderadas)
             meta_cuant = (
                 f"Consolidar en la elección intermedia de 2027 una participación ponderada ≥ {redondear(p21, 1):.1f}% (sosteniendo la línea "
                 f"base observada en la intermedia de 2021 de {redondear(p21, 1):.1f}% e impidiendo una regresión hacia su media intermedia "
-                f"histórica de {redondear(p_mid_c2, 1):.1f}%) y mantener la razón de participación juvenil ≥ {redondear(r_jov_c2, 2):.2f}."
+                f"histórica de {redondear(p_mid_c2, 1):.1f}%) y mantener la razón de participación juvenil ≥ {redondear(r_jov_c2, 2):.2f} (base: intermedia 2021)."
             )
         else:  # c == 3
             m_int_3 = p21 + (p21_b - p21) / 2.0
@@ -634,8 +634,8 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
             meta_sec_hombres = "N/A"
             meta_sec_joven = "N/A"
         elif c == 2:
-            r_jov_c2 = float(sub["ratio_participacion_joven"].mean())
-            m_jov = f"razón juvenil de la intermedia 2021 ({redondear(r_jov_c2, 2):.2f})"
+            r_jov_c2 = j21 / p21  # razón juvenil de la intermedia 2021 (tasa 18–29 / participación, ponderadas)
+            m_jov = f"razón juvenil ≥ {redondear(r_jov_c2, 2):.2f} (base: intermedia 2021)"
             m_hom = "N/A"
             meta_sec_hombres = "N/A"
             meta_sec_joven = "N/A"
@@ -653,6 +653,7 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
             "participacion_2021_pond_pct": round(p21, 2),
             "participacion_2024_pond_pct": round(p24, 2),
             "tasa_joven_18_29_2021_pond_pct": round(j21, 2),
+            "razon_juvenil_2021": round(j21 / p21, 4),
             "tasa_hombres_2021_pond_pct": round(h21, 2),
             "tasa_hombres_2024_pond_pct": round(h24, 2),
             "meta_intermedia_2027": m_int,
@@ -668,6 +669,7 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
         "participacion_2021_pond_pct": round(p21_b, 2),
         "participacion_2024_pond_pct": round(p24_b, 2),
         "tasa_joven_18_29_2021_pond_pct": round(j21_b, 2),
+        "razon_juvenil_2021": round(j21_b / p21_b, 4),
         "tasa_hombres_2021_pond_pct": round(h21_b, 2),
         "tasa_hombres_2024_pond_pct": round(h24_b, 2),
         "meta_intermedia_2027": f"{redondear(p21_b, 1):.1f}%",

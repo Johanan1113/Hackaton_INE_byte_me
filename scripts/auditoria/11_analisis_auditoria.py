@@ -404,8 +404,16 @@ def main() -> None:
     icc_muni = redondear(icc_muni, 4)
     print(f"  ICC municipal en C0: {icc_muni} (K={K_muni} municipios, n0={n0:.2f})")
 
-    # MDE ANCOVA base (m=1): 2.80 * sigma * sqrt(2/n) * sqrt(1 - rho^2) = 1.5674 sin redondear
-    mde_base_unrounded = 1.5674
+    # MDE ANCOVA base (m=1): constante * sigma * sqrt(2/n) * sqrt(1 - rho^2), sin redondear
+    pil_c0 = metricas["potencia_piloto_c0"]
+    constante_mde = float(pil_c0["tabla_15"][0]["constante_mde"])
+    mde_base_unrounded = (
+        constante_mde
+        * float(pil_c0["sigma_p_exacta"])
+        * math.sqrt(2.0 / float(pil_c0["n_seleccionado"]))
+        * math.sqrt(1.0 - float(pil_c0["correlacion_rho"]) ** 2)
+    )
+    print(f"  MDE ANCOVA base sin redondear: {mde_base_unrounded:.4f}")
     mde_base = redondear(mde_base_unrounded, 2)  # 1.57
     t15_data = [
         {
