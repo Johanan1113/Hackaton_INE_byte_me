@@ -218,7 +218,7 @@ CLUSTER_META = {
             "la participación juvenil con el seguimiento de propuestas y atribuciones de la Cámara de Diputados."
         ),
         "accion_operativa_ine": (
-            "Despliegue de foros distritales 'Diálogos por la Democracia' de la DECEyEC, alianzas con redes juveniles y "
+            "Despliegue de foros juveniles de diálogo democrático (propuesta), alianzas con redes juveniles y "
             "vecinales para promoción del voto informado rumbo a 2027 y monitoreo de capacidad instalada de casillas "
             "por la DEOE en secciones en crecimiento."
         ),

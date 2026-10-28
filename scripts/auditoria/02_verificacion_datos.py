@@ -39,9 +39,9 @@ FUENTE_OFICIAL_CCPC = {
     "2009": "DECEYEC_Comparativo_VF.pdf (p. 11: 44.06%) / Manual CCPC (p. 21: 44.1%)",
     "2012": "DECEYEC_Comparativo_VF.pdf (p. 11: 62.08%) / Manual CCPC (p. 21: 62.1%)",
     "2015": "DECEYEC_Comparativo_VF.pdf (p. 11: 47.07%) / Manual CCPC (p. 21: 47.1%)",
-    "2018": "Estudio Censal CCPC 2018 (62.4%) / Manual CCPC (p. 21: 62.4%)",
-    "2021": "Manual CCPC 2009-2024 (p. 21, imagen figura 'Participación por año' del tablero: 51.8%; Cierre PREP no censal: 52.67%)",
-    "2024": "Estudio Censal CCPC 2024 (59.7%) / Manual CCPC (p. 21: 59.7%)",
+    "2018": "Manual CCPC (p. 21)",
+    "2021": "Manual CCPC (p. 21)",
+    "2024": "Manual CCPC (p. 21)",
 }
 
 
@@ -372,7 +372,7 @@ def diagnose_c4_and_errors(sec_by_year: dict, audit_load: dict, df_cl: pd.DataFr
     md.append("> En los archivos abiertos de los Conteos Censales de Participación Ciudadana (CCPC), cada fila cumple la identidad exacta `LN = SV + NV + NS`, donde:")
     md.append("> - `SV` = Sí votaron (registros con marca de voto en el cuadernillo).")
     md.append("> - `NV` = No votaron (registros sin marca de voto en cuadernillos capturados).")
-    md.append("> - `NS` = **No especificados** (cuadernillos no disponibles para su captura, requeridos por autoridades jurisdiccionales o sin marcas de votación).")
+    md.append("> - `NS` = **No especificados** (cuadernillos no disponibles para su captura o sin marcas de votación).")
     md.append("> ")
     md.append("> De acuerdo con el **Manual de la Plataforma CCPC 2009–2024 (pág. 17)**, la fórmula oficial de participación del INE es:")
     md.append("> $$\\text{Participación CCPC} = \\frac{\\text{Sí votaron}}{\\text{Sí votaron} + \\text{No votaron}} = \\frac{SV}{SV + NV}$$")

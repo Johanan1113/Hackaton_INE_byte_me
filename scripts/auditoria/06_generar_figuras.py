@@ -159,23 +159,6 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
             years, y_vals, marker="o", linewidth=1.6, markersize=4.0,
             color=CLUSTER_COLORS[c], label=lbl, zorder=4
         )
-        offsets_map = {
-            (0, 2009): (0, -9), (1, 2009): (0, 5), (2, 2009): (0, 5), (3, 2009): (0, 5),
-            (0, 2012): (0, -9), (1, 2012): (0, 5), (2, 2012): (0, 5), (3, 2012): (0, 5),
-            (0, 2015): (0, -9), (1, 2015): (0, 5), (2, 2015): (0, -9), (3, 2015): (0, 5),
-            (0, 2018): (0, 5), (1, 2018): (0, -9), (2, 2018): (0, 5), (3, 2018): (0, -9),
-            (0, 2021): (0, -9), (1, 2021): (0, 5), (2, 2021): (0, -9), (3, 2021): (0, 5),
-            (0, 2024): (0, 5), (1, 2024): (0, -9), (2, 2024): (0, 5), (3, 2024): (0, -9),
-        }
-        for x_val, y_val in zip(years, y_vals):
-            dx, dy = offsets_map.get((c, x_val), (0, 5))
-            ax1.annotate(
-                f"{y_val:.1f}%", (x_val, y_val), textcoords="offset points",
-                xytext=(dx, dy), ha="center", fontsize=6.8, fontweight="bold", color=CLUSTER_COLORS[c],
-                bbox=dict(boxstyle="round,pad=0.10", facecolor="white", edgecolor="none", alpha=0.85),
-                zorder=6
-            )
-
     nac_ccpc = [r["total_ponderada_sv_svnv_pct"] for r in serie_nac]
     pan_b_pond = [r["panel_b_ponderada_sv_svnv_pct"] for r in serie_nac]
     ax1.plot(years, nac_ccpc, linestyle="--", marker="s", linewidth=1.2, markersize=3.5, color="#111827",
@@ -210,8 +193,9 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
         y_er = r["total_ponderada_erronea_sv_ln_pct"]
         diff = r["subestimacion_erronea_sv_ln_pond_pts"]
         if diff >= 1.5:
+            y_box = y_er - 4.5 if x_val == 2021 else y_er + 3.8
             ax2.annotate(
-                f"-{diff:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_er + 3.8),
+                f"-{diff:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_box),
                 ha="center", fontsize=6.8, fontweight="bold", color="#DC2626",
                 bbox=dict(boxstyle="round,pad=0.12", facecolor="white", edgecolor="#FCA5A5", alpha=0.92),
                 arrowprops=dict(arrowstyle="->", color="#DC2626", lw=0.6)

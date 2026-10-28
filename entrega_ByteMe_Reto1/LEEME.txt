@@ -30,7 +30,7 @@ Integrantes:
 
 2. Fichas_Perfiles_ByteMe.pdf
    Fichas infográficas ejecutivas en 5 páginas horizontales (tamaño Carta,
-   tipografía >= 10 pt):
+   texto principal de 9.5 pt):
    - Página 1: Portada ejecutiva y síntesis metodológica nacional.
    - Página 2: Perfil C0 — Baja Participación Intermitente con Rezago Juvenil.
    - Página 3: Perfil C1 — Alta Participación Estable e Intergeneracional.

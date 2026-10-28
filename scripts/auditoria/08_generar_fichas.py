@@ -51,6 +51,7 @@ TABLA_12_PATH = PROJECT_ROOT / "outputs" / "tablas" / "tabla_12_lineas_base_meta
 TABLA_17_PATH = PROJECT_ROOT / "outputs" / "tablas" / "tabla_17_impacto.csv"
 OUT_ENTREGABLES = PROJECT_ROOT / "outputs" / "entregables"
 OUT_ENTREGABLES.mkdir(parents=True, exist_ok=True)
+ICONOS_DIR = OUT_ENTREGABLES / "iconos"
 
 THEMES = {
     0: {"primary": "#C2410C", "bg": "#FFF7ED", "border": "#FDBA74", "badge": "#9A3412", "accent": "#EA580C"},
@@ -100,6 +101,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
     perfiles = data["perfiles"]
     pan_b = data["resumen_panel_b"]
     tend_corr = data.get("tendencia_corregida", {})
+    cal = data.get("calendario_electoral", {})
+    pct_c1_tres = redondear(cal.get("pct_c1_en_las_tres", 0), 1)
     df12 = pd.read_csv(TABLA_12_PATH).set_index("codigo_cluster")
     df17 = pd.read_csv(TABLA_17_PATH).set_index("codigo_cluster")
 
@@ -178,6 +181,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
             "impacto_lbl": "Impacto:",
             "impacto_txt": f"{c0_imp_str} votantes adicionales si se cumple la meta 2027",
             "impacto_portada": f"{c0_imp_str}\nadicionales",
+            "v_adicionales_portada": f"{c0_imp_str}",
+            "v_riesgo_portada": "—",
             "rasgo_portada": "Rezago juvenil y ciclo presidencial",
         },
         1: {
@@ -187,8 +192,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 f"y una elevada integración juvenil ({p1_jov:.1f}%)."
             ),
             "hipotesis": (
-                "La alta participación sugiere redes comunitarias sólidas y normas cívicas intergeneracionales arraigadas, "
-                "donde la integración de mesas directivas de casilla se percibe como un deber cívico compartido."
+                f"La alta participación sugiere redes comunitarias sólidas; además, un tercio de sus secciones ({pct_c1_tres:.1f}%) "
+                f"está en entidades con gubernatura concurrente en las intermedias."
             ),
             "propuesta": (
                 "Reconocimiento a la constancia cívica comunitaria; talleres juveniles de formación cívica en planteles locales; y reclutamiento temprano "
@@ -204,6 +209,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
             "impacto_lbl": "En regresión:",
             "impacto_txt": f"{c1_reg_str} votantes en escenario de regresión (sin probabilidad asociada)",
             "impacto_portada": f"{c1_reg_str}\nen regresión",
+            "v_adicionales_portada": "—",
+            "v_riesgo_portada": f"{c1_reg_str}",
             "rasgo_portada": "Máxima estabilidad y cohesión",
         },
         2: {
@@ -214,11 +221,11 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 f"en presidenciales varió poco ({p2_p2012:.1f}% → {p2_p2018:.1f}% → {p2_p2024:.1f}%)."
             ),
             "hipotesis": (
-                "El crecimiento en intermedias responde a la consolidación de demandas comunitarias en zonas en desarrollo, "
+                "El crecimiento en intermedias podría responder a la consolidación de demandas comunitarias en zonas en desarrollo, "
                 "con un electorado joven activo que requiere incentivos específicos en elecciones intermedias."
             ),
             "propuesta": (
-                "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "
+                "Consolidar el hábito del voto mediante foros juveniles de diálogo democrático (propuesta); vinculación con colectivos juveniles y organizaciones vecinales; "
                 "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar candidaturas."
             ),
             "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y razón juvenil de la intermedia 2021 (0.88).",
@@ -227,10 +234,12 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
             "lema": "Tu voto cuenta en cada elección: participa también en 2027",
             "brecha_label": "Tendencia Corregida",
             "brecha_val": f"{c2_tend:+.2f} pts/año",
-            "brecha_sub": "Ascenso neto (P ~ año + pres)",
+            "brecha_sub": "Controlando el tipo de elección",
             "impacto_lbl": "En regresión:",
             "impacto_txt": f"{c2_reg_str} votantes en escenario de regresión (sin probabilidad asociada)",
             "impacto_portada": f"{c2_reg_str}\nen regresión",
+            "v_adicionales_portada": "—",
+            "v_riesgo_portada": f"{c2_reg_str}",
             "rasgo_portada": f"Ascenso continuo ({c2_tend:+.2f} pts/año)",
         },
         3: {
@@ -240,12 +249,12 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 f"brecha de +{p3_brecha:.1f} pts) y una caída en comicios presidenciales desde 2012."
             ),
             "hipotesis": (
-                "El rezago del voto masculino y la caída presidencial obedecen a movilidad laboral o menor involucramiento en procesos electorales federales, "
+                "El rezago del voto masculino y la caída presidencial podrían deberse a movilidad laboral o menor involucramiento en procesos electorales federales, "
                 "además de dispersión geográfica de casillas."
             ),
             "propuesta": (
                 "Campaña focalizada de motivación del voto masculino en centros agropecuarios y rutas de transporte; brigadas de accesibilidad "
-                "y propuesta de casillas extraordinarias a los Consejos Distritales conforme a la LGIPE; y alianzas con promotoras cívicas comunitarias."
+                "y propuesta de casillas extraordinarias a los Consejos Distritales (LGIPE, art. 253.5); y alianzas con promotoras cívicas comunitarias."
             ),
             "meta": f"Elevar la participación a {m3_meta} en 2027, {m3_pres} en 2030 y el voto masculino a {m3_homb} en 2027 (cerrando la mitad de la brecha con el Panel B).",
             "indicador": "Tasa seccional masculina y general ponderada SV/(SV+NV) en CCPC.",
@@ -257,6 +266,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
             "impacto_lbl": "Impacto:",
             "impacto_txt": f"{c3_imp_str} votantes adicionales si se cumple la meta 2027",
             "impacto_portada": f"{c3_imp_str}\nadicionales",
+            "v_adicionales_portada": f"{c3_imp_str}",
+            "v_riesgo_portada": "—",
             "rasgo_portada": f"Brecha de género (+{p3_brecha:.1f} pts) y caída presidencial",
         },
     }
@@ -270,48 +281,27 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
 
 
 def draw_profile_icon(ax, cid: int, cx: float, cy: float, radius: float = 0.038, color: str = "#1E3A8A") -> None:
-    """Dibuja un ícono geométrico distintivo limpio para cada perfil en coordenadas de transAxes."""
-    circ = Circle((cx, cy), radius, facecolor=color, edgecolor="white", linewidth=max(1.0, 2.0 * radius / 0.038), transform=ax.transAxes, zorder=6)
-    ax.add_patch(circ)
-    scale = radius / 0.038
-    if cid == 0:
-        # Reloj de arena / ciclo intermitente
-        pts = np.array([
-            [cx - 0.016 * scale, cy + 0.018 * scale],
-            [cx + 0.016 * scale, cy + 0.018 * scale],
-            [cx, cy],
-            [cx + 0.016 * scale, cy - 0.018 * scale],
-            [cx - 0.016 * scale, cy - 0.018 * scale],
-            [cx, cy],
-        ])
-        ax.add_patch(Polygon(pts, closed=True, facecolor="white", transform=ax.transAxes, zorder=7))
-    elif cid == 1:
-        # Escudo de estabilidad cívica
-        pts = np.array([
-            [cx - 0.018 * scale, cy + 0.018 * scale],
-            [cx + 0.018 * scale, cy + 0.018 * scale],
-            [cx + 0.018 * scale, cy + 0.010 * scale],
-            [cx + 0.014 * scale, cy - 0.016 * scale],
-            [cx, cy - 0.024 * scale],
-            [cx - 0.014 * scale, cy - 0.016 * scale],
-            [cx - 0.018 * scale, cy + 0.010 * scale],
-        ])
-        ax.add_patch(Polygon(pts, closed=True, facecolor="white", transform=ax.transAxes, zorder=7))
-    elif cid == 2:
-        # Flecha ascendente
-        ax.plot([cx - 0.018 * scale, cx - 0.005 * scale, cx + 0.006 * scale, cx + 0.018 * scale],
-                [cy - 0.014 * scale, cy - 0.002 * scale, cy - 0.006 * scale, cy + 0.016 * scale],
-                color="white", linewidth=max(1.0, 2.8 * scale), transform=ax.transAxes, zorder=7)
-        ax.plot([cx + 0.008 * scale, cx + 0.018 * scale, cx + 0.018 * scale],
-                [cy + 0.016 * scale, cy + 0.016 * scale, cy + 0.005 * scale],
-                color="white", linewidth=max(1.0, 2.8 * scale), transform=ax.transAxes, zorder=7)
-    elif cid == 3:
-        # Símbolo distintivo de brecha de género
-        c_inner = Circle((cx, cy + 0.008 * scale), 0.011 * scale, fill=False, edgecolor="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
-        ax.add_patch(c_inner)
-        ax.plot([cx, cx], [cy - 0.003 * scale, cy - 0.020 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
-        ax.plot([cx - 0.010 * scale, cx + 0.010 * scale], [cy - 0.012 * scale, cy - 0.012 * scale], color="white", linewidth=max(1.0, 2.4 * scale), transform=ax.transAxes, zorder=7)
-
+    """Dibuja el ícono distintivo oficial cargando el PNG de ICONOS_DIR vía inset_axes."""
+    png_path = ICONOS_DIR / f"icono_c{cid}.png"
+    if png_path.exists():
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+        import matplotlib.image as mpimg
+        img = mpimg.imread(str(png_path))
+        side_in = 2.0 * radius * 8.5
+        ax_ins = inset_axes(
+            ax,
+            width=side_in,
+            height=side_in,
+            loc="center",
+            bbox_to_anchor=(cx, cy),
+            bbox_transform=ax.transAxes,
+            borderpad=0,
+        )
+        ax_ins.imshow(img)
+        ax_ins.axis("off")
+    else:
+        circ = Circle((cx, cy), radius, facecolor=color, edgecolor="white", linewidth=max(1.0, 2.0 * radius / 0.038), transform=ax.transAxes, zorder=6)
+        ax.add_patch(circ)
 
 def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figure:
     """Página 1: Portada ejecutiva en formato carta horizontal."""
@@ -388,7 +378,7 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
     p3_text = textwrap.fill(
         f"3. Segmentación K-Means++ con k=4: domina dentro del rango 4–6 de la convocatoria "
         f"(Silhouette = {sil_val:.4f}; ARI bootstrap = {ari_boot_val:.4f}). "
-        f"Un Random Forest reproduce las etiquetas con {rf_acc_val:.2f}% de exactitud (medida de interpretabilidad, no de validación).",
+        f"Un Random Forest reproduce las etiquetas con {rf_acc_val:.1f}% de exactitud (medida de interpretabilidad, no de validación).",
         width=108
     )
     ax.text(0.06, 0.592, p1_text, fontsize=10.0, color="#1F2937", va="top", transform=ax.transAxes)
@@ -400,14 +390,15 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
 
     y_tbl = 0.380
     # Encabezado tabla
-    ax.add_patch(Rectangle((0.04, y_tbl - 0.005), 0.92, 0.030, facecolor="#1E3A8A", transform=ax.transAxes))
-    ax.text(0.070, y_tbl + 0.010, "Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.220, y_tbl + 0.010, "Nombre Oficial del Perfil", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.405, y_tbl + 0.010, "Secciones (% Panel)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.530, y_tbl + 0.010, "LN 2024 (% LN)", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.635, y_tbl + 0.010, "Part. Media", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.735, y_tbl + 0.010, "Impacto 2027", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
-    ax.text(0.865, y_tbl + 0.010, "Rasgo Distintivo Clave", fontsize=10.0, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.add_patch(Rectangle((0.04, y_tbl - 0.008), 0.92, 0.036, facecolor="#1E3A8A", transform=ax.transAxes))
+    ax.text(0.065, y_tbl + 0.010, "Perfil", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.180, y_tbl + 0.010, "Nombre Oficial del Perfil", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.320, y_tbl + 0.010, "Secciones (% Panel)", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.435, y_tbl + 0.010, "LN 2024 (% LN)", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.530, y_tbl + 0.010, "Part. Media", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
+    ax.text(0.630, y_tbl + 0.010, "Votantes adicionales\n(meta 2027)", fontsize=9.0, fontweight="bold", color="white", ha="center", va="center", linespacing=1.05, transform=ax.transAxes)
+    ax.text(0.745, y_tbl + 0.010, "Votantes en riesgo\n(escenario)", fontsize=9.0, fontweight="bold", color="white", ha="center", va="center", linespacing=1.05, transform=ax.transAxes)
+    ax.text(0.870, y_tbl + 0.010, "Rasgo Distintivo Clave", fontsize=9.5, fontweight="bold", color="white", ha="center", va="center", transform=ax.transAxes)
 
     perfiles = data["perfiles"]
     rows_data = []
@@ -421,26 +412,28 @@ def render_cover_page(data: dict, texts: dict, cifras: dict = None) -> plt.Figur
             f"{p['n_secciones']:,} ({redondear_pub(p['pct_secciones_panel'], 1):.1f}%)",
             f"{p['ln_2024']/1e6:.2f}M ({redondear_pub(p['pct_ln_panel'], 1):.1f}%)",
             f"{redondear_pub(p['participacion_media_historica_original']*100, 1):.1f}%",
-            t["impacto_portada"],
+            t["v_adicionales_portada"],
+            t["v_riesgo_portada"],
             t["rasgo_portada"],
         ))
 
-    for idx, (cid, name, secc, ln, part, imp_txt, rasgo) in enumerate(rows_data):
+    for idx, (cid, name, secc, ln, part, imp_add, imp_risk, rasgo) in enumerate(rows_data):
         y_r = y_tbl - 0.046 - idx * 0.060
         bg_c = "#FFFFFF" if idx % 2 == 0 else "#F8FAFC"
         ax.add_patch(Rectangle((0.04, y_r - 0.013), 0.92, 0.054, facecolor=bg_c, edgecolor="#E2E8F0", linewidth=0.8, transform=ax.transAxes))
         theme_p = THEMES[idx]
         # E5: ícono y código C0-C3 juntos
-        draw_profile_icon(ax, idx, 0.058, y_r + 0.014, radius=0.013, color=theme_p["primary"])
-        ax.text(0.078, y_r + 0.014, f"C{idx}", fontsize=10.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        wrapped_name = textwrap.fill(name, width=22)
-        ax.text(0.100, y_r + 0.014, wrapped_name, fontsize=10.0, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
-        ax.text(0.405, y_r + 0.014, secc, fontsize=10.0, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.530, y_r + 0.014, ln, fontsize=10.0, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.635, y_r + 0.014, part, fontsize=10.0, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
-        ax.text(0.735, y_r + 0.014, imp_txt, fontsize=9.5, fontweight="bold", color="#1E3A8A", ha="center", va="center", linespacing=1.05, transform=ax.transAxes)
-        wrapped_rasgo = textwrap.fill(rasgo, width=20)
-        ax.text(0.865, y_r + 0.014, wrapped_rasgo, fontsize=9.5, color="#374151", ha="center", va="center", linespacing=1.05, transform=ax.transAxes)
+        draw_profile_icon(ax, idx, 0.056, y_r + 0.014, radius=0.013, color=theme_p["primary"])
+        ax.text(0.074, y_r + 0.014, f"C{idx}", fontsize=9.5, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        wrapped_name = textwrap.fill(name, width=20)
+        ax.text(0.095, y_r + 0.014, wrapped_name, fontsize=9.5, fontweight="bold", color="#0F172A", va="center", transform=ax.transAxes)
+        ax.text(0.320, y_r + 0.014, secc, fontsize=9.5, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.435, y_r + 0.014, ln, fontsize=9.5, color="#1F2937", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.530, y_r + 0.014, part, fontsize=9.5, fontweight="bold", color=theme_p["primary"], ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.630, y_r + 0.014, imp_add, fontsize=9.5, fontweight="bold", color="#1E3A8A", ha="center", va="center", transform=ax.transAxes)
+        ax.text(0.745, y_r + 0.014, imp_risk, fontsize=9.5, fontweight="bold", color="#1E3A8A", ha="center", va="center", transform=ax.transAxes)
+        wrapped_rasgo = textwrap.fill(rasgo, width=18)
+        ax.text(0.870, y_r + 0.014, wrapped_rasgo, fontsize=9.5, color="#374151", ha="center", va="center", linespacing=1.05, transform=ax.transAxes)
 
     # Pie de página institucional
     ax.text(

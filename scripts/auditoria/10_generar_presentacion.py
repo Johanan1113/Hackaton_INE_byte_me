@@ -245,8 +245,14 @@ def cargar_cifras() -> dict:
         "piloto_mde_m5": float(pde["mde_bloque_5_pts"]),
         "piloto_mde_m10": float(pde["mde_bloque_10_pts"]),
         "ns_2012": serie[2012]["pct_ns_anio"],
+        "ns_2015": serie[2015]["pct_ns_anio"],
         "ns_2018": serie[2018]["pct_ns_anio"],
+        "ns_2021": serie[2021]["pct_ns_anio"],
         "ns_2024": serie[2024]["pct_ns_anio"],
+        "pct_c1_tres": redondear(data.get("calendario_electoral", {}).get("pct_c1_en_las_tres", 0), 1),
+        "sil_k4_3d": redondear(data["benchmark_modelos"][4]["silhouette"], 3),
+        "ari_boot_3d": redondear(data["benchmark_modelos"][4]["bootstrap_ari_media"], 3),
+        "delta_r2_3d": redondear(data["valor_agregado_nivel_historico"]["delta_r2_p2024_3d"], 3),
     }
 
 
@@ -284,10 +290,7 @@ def exportar_iconos_png() -> None:
                     [cy + 0.016 * s, cy + 0.016 * s, cy + 0.005 * s],
                     color="white", linewidth=4.0, zorder=7)
         elif cid == 3:
-            c_inner = Circle((cx, cy + 0.008 * s), 0.011 * s, fill=False, edgecolor="white", linewidth=3.5, zorder=7)
-            ax.add_patch(c_inner)
-            ax.plot([cx, cx], [cy - 0.003 * s, cy - 0.020 * s], color="white", linewidth=3.5, zorder=7)
-            ax.plot([cx - 0.010 * s, cx + 0.010 * s], [cy - 0.012 * s, cy - 0.012 * s], color="white", linewidth=3.5, zorder=7)
+            ax.text(cx, cy - 0.002, "\u26a5", fontsize=38, fontfamily="DejaVu Sans", color="white", ha="center", va="center", zorder=7)
 
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
@@ -703,7 +706,7 @@ def build_presentation(cifras: dict) -> Path:
     # D4 · Método
     # =========================================================================
     slide4 = prs.slides.add_slide(blank_layout)
-    add_header(slide4, "Cuatro perfiles con un método reproducible y validado")
+    add_header(slide4, "Cuatro perfiles con un método reproducible y verificable")
     add_footer(slide4, 4)
 
     # Fila de 5 recuadros conectados con flechas
@@ -820,7 +823,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide4,
-        "Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette (0.179) y ofrece una estabilidad bootstrap equivalente y altamente robusta (ARI 0.957). Demostramos la solidez del modelo mediante una validación fuera de tiempo: al calibrar solo con datos de 2009 a 2021, los perfiles agregan casi una décima de R cuadrado sobre el nivel histórico (ΔR² = 0.097)."
+        f"Diseñamos un pipeline totalmente reproducible que sintetiza quince años de historia electoral en siete variables rectoras estandarizadas por sección. Aplicamos el algoritmo K-Means++ seleccionando cuatro perfiles, que domina en coeficiente de Silhouette ({cifras['sil_k4_3d']:.3f}) y ofrece una estabilidad bootstrap equivalente y altamente robusta (ARI {cifras['ari_boot_3d']:.3f}). Probamos el modelo fuera de tiempo: al calibrar solo con datos de 2009 a 2021, los perfiles agregan casi una décima de R cuadrado sobre el nivel histórico (ΔR² = {cifras['delta_r2_3d']:.3f})."
     )
 
     # =========================================================================
@@ -867,6 +870,10 @@ def build_presentation(cifras: dict) -> Path:
     ch5.category_axis.tick_labels.font.size = Pt(11)
     ch5.value_axis.tick_labels.font.name = "Arial"
     ch5.value_axis.tick_labels.font.size = Pt(11)
+    ch5.value_axis.has_title = True
+    ch5.value_axis.axis_title.text_frame.text = "Participación (%)"
+    ch5.value_axis.axis_title.text_frame.paragraphs[0].font.name = "Arial"
+    ch5.value_axis.axis_title.text_frame.paragraphs[0].font.size = Pt(11)
     ch5.value_axis.minimum_scale = 30
     ch5.value_axis.maximum_scale = 75
 
@@ -918,7 +925,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide5,
-        f"La tipología segmenta el país en cuatro dinámicas nítidas. C0 agrupa un tercio de las secciones en zonas metropolitanas con una profunda caída en elecciones intermedias y desafección juvenil. C1 representa comunidades altamente participativas y estables en todas las edades. C2 tiene una razón de participación juvenil que es la segunda más alta de los cuatro perfiles ({cifras['p2_ratio_str']}, después de C1 con {cifras['p1_ratio_str']}); su ascenso histórico se concentra en las intermedias ({cifras['p2_p2009']:.1f}% a {cifras['p2_p2015']:.1f}% a {cifras['p2_p2021']:.1f}%), mientras que en presidenciales pasó de {cifras['p2_p2018']:.1f}% a {cifras['p2_p2024']:.1f}% entre 2018 y 2024. Finalmente, C3 presenta una brecha de género favorable a las mujeres explicada por baja participación masculina."
+        f"La tipología segmenta el país en cuatro perfiles operativos dentro de un continuo. C0 agrupa un tercio de las secciones metropolitanas con rezago juvenil y caída en intermedias. C1 reúne comunidades con alta participación estable en todas las edades. C2 registra la segunda razón juvenil más alta ({cifras['p2_ratio_str']}); su ascenso histórico se concentra en intermedias ({cifras['p2_p2009']:.1f}% a {cifras['p2_p2021']:.1f}%). C3 presenta brecha favorable a mujeres (+{cifras['c3_brecha_pts']:.1f} pts) explicada por baja participación masculina."
     )
 
     # =========================================================================
@@ -953,8 +960,8 @@ def build_presentation(cifras: dict) -> Path:
                 (f"{redondear(perfiles[3]['p_2021_ponderada']*100, 1):.1f}%", "intermedia 2021"),
                 (f"+{cifras['c3_brecha_pts']:.1f} pts", "brecha de género"),
             ],
-            "propuesta": "Promoción del voto masculino en centros laborales agropecuarios y de transporte; brigadas de accesibilidad y propuesta de casillas extraordinarias a los Consejos Distritales (LGIPE); y promotoras comunitarias.",
-            "meta": f"{cifras['m3_meta']} en 2027 · {cifras['m3_pres']} en 2030 · voto masculino {cifras['m3_homb']}",
+            "propuesta": "Promoción del voto masculino en centros laborales agropecuarios y de transporte; brigadas de accesibilidad y propuesta de casillas extraordinarias a los Consejos Distritales (LGIPE, art. 253.5); y promotoras comunitarias.",
+            "meta": f"{cifras['m3_meta']} en 2027 · {cifras['m3_pres']} en 2030 · voto masculino {cifras['m3_homb']} en 2027",
             "empezar": "Guanajuato 02 · Estado de México 32 · Sonora 02",
         },
     ]
@@ -1071,7 +1078,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide6,
-        f"Para los perfiles ubicados por debajo de la media nacional proponemos intervenciones orientadas a cerrar brechas estructurales. En C0 la prioridad es elevar la participación en elecciones intermedias en entornos urbanos y facilitar la credencialización juvenil en centros laborales y universitarios, fijando como meta alcanzar {cifras['m0_meta']} en 2027. En C3, con alta presencia rural y una marcada brecha de género por baja participación masculina, enfocamos los esfuerzos en activar el voto de los hombres en cooperativas y centros de trabajo, junto con casillas extraordinarias y brigadas de accesibilidad."
+        f"Para los perfiles ubicados por debajo de la media nacional proponemos intervenciones orientadas a cerrar brechas estructurales. En C0 la prioridad es elevar la participación en elecciones intermedias en entornos urbanos y facilitar la credencialización juvenil en centros laborales y universitarios, fijando como meta alcanzar {cifras['m0_meta']} en 2027. En C3, con alta presencia rural y una marcada brecha de género por baja participación masculina, enfocamos los esfuerzos en activar el voto de los hombres en centros de trabajo, junto con casillas extraordinarias y brigadas de accesibilidad."
     )
 
     # =========================================================================
@@ -1106,8 +1113,8 @@ def build_presentation(cifras: dict) -> Path:
                 (f"{redondear(perfiles[2]['p_2021_ponderada']*100, 1):.1f}%", "intermedia 2021"),
                 (f"{c2_tend:+.2f} pts/año", "tendencia corregida"),
             ],
-            "propuesta": "Foros «Diálogos por la Democracia», alianzas con colectivos juveniles y difusión de «Conóceles» para consultar información de todas las candidaturas.",
-            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil ≥ {cifras['m2_razon_joven']}",
+            "propuesta": "Foros juveniles de diálogo democrático (propuesta), alianzas con colectivos juveniles y difusión de «Conóceles» para consultar información de todas las candidaturas.",
+            "meta": f"≥ {cifras['m2_meta']} en 2027 · razón juvenil de la intermedia 2021 (0.88)",
             "empezar": "Ciudad de México 15 · Tlaxcala 03 · Ciudad de México 10",
         },
     ]
@@ -1224,7 +1231,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide7,
-        f"Los perfiles que superan el promedio del panel requieren estrategias de blindaje y consolidación. En C1 el desafío operativo central es asegurar el relevo generacional en casillas mediante capacitación temprana. En C2, cuya razón de participación juvenil es la segunda más alta de los cuatro perfiles y su ascenso se concentra en las intermedias de {cifras['p2_p2009']:.1f}% a {cifras['p2_p2021']:.1f}% (con tendencia corregida de {cifras['c2_tend']:+.2f} pts/año), proponemos profundizar el diálogo público mediante Conóceles y debates comunitarios para consolidar su piso de participación."
+        f"Los perfiles que superan el promedio del panel requieren estrategias de blindaje y consolidación. En C1 el desafío operativo central es asegurar el relevo generacional en casillas mediante capacitación temprana. Además, un tercio de las secciones de C1 ({cifras['pct_c1_tres']:.1f}%) se ubica en entidades con gubernatura concurrente en elecciones intermedias. En C2, cuya razón de participación juvenil es la segunda más alta y su ascenso se concentra en intermedias, proponemos diálogo público mediante Conóceles para consolidar su piso de participación."
     )
 
     # =========================================================================
@@ -1280,54 +1287,55 @@ def build_presentation(cifras: dict) -> Path:
     p_rt.font.size = Pt(13)
     p_rt.font.color.rgb = DARK_GRAY
 
-    # Abajo: Tabla nativa de 4 filas con columnas "Perfil · Impacto 2027 · Top 3 juntas distritales · % de su LN en 30 juntas"
-    t8_shape = slide8.shapes.add_table(5, 4, Inches(0.6), Inches(3.4), Inches(12.133), Inches(2.9))
+    # Abajo: Tabla nativa de 5 columnas: Perfil · Votantes adicionales (meta 2027) · Votantes en riesgo (escenario) · Top 3 juntas distritales · % de su LN en 30 juntas
+    t8_shape = slide8.shapes.add_table(5, 5, Inches(0.6), Inches(3.4), Inches(12.133), Inches(2.9))
     t8 = t8_shape.table
-    t8.columns[0].width = Inches(3.8)
-    t8.columns[1].width = Inches(2.2)
-    t8.columns[2].width = Inches(4.5)
-    t8.columns[3].width = Inches(1.633)
+    t8.columns[0].width = Inches(3.3)
+    t8.columns[1].width = Inches(2.0)
+    t8.columns[2].width = Inches(2.0)
+    t8.columns[3].width = Inches(3.4)
+    t8.columns[4].width = Inches(1.433)
 
-    h8 = ["Perfil", "Impacto 2027", "Top 3 juntas distritales", "% de su LN en 30 juntas"]
+    h8 = ["Perfil", "Votantes adicionales (meta 2027)", "Votantes en riesgo (escenario)", "Top 3 juntas distritales", "% de su LN en 30 juntas"]
     for j, h in enumerate(h8):
         cell = t8.cell(0, j)
         cell.fill.solid()
         cell.fill.fore_color.rgb = NAVY
         cell.vertical_anchor = MSO_ANCHOR.MIDDLE
         p = cell.text_frame.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER if j in (1, 3) else PP_ALIGN.LEFT
+        p.alignment = PP_ALIGN.CENTER if j in (1, 2, 4) else PP_ALIGN.LEFT
         p.text = h
         p.font.name = "Arial"
-        p.font.size = Pt(14)
+        p.font.size = Pt(12)
         p.font.bold = True
         p.font.color.rgb = WHITE
 
     t8_rows = [
-        (f"C0: {perfiles[0]['nombre_propuesto']}", f"{cifras['votantes_c0_miles_str']} adicionales", tabla_imp[0]["top3_juntas_distritales"], f"{tabla_imp[0]['pct_ln_en_top30_juntas']:.1f}%", C0_COLOR),
-        (f"C1: {perfiles[1]['nombre_propuesto']}", f"{cifras['regresion_c1_miles_str']} en regresión", tabla_imp[1]["top3_juntas_distritales"], f"{tabla_imp[1]['pct_ln_en_top30_juntas']:.1f}%", C1_COLOR),
-        (f"C2: {perfiles[2]['nombre_propuesto']}", f"{cifras['regresion_c2_millones_str']} en regresión", tabla_imp[2]["top3_juntas_distritales"], f"{tabla_imp[2]['pct_ln_en_top30_juntas']:.1f}%", C2_COLOR),
-        (f"C3: {perfiles[3]['nombre_propuesto']}", f"{cifras['votantes_c3_miles_str']} adicionales", tabla_imp[3]["top3_juntas_distritales"], f"{tabla_imp[3]['pct_ln_en_top30_juntas']:.1f}%", C3_COLOR),
+        (f"C0: {perfiles[0]['nombre_propuesto']}", f"{cifras['votantes_c0_miles_str']}", "—", tabla_imp[0]["top3_juntas_distritales"], f"{tabla_imp[0]['pct_ln_en_top30_juntas']:.1f}%", C0_COLOR),
+        (f"C1: {perfiles[1]['nombre_propuesto']}", "—", f"{cifras['regresion_c1_miles_str']}", tabla_imp[1]["top3_juntas_distritales"], f"{tabla_imp[1]['pct_ln_en_top30_juntas']:.1f}%", C1_COLOR),
+        (f"C2: {perfiles[2]['nombre_propuesto']}", "—", f"{cifras['regresion_c2_millones_str']}", tabla_imp[2]["top3_juntas_distritales"], f"{tabla_imp[2]['pct_ln_en_top30_juntas']:.1f}%", C2_COLOR),
+        (f"C3: {perfiles[3]['nombre_propuesto']}", f"{cifras['votantes_c3_miles_str']}", "—", tabla_imp[3]["top3_juntas_distritales"], f"{tabla_imp[3]['pct_ln_en_top30_juntas']:.1f}%", C3_COLOR),
     ]
-    for i, (p_name, imp_txt, junc_txt, pct_ln, col_rgb) in enumerate(t8_rows):
+    for i, (p_name, imp_add, imp_risk, junc_txt, pct_ln, col_rgb) in enumerate(t8_rows):
         bg = BG_LIGHT if i % 2 == 0 else WHITE
-        row_cells = [p_name, imp_txt, junc_txt, pct_ln]
+        row_cells = [p_name, imp_add, imp_risk, junc_txt, pct_ln]
         for j, val in enumerate(row_cells):
             cell = t8.cell(i + 1, j)
             cell.fill.solid()
             cell.fill.fore_color.rgb = bg
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             p = cell.text_frame.paragraphs[0]
-            p.alignment = PP_ALIGN.CENTER if j in (1, 3) else PP_ALIGN.LEFT
+            p.alignment = PP_ALIGN.CENTER if j in (1, 2, 4) else PP_ALIGN.LEFT
             p.text = val
             p.font.name = "Arial"
-            p.font.size = Pt(13)
-            p.font.bold = (j in (0, 1))
-            p.font.color.rgb = col_rgb if j in (0, 1) else DARK_GRAY
+            p.font.size = Pt(12)
+            p.font.bold = (j in (0, 1, 2))
+            p.font.color.rgb = col_rgb if j in (0, 1, 2) else DARK_GRAY
 
     # Nota de 11 pt
     note_d8 = slide8.shapes.add_textbox(Inches(0.6), Inches(6.45), Inches(12.133), Inches(0.4))
     p_n8 = note_d8.text_frame.paragraphs[0]
-    p_n8.text = "Estimación sobre la base de sufragios (SV + NV) 2024. El escenario de regresión no tiene probabilidad asociada."
+    p_n8.text = "Estimación sobre la base de electores con registro de votación (SV + NV) 2024. El escenario de regresión no tiene probabilidad asociada."
     p_n8.font.name = "Arial"
     p_n8.font.size = Pt(11)
     p_n8.font.italic = True
@@ -1339,7 +1347,7 @@ def build_presentation(cifras: dict) -> Path:
     tot_reg_txt = cifras['total_regresion_millones_str'].replace("≈ ", "")
     add_speaker_notes(
         slide8,
-        f"Las metas operativas equivalen a sumar aproximadamente {tot_add_txt} de votos adicionales en las intermedias de 2027 ({c0_v_txt} en C0 y {c3_v_txt} en C3). Por su parte, el escenario de regresión sin probabilidad asociada representa {tot_reg_txt} de votos si C1 y C2 retrocedieran a sus niveles históricos. La priorización territorial demuestra una alta concentración: intervenir en las treinta principales juntas distritales de cada perfil permite cubrir entre el {tabla_imp[0]['pct_ln_en_top30_juntas']:.1f}% y el {tabla_imp[1]['pct_ln_en_top30_juntas']:.1f}% de su lista nominal."
+        f"Las metas operativas equivalen a sumar aproximadamente {tot_add_txt} de votos adicionales en las intermedias de 2027 ({c0_v_txt} en C0 y {c3_v_txt} en C3). Por su parte, el escenario de regresión sin probabilidad asociada representa {tot_reg_txt} de votos si C1 y C2 retrocedieran a sus niveles históricos. La priorización territorial muestra concentración: intervenir en las treinta principales juntas distritales de cada perfil permite cubrir entre el {tabla_imp[0]['pct_ln_en_top30_juntas']:.1f}% y el {tabla_imp[1]['pct_ln_en_top30_juntas']:.1f}% de su lista nominal."
     )
 
     # =========================================================================
@@ -1389,7 +1397,7 @@ def build_presentation(cifras: dict) -> Path:
     kpi_piloto = [
         (f"{cifras['piloto_mde_seccional']:.2f} pts", "efecto mínimo detectable", NAVY),
         (f"{cifras['piloto_potencia_pct']}%", "potencia (α = 0.05)", NAVY),
-        ("Costo marginal", "usa el conteo censal existente", C1_COLOR),
+        ("Medición sin costo adicional", "usa el conteo censal existente", C1_COLOR),
     ]
     card_w9 = Inches(3.8)
     card_h9 = Inches(2.6)
@@ -1408,7 +1416,7 @@ def build_presentation(cifras: dict) -> Path:
         p_n.alignment = PP_ALIGN.CENTER
         p_n.text = num_txt
         p_n.font.name = "Arial"
-        p_n.font.size = Pt(40) if "pts" in num_txt or "%" in num_txt else Pt(34)
+        p_n.font.size = Pt(26) if "Medición" in num_txt else (Pt(40) if "pts" in num_txt or "%" in num_txt else Pt(34))
         p_n.font.bold = True
         p_n.font.color.rgb = col_rgb
         p_l = tf_c.add_paragraph()
@@ -1429,7 +1437,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide9,
-        f"Planteamos un diseño experimental riguroso para evaluar las intervenciones en el perfil prioritario C0 durante los comicios de 2027. Seleccionamos mil secciones aleatorizadas en quinientas de tratamiento y quinientas de control, con estratificación por entidad y tercil de participación previa. Con un modelo ANCOVA ajustado por línea base detectamos impactos desde {cifras['piloto_mde_seccional']:.2f} puntos porcentuales a nivel seccional con ochenta por ciento de potencia para acciones asignables como brigadas y módulos. Si se aleatorizan bloques de secciones municipales por derrame de campañas masivas, el MDE ajusta por efecto de diseño (ICC = {cifras['piloto_icc_3d']:.3f}) a {cifras['piloto_mde_m5']:.2f} puntos con cinco secciones por municipio. La evaluación tiene costo marginal al aprovechar la infraestructura censal ordinaria del instituto."
+        f"Planteamos un diseño experimental riguroso para evaluar intervenciones en C0 durante 2027. Mil secciones aleatorizadas en 500 de tratamiento y 500 de control, estratificadas por entidad y tercil de participación. Con ANCOVA ajustado por línea base detectamos impactos desde {cifras['piloto_mde_seccional']:.2f} puntos porcentuales con 80% de potencia para acciones asignables. Si se aleatorizan bloques municipales por derrame de campañas masivas, el efecto de diseño ajusta el MDE a {cifras['piloto_mde_m5']:.2f} puntos con 5 secciones y a {cifras['piloto_mde_m10']:.2f} con 10. La evaluación no genera costo adicional al aprovechar el conteo censal ordinario del instituto."
     )
 
     # =========================================================================
@@ -1441,7 +1449,7 @@ def build_presentation(cifras: dict) -> Path:
 
     recs = [
         "1. Publicar en los CSV abiertos una bandera de estatus de captura por sección, para que los registros NS no se confundan con abstención.",
-        f"2. Reforzar la captura de cuadernillos: NS pasó de {cifras['ns_2012']:.2f}% en 2012 a {cifras['ns_2018']:.2f}% en 2018 y {cifras['ns_2024']:.2f}% en 2024.",
+        f"2. Reforzar la captura de cuadernillos: los registros NS fueron {cifras['ns_2015']:.1f}% en 2015, {cifras['ns_2018']:.1f}% en 2018, {cifras['ns_2021']:.1f}% en 2021 y {cifras['ns_2024']:.1f}% en 2024 ({cifras['ns_2012']:.1f}% en 2012).",
         "3. Publicar el indicador de población indígena y afromexicana en los CSV abiertos y cruzar la tipología con el Censo 2020.",
         "4. Usar la priorización por junta distrital y el piloto aleatorizado 2027 para evaluar qué funciona.",
     ]
@@ -1492,7 +1500,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide10,
-        "Concluimos con cuatro recomendaciones prioritarias para el INE: primero, incorporar un indicador explícito de estatus de captura seccional para aislar registros no especificados; segundo, fortalecer los controles operativos para reducir los cuadernillos sin capturar observados desde 2018; tercero, publicar el indicador de población indígena y afromexicana en datos abiertos; y cuarto, utilizar la priorización por junta distrital y el piloto experimental aleatorizado 2027 para evaluar qué funciona. Nuestro código y modelos están plenamente documentados y son reproducibles con un solo comando. Muchas gracias."
+        "Concluimos con cuatro recomendaciones prioritarias para el INE: primero, incorporar un indicador explícito de estatus de captura seccional para aislar registros no especificados; segundo, fortalecer los controles operativos para reducir los cuadernillos sin capturar observados desde 2015; tercero, publicar el indicador de población indígena y afromexicana en datos abiertos; y cuarto, utilizar la priorización por junta distrital y el piloto experimental aleatorizado 2027 para evaluar qué funciona. Nuestro código y modelos están plenamente documentados y son reproducibles con un solo comando. Muchas gracias."
     )
 
     out_pptx = OUT_ENTREGABLES / "Presentacion_Ejecutiva_ByteMe.pptx"
