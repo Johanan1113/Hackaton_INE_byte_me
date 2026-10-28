@@ -208,18 +208,18 @@ def build_pdf(data: dict) -> Path:
     )
     h1_st = ParagraphStyle(
         "H1", parent=styles["Heading1"], fontName="Arial-Bold",
-        fontSize=13.0, leading=17.0, textColor=colors.HexColor("#1E3A8A"), spaceBefore=9, spaceAfter=4, keepWithNext=True
+        fontSize=13.0, leading=17.0, textColor=colors.HexColor("#1E3A8A"), spaceBefore=6, spaceAfter=3, keepWithNext=True
     )
     h2_st = ParagraphStyle(
         "H2", parent=styles["Heading2"], fontName="Arial-Bold",
-        fontSize=11.5, leading=15.0, textColor=colors.HexColor("#0F172A"), spaceBefore=6, spaceAfter=3, keepWithNext=True
+        fontSize=11.5, leading=15.0, textColor=colors.HexColor("#0F172A"), spaceBefore=5, spaceAfter=2, keepWithNext=True
     )
     body_st = ParagraphStyle(
         "Body", parent=styles["Normal"], fontName="Arial",
-        fontSize=11.0, leading=19.0, textColor=colors.HexColor("#1F2937"), alignment=TA_JUSTIFY, spaceAfter=5.0
+        fontSize=11.0, leading=19.0, textColor=colors.HexColor("#1F2937"), alignment=TA_JUSTIFY, spaceAfter=3.5
     )
     bullet_st = ParagraphStyle(
-        "Bullet", parent=body_st, leftIndent=12, firstLineIndent=-8, spaceAfter=3.5
+        "Bullet", parent=body_st, leftIndent=12, firstLineIndent=-8, spaceAfter=2.0
     )
     cap_st = ParagraphStyle(
         "TableCap", parent=styles["Normal"], fontName="Arial-Bold",
@@ -231,7 +231,7 @@ def build_pdf(data: dict) -> Path:
     )
     ref_st = ParagraphStyle(
         "RefEntry", parent=styles["Normal"], fontName="Arial",
-        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1F2937"), leftIndent=14, firstLineIndent=-14, spaceAfter=3.5
+        fontSize=11.0, leading=14.0, textColor=colors.HexColor("#1F2937"), leftIndent=14, firstLineIndent=-14, spaceAfter=1.5
     )
 
     # Celdas de tablas (10 pt, leading 12.0 - último recurso B2)
@@ -707,25 +707,28 @@ def build_pdf(data: dict) -> Path:
             b_jov_c0 = df12.loc["C0", "tasa_joven_18_29_2021_pond_pct"]
             m_c0 = df12.loc["C0", "meta_intermedia_2027"]
             d_c0 = df17.loc["C0", "meta_delta_pts"]
+            m_pres_c0 = df12.loc["C0", "meta_presidencial_2030"]
             m_jov_c0 = df12.loc["C0", "meta_tasa_joven"]
-            d_jov_c0 = float(str(m_jov_c0).rstrip("%")) - b_jov_c0
+            delta_jov_c0 = (df12.loc["Panel B", "tasa_joven_18_29_2021_pond_pct"] - b_jov_c0) / 2.0
+            d_jov_fmt = f"+{redondear_pub(delta_jov_c0, 1):.1f} pts"
             perf_cell += f"<br/>Base Joven 2021: <b>{b_jov_c0:.1f}%</b>"
             canales_fmt = "Transporte metropolitano, 'Conóceles', tianguis, centros laborales (incluidos hombres jóvenes y adultos)."
             accion_fmt = "Campaña cívica metropolitana y brigadas de educación cívica y revisión de accesibilidad de casilla (DERFE/DECEyEC)."
-            meta_fmt = f"Elevar participación a {m_c0} en 2027 ({d_c0} vs 2021) y voto juvenil a {m_jov_c0} (+{d_jov_c0:.1f} pts)."
+            meta_fmt = f"Elevar participación a {m_c0} en 2027 ({d_c0} vs 2021), {m_pres_c0} en 2030 y voto juvenil a {m_jov_c0} ({d_jov_fmt})."
             ind_fmt = "Tasa ponderada SV/(SV+NV) 2027 y tasa 18–29 en CCPC."
             resp_fmt = "DECEyEC, DERFE y Juntas Distritales"
         elif cid == "C1":
             canales_fmt = "Redes comunitarias, planteles locales y centros culturales."
             accion_fmt = "Talleres juveniles ENCÍVICA, reconocimiento comunitario y reclutamiento temprano de funcionariado de casilla."
             meta_fmt = f"Sostener participación ≥ {base_inter:.1f}% en 2027 y ≥ {base_pres:.1f}% en 2030."
-            ind_fmt = "Tasa ponderada en 2027/2030 y porcentaje de casillas con propietarios (DEOE)."
+            ind_fmt = "Tasa ponderada en 2027/2030 y, como indicador complementario de la DEOE, el porcentaje de casillas instaladas con funcionariado propietario (línea base por definir con la DEOE)."
             resp_fmt = "DECEyEC y Juntas Distritales (vocalías distritales)"
         elif cid == "C2":
+            m_jov_c2 = df12.loc["C2", "meta_tasa_joven"]
             canales_fmt = "Colectivos juveniles, redes vecinales y 'Conóceles'."
             accion_fmt = "Foros 'Diálogos por la Democracia' (DECEyEC) y monitoreo de casillas en crecimiento (DEOE)."
-            meta_fmt = f"Consolidar participación ≥ {base_inter:.1f}% en 2027 y mantener razón juvenil ≥ 0.88."
-            ind_fmt = "Tasa ponderada 2027 y razón de participación juvenil CCPC."
+            meta_fmt = f"Consolidar participación ≥ {base_inter:.1f}% en 2027 y {m_jov_c2}."
+            ind_fmt = f"Tasa ponderada 2027 y {m_jov_c2}."
             resp_fmt = "DECEyEC, DEOE y Juntas Distritales"
         else:  # C3
             b_hom_c3 = df12.loc["C3", "tasa_hombres_2021_pond_pct"]
@@ -766,8 +769,12 @@ def build_pdf(data: dict) -> Path:
     story.append(Paragraph(f"Tabla 6. Estrategias Focalizadas por Perfil Ciudadano (k = {k_sel}), Líneas Base, Metas y Viabilidad Operativa", cap_st))
     story.append(styled_table(t7_rows, [105.0, 125.0, 135.0, 105.27]))
     # D4: Regla de metas
+    c0_sec_h = df12.loc["C0", "meta_secundaria_tasa_hombres"]
+    c3_sec_j = df12.loc["C3", "meta_secundaria_tasa_joven"]
     story.append(Paragraph(
-        "<i>Regla de metas: los perfiles por debajo del promedio del panel buscan cerrar la mitad de su diferencia con él en la siguiente elección del mismo tipo; los perfiles por encima buscan sostener su nivel.</i>",
+        f"<i>Regla de metas: los perfiles por debajo del promedio del panel buscan cerrar la mitad de su diferencia con él en la siguiente elección del mismo tipo; los perfiles por encima buscan sostener su nivel. "
+        f"Las metas por subgrupo se fijan en el rasgo que define a cada perfil (jóvenes en C0, hombres en C3); con la misma regla, C0 tendría {c0_sec_h} en hombres y C3 {c3_sec_j} en jóvenes como metas secundarias. "
+        f"Los Δ se calculan con valores sin redondear, por lo que pueden diferir en 0.1 de la resta de las cifras mostradas.</i>",
         note_st
     ))
     story.append(Spacer(1, 4))
@@ -811,7 +818,7 @@ def build_pdf(data: dict) -> Path:
         t_imp_note = Paragraph(
             f"<i>Votantes equivalentes calculados sobre sufragios emitidos (SV+NV) en 2024. C0 y C3: equivalencia de alcanzar la meta. "
             f"C1 y C2: escenario de regresión (sin probabilidad asociada) si su participación de 2021 ({p21_c1:.1f}% y {p21_c2:.1f}%) "
-            f"bajara a su promedio de las intermedias 2009–2021 ponderado por sufragios ({p_int_c1:.2f}% y {p_int_c2:.2f}%).</i>",
+            f"bajara a su promedio de las intermedias 2009–2021 ponderado por electores con registro de votación (SV+NV), distinto de la media simple de la tabla de series ({p_int_c1:.2f}% y {p_int_c2:.2f}%).</i>",
             note_st
         )
         story.append(h2_imp)

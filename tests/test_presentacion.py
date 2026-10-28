@@ -29,7 +29,7 @@ PPTX_PATH = ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pptx"
 PDF_PATH = ENTREGABLES_DIR / "Presentacion_Ejecutiva_ByteMe.pdf"
 
 REQUIRED_TOKENS = [
-    "4.27",
+    "4.26",
     "53,644",
     "79.5%",
     "0.957",
@@ -280,7 +280,7 @@ def test_diapositiva_08_impacto():
 
 
 def test_diapositiva_09_mde_icc():
-    """F: Verifica que la diapositiva 9 mencione MDE 1.57 pts, ICC = 0.543, m=5 (2.80 pts) y m=10 (3.81 pts)."""
+    """F: Verifica que la diapositiva 9 mencione MDE 1.57 pts, ICC = 0.543, m=5 (2.79 pts) y m=10 (3.80 pts)."""
     prs = pptx.Presentation(PPTX_PATH)
     slide9 = prs.slides[8]
     text9 = ""
@@ -290,8 +290,8 @@ def test_diapositiva_09_mde_icc():
 
     assert "1.57 pts" in text9, "Falta MDE seccional '1.57 pts' en diapositiva 9"
     assert "ICC = 0.543" in text9 and "0.5428" not in text9, "Falta 'ICC = 0.543' o persiste '0.5428' en diapositiva 9"
-    assert "2.80 pts" in text9, "Falta '2.80 pts' en nota de diapositiva 9"
-    assert "3.81 pts" in text9, "Falta '3.81 pts' en nota de diapositiva 9"
+    assert "2.79 pts" in text9, "Falta '2.79 pts' en nota de diapositiva 9"
+    assert "3.80 pts" in text9, "Falta '3.80 pts' en nota de diapositiva 9"
 
 
 def test_diapositiva_10_cuatro_recomendaciones():

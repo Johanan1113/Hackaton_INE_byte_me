@@ -205,10 +205,13 @@ def generate_fig2_evolucion_temporal(data: dict) -> None:
     ax2.plot(years, nac_ccpc, marker="o", linewidth=1.6, markersize=4.0, color="#047857", label="SV/(SV+NV)")
     ax2.plot(years, err_ln, marker="x", linestyle="--", linewidth=1.4, markersize=4.0, color="#DC2626", label="SV/LN")
 
-    for x_val, y_ok, y_er in zip(years, nac_ccpc, err_ln):
-        if abs(y_ok - y_er) >= 1.5:
+    for r in serie_nac:
+        x_val = r["anio"]
+        y_er = r["total_ponderada_erronea_sv_ln_pct"]
+        diff = r["subestimacion_erronea_sv_ln_pond_pts"]
+        if diff >= 1.5:
             ax2.annotate(
-                f"-{y_ok - y_er:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_er + 3.8),
+                f"-{diff:.2f} pts", xy=(x_val, y_er), xytext=(x_val, y_er + 3.8),
                 ha="center", fontsize=6.8, fontweight="bold", color="#DC2626",
                 bbox=dict(boxstyle="round,pad=0.12", facecolor="white", edgecolor="#FCA5A5", alpha=0.92),
                 arrowprops=dict(arrowstyle="->", color="#DC2626", lw=0.6)

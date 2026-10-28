@@ -93,7 +93,7 @@ def verificar_datos_bloque_a(data: dict) -> None:
     assert serie[2018]["pct_ns_anio"] == 6.83, "Error NS 2018"
     assert serie[2024]["pct_ns_anio"] == 6.43, "Error NS 2024"
 
-    assert serie[2018]["subestimacion_erronea_sv_ln_pond_pts"] == 4.27, "Subestimacion 2018 != 4.27"
+    assert serie[2018]["subestimacion_erronea_sv_ln_pond_pts"] == 4.26, "Subestimacion 2018 != 4.26"
     assert serie[2024]["subestimacion_erronea_sv_ln_pond_pts"] == 3.84, "Subestimacion 2024 != 3.84"
 
     assert (serie[2009]["total_ponderada_sv_svnv_pct"], serie[2009]["oficial_o_referencia_pct"]) == (44.06, 44.06)
@@ -224,6 +224,7 @@ def cargar_cifras() -> dict:
         "m0_meta": t12_df.loc["C0", "meta_intermedia_2027"],
         "m0_delta": t17_df.loc["C0", "meta_delta_pts"],
         "m0_joven": t12_df.loc["C0", "meta_tasa_joven"],
+        "m0_pres": t12_df.loc["C0", "meta_presidencial_2030"],
         "m1_meta": str(t12_df.loc["C1", "meta_intermedia_2027"]).replace("sostener ", "").strip(),
         "m1_pres": str(t12_df.loc["C1", "meta_presidencial_2030"]).replace("sostener ", "").strip(),
         "m2_meta": str(t12_df.loc["C2", "meta_intermedia_2027"]).replace("sostener ", "").strip(),
@@ -467,15 +468,6 @@ def build_presentation(cifras: dict) -> Path:
     # D2 · El hallazgo
     # =========================================================================
     slide2 = prs.slides.add_slide(blank_layout)
-    add_header(slide2, "Medir bien cambia el diagnóstico: la fórmula correcta recupera hasta 4.27 puntos")
-    add_footer(slide2, 2)
-
-    # Izquierda: Tarjeta KPI
-    kpi_card = slide2.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(1.7), Inches(3.1), Inches(5.1))
-    kpi_card.fill.solid()
-    kpi_card.fill.fore_color.rgb = BG_LIGHT
-    kpi_card.line.color.rgb = LIGHT_GRAY
-    tf_kc = kpi_card.text_frame
     # Datos de la serie nacional para métricas y gráfica
     df_t2 = pd.read_csv(TABLAS_DIR / "tabla_02_serie_nacional_2009_2024.csv")
     df_t2 = df_t2.sort_values("anio").reset_index(drop=True)
@@ -487,6 +479,16 @@ def build_presentation(cifras: dict) -> Path:
     sub_2024 = redondear(df_t2[df_t2["anio"] == 2024]["subestimacion_erronea_sv_ln_pond_pts"].iloc[0], 2)
     ns_pct_2018 = redondear(df_t2[df_t2["anio"] == 2018]["pct_ns_anio"].iloc[0], 1)
     ns_pct_2024 = redondear(df_t2[df_t2["anio"] == 2024]["pct_ns_anio"].iloc[0], 1)
+
+    add_header(slide2, f"Medir bien cambia el diagnóstico: la fórmula correcta recupera hasta {sub_2018:.2f} puntos")
+    add_footer(slide2, 2)
+
+    # Izquierda: Tarjeta KPI
+    kpi_card = slide2.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(1.7), Inches(3.1), Inches(5.1))
+    kpi_card.fill.solid()
+    kpi_card.fill.fore_color.rgb = BG_LIGHT
+    kpi_card.line.color.rgb = LIGHT_GRAY
+    tf_kc = kpi_card.text_frame
 
     tf_kc.word_wrap = True
     tf_kc.margin_left = tf_kc.margin_right = Inches(0.3)
@@ -596,7 +598,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide2,
-        "Identificamos que calcular la participación dividiendo únicamente votos sobre lista nominal genera un severo sesgo por la presencia de registros no especificados, derivados de cuadernillos con captura incompleta o faltante. En 2018 este sesgo alcanzó 4.27 puntos y en 2024 representó 3.84 puntos porcentuales. Al aplicar estrictamente la formulación técnica de los manuales censales del INE, votos sobre votos más no votos, recuperamos la verdadera tasa de participación y evitamos clasificar erróneamente problemas de captura administrativa como abstencionismo ciudadano."
+        f"Identificamos que calcular la participación dividiendo únicamente votos sobre lista nominal genera un severo sesgo por la presencia de registros no especificados, derivados de cuadernillos con captura incompleta o faltante. En 2018 este sesgo alcanzó {sub_2018:.2f} puntos y en 2024 representó {sub_2024:.2f} puntos porcentuales. Al aplicar estrictamente la formulación técnica de los manuales censales del INE, votos sobre votos más no votos, recuperamos la verdadera tasa de participación y evitamos clasificar erróneamente problemas de captura administrativa como abstencionismo ciudadano."
     )
 
     # =========================================================================
@@ -938,7 +940,7 @@ def build_presentation(cifras: dict) -> Path:
                 (f"+{redondear(perfiles[0]['brecha_presidencial_intermedia_original']*100, 1):.1f} pts", "brecha pres.–inter."),
             ],
             "propuesta": "Pedagogía sobre elecciones intermedias en transporte masivo; atención prioritaria a hombres jóvenes y adultos en centros laborales; y módulos itinerantes de credencialización en universidades (DERFE).",
-            "meta": f"{cifras['m0_meta']} en la intermedia 2027 ({cifras['m0_delta']}) · voto juvenil {cifras['m0_joven']}",
+            "meta": f"{cifras['m0_meta']} en la intermedia 2027 ({cifras['m0_delta']}) · {cifras['m0_pres']} en 2030 · voto juvenil {cifras['m0_joven']}",
             "empezar": "Chihuahua 03 · Estado de México 31 · Puebla 09",
         },
         {
@@ -1427,7 +1429,7 @@ def build_presentation(cifras: dict) -> Path:
 
     add_speaker_notes(
         slide9,
-        "Planteamos un diseño experimental riguroso para evaluar las intervenciones en el perfil prioritario C0 durante los comicios de 2027. Seleccionamos mil secciones aleatorizadas en quinientas de tratamiento y quinientas de control, con estratificación por entidad y tercil de participación previa. Con un modelo ANCOVA ajustado por línea base detectamos impactos desde 1.57 puntos porcentuales a nivel seccional con ochenta por ciento de potencia para acciones asignables como brigadas y módulos. Si se aleatorizan bloques de secciones municipales por derrame de campañas masivas, el MDE ajusta por efecto de diseño (ICC = 0.543) a 2.80 puntos con cinco secciones por municipio. La evaluación tiene costo marginal al aprovechar la infraestructura censal ordinaria del instituto."
+        f"Planteamos un diseño experimental riguroso para evaluar las intervenciones en el perfil prioritario C0 durante los comicios de 2027. Seleccionamos mil secciones aleatorizadas en quinientas de tratamiento y quinientas de control, con estratificación por entidad y tercil de participación previa. Con un modelo ANCOVA ajustado por línea base detectamos impactos desde {cifras['piloto_mde_seccional']:.2f} puntos porcentuales a nivel seccional con ochenta por ciento de potencia para acciones asignables como brigadas y módulos. Si se aleatorizan bloques de secciones municipales por derrame de campañas masivas, el MDE ajusta por efecto de diseño (ICC = {cifras['piloto_icc_3d']:.3f}) a {cifras['piloto_mde_m5']:.2f} puntos con cinco secciones por municipio. La evaluación tiene costo marginal al aprovechar la infraestructura censal ordinaria del instituto."
     )
 
     # =========================================================================

@@ -26,6 +26,10 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 from sklearn.preprocessing import RobustScaler
 import statsmodels.api as sm
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from utilidades_formato import redondear, redondear_pub
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUT_FASE2 = PROJECT_ROOT / "outputs" / "fase2"
@@ -578,26 +582,46 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
         h21 = float(sub["sv_hombre_2021"].sum() / sub["sv_nv_hombre_2021"].sum() * 100)
         h24 = float(sub["sv_hombre_2024"].sum() / sub["sv_nv_hombre_2024"].sum() * 100)
         meta = CLUSTER_META[c]
-        if c == 0:
-            m_int = "49.5%"
-            m_pres = "sostener ≥ 56.9%"
-            m_jov = "39.1%"
-            m_hom = "N/A"
-        elif c == 1:
-            m_int = "sostener 62.5%"
-            m_pres = "sostener 65.7%"
-            m_jov = "N/A"
-            m_hom = "N/A"
-        elif c == 2:
-            m_int = "sostener 60.4%"
-            m_pres = "sostener 68.0%"
-            m_jov = "razón juvenil ≥ 0.88"
-            m_hom = "N/A"
+        # Regla de metas para intermedia 2027
+        if p21 < p21_b:
+            m_int_val = p21 + (p21_b - p21) / 2.0
+            m_int = f"{redondear_pub(m_int_val, 1):.1f}%"
         else:
-            m_int = "51.1%"
-            m_pres = "58.1%"
+            m_int = f"sostener {redondear_pub(p21, 1):.1f}%"
+
+        # Regla de metas para presidencial 2030
+        if p24 < p24_b:
+            m_pres_val = p24 + (p24_b - p24) / 2.0
+            m_pres = f"{redondear_pub(m_pres_val, 1):.1f}%"
+        else:
+            m_pres = f"sostener {redondear_pub(p24, 1):.1f}%"
+
+        # Metas por subgrupo
+        if c == 0:
+            delta_jov = (j21_b - j21) / 2.0
+            m_jov_val = j21 + delta_jov
+            m_jov = f"{redondear_pub(m_jov_val, 1):.1f}%"
+            m_hom = "N/A"
+            meta_sec_hombres = f"{redondear_pub(h21 + (h21_b - h21) / 2.0, 1):.1f}%"
+            meta_sec_joven = "N/A"
+        elif c == 1:
             m_jov = "N/A"
-            m_hom = "46.3%"
+            m_hom = "N/A"
+            meta_sec_hombres = "N/A"
+            meta_sec_joven = "N/A"
+        elif c == 2:
+            m_jov = "razón juvenil de la intermedia 2021 (0.88)"
+            m_hom = "N/A"
+            meta_sec_hombres = "N/A"
+            meta_sec_joven = "N/A"
+        else:  # c == 3
+            delta_hom = (h21_b - h21) / 2.0
+            m_hom_val = h21 + delta_hom
+            m_hom = f"{redondear_pub(m_hom_val, 1):.1f}%"
+            m_jov = "N/A"
+            meta_sec_hombres = "N/A"
+            meta_sec_joven = f"{redondear_pub(j21 + (j21_b - j21) / 2.0, 1):.1f}%"
+
         rows.append({
             "codigo_cluster": meta["codigo"],
             "nombre_perfil": meta["nombre"],
@@ -610,6 +634,8 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
             "meta_presidencial_2030": m_pres,
             "meta_tasa_joven": m_jov,
             "meta_tasa_hombres": m_hom,
+            "meta_secundaria_tasa_hombres": meta_sec_hombres,
+            "meta_secundaria_tasa_joven": meta_sec_joven,
         })
     rows.append({
         "codigo_cluster": "Panel B",
@@ -619,10 +645,12 @@ def build_lineas_base_metas(df_b: pd.DataFrame) -> list[dict]:
         "tasa_joven_18_29_2021_pond_pct": round(j21_b, 2),
         "tasa_hombres_2021_pond_pct": round(h21_b, 2),
         "tasa_hombres_2024_pond_pct": round(h24_b, 2),
-        "meta_intermedia_2027": "52.8%",
-        "meta_presidencial_2030": "60.6%",
-        "meta_tasa_joven": "43.1%",
-        "meta_tasa_hombres": "48.7%",
+        "meta_intermedia_2027": f"{redondear_pub(p21_b, 1):.1f}%",
+        "meta_presidencial_2030": f"{redondear_pub(p24_b, 1):.1f}%",
+        "meta_tasa_joven": f"{redondear_pub(j21_b, 1):.1f}%",
+        "meta_tasa_hombres": f"{redondear_pub(h21_b, 1):.1f}%",
+        "meta_secundaria_tasa_hombres": "N/A",
+        "meta_secundaria_tasa_joven": "N/A",
     })
     return rows
 

@@ -13,9 +13,13 @@ Salidas en outputs/fase1/:
 
 import os
 import io
+import sys
 import zipfile
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, os.path.dirname(__file__))
+from utilidades_formato import redondear
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RAW_ZIPS_DIR = os.path.join(PROJECT_ROOT, "data", "raw_zips")
@@ -228,7 +232,7 @@ def build_serie_nacional(sec_by_year: dict, panel_keys: set, panel_b_keys: set) 
             "total_simple_erronea_sv_ln_pct": round(all_s_ln, 2),
             "panel_ponderada_erronea_sv_ln_pct": round(pan_w_ln, 2),
             "panel_simple_erronea_sv_ln_pct": round(pan_s_ln, 2),
-            "subestimacion_erronea_sv_ln_pond_pts": round(round(all_w_svnv, 2) - round(all_w_ln, 2), 2),
+            "subestimacion_erronea_sv_ln_pond_pts": redondear(all_w_svnv - all_w_ln, 2),
             "dif_panel_ponderada_vs_oficial_pts": round(pan_w_svnv - ref_val, 2),
             "dif_reportada_doc_erronea_vs_oficial_pts": round(all_s_ln - ref_val, 2),
         })

@@ -142,6 +142,7 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
     m0_delta = df17.loc["C0", "meta_delta_pts"]
     m0_base = redondear_pub(p0['p_2021_ponderada'] * 100, 1)
     m0_joven = df12.loc["C0", "meta_tasa_joven"]
+    m0_pres = df12.loc["C0", "meta_presidencial_2030"]
 
     c0_imp_str = str(df17.loc["C0", "votantes_equivalentes_str"]).replace(" más", "").strip()
     c1_reg_str = df17.loc["C1", "escenario_regresion_str"]
@@ -167,7 +168,7 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 "Pedagogía electoral sobre comicios intermedios en transporte masivo; atención prioritaria a hombres jóvenes y adultos en centros laborales "
                 "y parques industriales; y módulos itinerantes de credencialización en universidades (conforme a las atribuciones de la DERFE)."
             ),
-            "meta": f"Elevar la participación a {m0_meta} en la intermedia de 2027 ({m0_delta} sobre la línea base 2021 de {m0_base:.1f}%) y el voto juvenil 18–29 a {m0_joven}.",
+            "meta": f"Elevar la participación a {m0_meta} en la intermedia de 2027 ({m0_delta} sobre la línea base 2021 de {m0_base:.1f}%), {m0_pres} en 2030 y el voto juvenil 18–29 a {m0_joven}.",
             "indicador": "Tasa seccional ponderada SV/(SV+NV) en comicios federales de 2027 y tasa juvenil en CCPC.",
             "unidad_costo": "DECEyEC, DERFE y Juntas Distritales | Costo: Medio (estimación indicativa)",
             "lema": "Cada elección define tu entorno: infórmate, ubica tu casilla y participa en 2027",
@@ -193,8 +194,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 "Reconocimiento a la constancia cívica comunitaria; talleres juveniles de formación cívica en planteles locales; y reclutamiento temprano "
                 "de CAE y sensibilización de la ciudadanía insaculada para asegurar la instalación completa de casillas con funcionariado propietario."
             ),
-            "meta": f"Sostener una participación ≥ {p1_p2021:.1f}% en la intermedia de 2027 y ≥ {p1_p2024:.1f}% en la presidencial de 2030, aumentando la proporción de casillas con funcionariado propietario.",
-            "indicador": "Tasa ponderada SV/(SV+NV) 2027/2030 y % de casillas instaladas con funcionariado propietario (DEOE).",
+            "meta": f"Sostener una participación ≥ {p1_p2021:.1f}% en la intermedia de 2027 y ≥ {p1_p2024:.1f}% en la presidencial de 2030.",
+            "indicador": "Tasa ponderada en 2027/2030 y, como indicador complementario de la DEOE, el porcentaje de casillas instaladas con funcionariado propietario (línea base por definir con la DEOE).",
             "unidad_costo": "DECEyEC y Vocalías de Capacitación de Juntas Distritales | Costo: Bajo (programas ordinarios)",
             "lema": "Si te visitan para integrar una casilla, participa: tu comunidad cuenta contigo",
             "brecha_label": "Voto Juvenil 18–29",
@@ -220,8 +221,8 @@ def build_profile_texts(data: dict, t07_df: pd.DataFrame) -> dict:
                 "Consolidar el hábito del voto mediante foros 'Diálogos por la Democracia'; vinculación con colectivos juveniles y organizaciones vecinales; "
                 "monitoreo preventivo de casillas en crecimiento por la DEOE; y difusión del sistema 'Conóceles' para consultar candidaturas."
             ),
-            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y sostener una razón de participación juvenil ≥ {p2_ratio:.2f}.",
-            "indicador": "Tasa ponderada SV/(SV+NV) 2027 y razón de participación juvenil CCPC.",
+            "meta": f"Consolidar una participación ≥ {p2_p2021:.1f}% en la intermedia de 2027 y razón juvenil de la intermedia 2021 (0.88).",
+            "indicador": "Tasa ponderada 2027 y razón juvenil de la intermedia 2021 (0.88).",
             "unidad_costo": "DECEyEC, DEOE y Juntas Distritales | Costo: Bajo-Medio (foros distritales)",
             "lema": "Tu voto cuenta en cada elección: participa también en 2027",
             "brecha_label": "Tendencia Corregida",

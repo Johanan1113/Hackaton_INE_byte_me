@@ -1,6 +1,6 @@
-﻿codigo_cluster,meta_intermedia_2027,meta_presidencial_2030,meta_tasa_hombres,meta_tasa_joven,nombre_perfil,participacion_2021_pond_pct,participacion_2024_pond_pct,tasa_hombres_2021_pond_pct,tasa_hombres_2024_pond_pct,tasa_joven_18_29_2021_pond_pct
-C0,49.5%,sostener ≥ 56.9%,N/A,39.1%,Baja Participación Intermitente con Rezago Juvenil,46.13,56.94,42.57,52.35,35.16
-C1,sostener 62.5%,sostener 65.7%,N/A,N/A,Alta Participación Estable e Intergeneracional,62.45,65.7,58.21,60.88,56.0
-C2,sostener 60.4%,sostener 68.0%,N/A,razón juvenil ≥ 0.88,Participación en Ascenso con Juventud Activa,60.37,68.04,56.92,63.77,53.1
-C3,51.1%,58.1%,46.3%,N/A,Participación a la Baja con Brecha de Género,49.45,55.57,43.94,49.36,38.48
-Panel B,52.8%,60.6%,48.7%,43.1%,Media Nacional Panel B,52.81,60.55,48.66,55.56,43.07
+﻿codigo_cluster,meta_intermedia_2027,meta_presidencial_2030,meta_secundaria_tasa_hombres,meta_secundaria_tasa_joven,meta_tasa_hombres,meta_tasa_joven,nombre_perfil,participacion_2021_pond_pct,participacion_2024_pond_pct,tasa_hombres_2021_pond_pct,tasa_hombres_2024_pond_pct,tasa_joven_18_29_2021_pond_pct
+C0,49.5%,58.8%,45.6%,N/A,N/A,39.1%,Baja Participación Intermitente con Rezago Juvenil,46.13,56.94,42.57,52.35,35.16
+C1,sostener 62.5%,sostener 65.7%,N/A,N/A,N/A,N/A,Alta Participación Estable e Intergeneracional,62.45,65.7,58.21,60.88,56.0
+C2,sostener 60.4%,sostener 68.0%,N/A,N/A,N/A,razón juvenil de la intermedia 2021 (0.88),Participación en Ascenso con Juventud Activa,60.37,68.04,56.92,63.77,53.1
+C3,51.1%,58.1%,N/A,40.8%,46.3%,N/A,Participación a la Baja con Brecha de Género,49.45,55.57,43.94,49.36,38.48
+Panel B,52.8%,60.6%,N/A,N/A,48.7%,43.1%,Media Nacional Panel B,52.81,60.55,48.66,55.56,43.07

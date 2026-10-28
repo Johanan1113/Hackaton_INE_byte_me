@@ -404,8 +404,9 @@ def main() -> None:
     icc_muni = redondear(icc_muni, 4)
     print(f"  ICC municipal en C0: {icc_muni} (K={K_muni} municipios, n0={n0:.2f})")
 
-    # MDE ANCOVA base (m=1): 1.57 pts para N=1000 (500 trat, 500 control)
-    mde_base = 1.57
+    # MDE ANCOVA base (m=1): 2.80 * sigma * sqrt(2/n) * sqrt(1 - rho^2) = 1.5674 sin redondear
+    mde_base_unrounded = 1.5674
+    mde_base = redondear(mde_base_unrounded, 2)  # 1.57
     t15_data = [
         {
             "agrupacion_bloque": "Por sección (m = 1)",
@@ -426,8 +427,8 @@ def main() -> None:
             "secciones_tratamiento": 500,
             "secciones_control": 500,
             "secciones_totales": 1000,
-            "mde_ancova_pts": redondear(mde_base * math.sqrt(1.0 + 4 * icc_muni), 2),
-            "detecta_mitad_meta_c0": False,  # 2.80 > 1.67
+            "mde_ancova_pts": redondear(mde_base_unrounded * math.sqrt(1.0 + 4 * icc_muni), 2),
+            "detecta_mitad_meta_c0": False,  # 2.79 > 1.67
         },
         {
             "agrupacion_bloque": "Bloques de 10 secciones (m = 10)",
@@ -437,7 +438,7 @@ def main() -> None:
             "secciones_tratamiento": 500,
             "secciones_control": 500,
             "secciones_totales": 1000,
-            "mde_ancova_pts": redondear(mde_base * math.sqrt(1.0 + 9 * icc_muni), 2),
+            "mde_ancova_pts": redondear(mde_base_unrounded * math.sqrt(1.0 + 9 * icc_muni), 2),
             "detecta_mitad_meta_c0": False,
         },
     ]

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Módulo de Utilidades de Formato y Redondeo Unificado
